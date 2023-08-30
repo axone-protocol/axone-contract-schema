@@ -1,0 +1,150 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryMsg",
+  "description": "Query messages",
+  "oneOf": [
+    {
+      "title": "Bucket",
+      "description": "Bucket returns the bucket information.",
+      "type": "object",
+      "required": [
+        "bucket"
+      ],
+      "properties": {
+        "bucket": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Object",
+      "description": "Object returns the object information with the given id.",
+      "type": "object",
+      "required": [
+        "object"
+      ],
+      "properties": {
+        "object": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "description": "The id of the object to get.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Objects",
+      "description": "Objects returns the list of objects in the bucket with support for pagination.",
+      "type": "object",
+      "required": [
+        "objects"
+      ],
+      "properties": {
+        "objects": {
+          "type": "object",
+          "properties": {
+            "address": {
+              "description": "The owner of the objects to get.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "after": {
+              "description": "The point in the sequence to start returning objects.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "first": {
+              "description": "The number of objects to return.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint32",
+              "minimum": 0.0
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "ObjectData",
+      "description": "ObjectData returns the content of the object with the given id.",
+      "type": "object",
+      "required": [
+        "object_data"
+      ],
+      "properties": {
+        "object_data": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "description": "The id of the object to get.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "ObjectPins",
+      "description": "ObjectPins returns the list of addresses that pinned the object with the given id with support for pagination.",
+      "type": "object",
+      "required": [
+        "object_pins"
+      ],
+      "properties": {
+        "object_pins": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "after": {
+              "description": "The point in the sequence to start returning pins.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "first": {
+              "description": "The number of pins to return.",
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint32",
+              "minimum": 0.0
+            },
+            "id": {
+              "description": "The id of the object to get the pins for.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

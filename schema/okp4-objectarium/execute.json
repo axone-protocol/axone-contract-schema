@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecuteMsg",
+  "description": "Execute messages",
+  "oneOf": [
+    {
+      "title": "StoreObject",
+      "description": "StoreObject store an object to the bucket and make the sender the owner of the object. The object is referenced by the hash of its content and this value is returned. If the object is already stored, an error is returned.\n\nThe \"pin\" parameter specifies if the object should be pinned for the sender. In such case, the object cannot be removed (forget) from the storage.\n\nThe \"compression_algorithm\" parameter specifies the algorithm for compressing the object before storing it in the storage, which is optional. If no algorithm is specified, the algorithm used is the first algorithm of the bucket configuration limits. Note that the chosen algorithm can save storage space, but it will increase CPU usage. Depending on the chosen compression algorithm and the achieved compression ratio, the gas cost of the operation will vary, either increasing or decreasing.",
+      "type": "object",
+      "required": [
+        "store_object"
+      ],
+      "properties": {
+        "store_object": {
+          "type": "object",
+          "required": [
+            "data",
+            "pin"
+          ],
+          "properties": {
+            "compression_algorithm": {
+              "description": "Specifies the compression algorithm to use when storing the object. If None, the first algorithm specified in the list of accepted compression algorithms of the bucket is used (see [BucketLimits::accepted_compression_algorithms]).",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/CompressionAlgorithm"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "data": {
+              "description": "The content of the object to store.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Binary"
+                }
+              ]
+            },
+            "pin": {
+              "description": "Specifies if the object should be pinned for the sender.",
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "ForgetObject",
+      "description": "ForgetObject first unpin the object from the bucket for the considered sender, then remove it from the storage if it is not pinned anymore. If the object is pinned for other senders, it is not removed from the storage and an error is returned. If the object is not pinned for the sender, this is a no-op.",
+      "type": "object",
+      "required": [
+        "forget_object"
+      ],
+      "properties": {
+        "forget_object": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "PinObject",
+      "description": "PinObject pins the object in the bucket for the considered sender. If the object is already pinned for the sender, this is a no-op. While an object is pinned, it cannot be removed from the storage.",
+      "type": "object",
+      "required": [
+        "pin_object"
+      ],
+      "properties": {
+        "pin_object": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "UnpinObject",
+      "description": "UnpinObject unpins the object in the bucket for the considered sender. If the object is not pinned for the sender, this is a no-op. The object can be removed from the storage if it is not pinned anymore.",
+      "type": "object",
+      "required": [
+        "unpin_object"
+      ],
+      "properties": {
+        "unpin_object": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ],
+  "definitions": {
+    "Binary": {
+      "description": "Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.\n\nThis is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.",
+      "type": "string"
+    },
+    "CompressionAlgorithm": {
+      "description": "CompressionAlgorithm is an enumeration that defines the different compression algorithms supported for compressing the content of objects. The compression algorithm specified here are relevant algorithms for compressing data on-chain, which means that they are fast to compress and decompress, and have a low computational cost.\n\nThe order of the compression algorithms is based on their estimated computational cost (quite opinionated) during both compression and decompression, ranging from the lowest to the highest. This particular order is utilized to establish the default compression algorithm for storing an object.",
+      "oneOf": [
+        {
+          "title": "Passthrough",
+          "description": "Represents no compression algorithm. The object is stored as is without any compression.",
+          "type": "string",
+          "enum": [
+            "passthrough"
+          ]
+        },
+        {
+          "title": "Snappy",
+          "description": "Represents the Snappy algorithm. Snappy is a compression/decompression algorithm that does not aim for maximum compression. Instead, it aims for very high speeds and reasonable compression.\n\nSee [the snappy web page](https://google.github.io/snappy/) for more information.",
+          "type": "string",
+          "enum": [
+            "snappy"
+          ]
+        },
+        {
+          "title": "Lzma",
+          "description": "Represents the LZMA algorithm. LZMA is a lossless data compression/decompression algorithm that features a high compression ratio and a variable compression-dictionary size up to 4 GB.\n\nSee [the LZMA wiki page](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm) for more information.",
+          "type": "string",
+          "enum": [
+            "lzma"
+          ]
+        }
+      ]
+    }
+  }
+}

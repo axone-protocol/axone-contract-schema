@@ -1,0 +1,656 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryMsg",
+  "description": "Query messages",
+  "oneOf": [
+    {
+      "title": "Store",
+      "description": "Returns information about the triple store.",
+      "type": "string",
+      "enum": [
+        "store"
+      ]
+    },
+    {
+      "title": "Select",
+      "description": "Returns the resources matching the criteria defined by the provided query.",
+      "type": "object",
+      "required": [
+        "select"
+      ],
+      "properties": {
+        "select": {
+          "type": "object",
+          "required": [
+            "query"
+          ],
+          "properties": {
+            "query": {
+              "description": "The query to execute.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/SelectQuery"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Describe",
+      "description": "Returns a description of the resource identified by the provided IRI as a set of RDF triples serialized in the provided format.",
+      "type": "object",
+      "required": [
+        "describe"
+      ],
+      "properties": {
+        "describe": {
+          "type": "object",
+          "required": [
+            "query"
+          ],
+          "properties": {
+            "format": {
+              "description": "The format in which the triples are serialized. If not provided, the default format is [Turtle](https://www.w3.org/TR/turtle/) format.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/DataFormat"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "query": {
+              "description": "The query to execute.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/DescribeQuery"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Construct",
+      "description": "Returns the resources matching the criteria defined by the provided query as a set of RDF triples serialized in the provided format.",
+      "type": "object",
+      "required": [
+        "construct"
+      ],
+      "properties": {
+        "construct": {
+          "type": "object",
+          "required": [
+            "query"
+          ],
+          "properties": {
+            "format": {
+              "description": "The format in which the triples are serialized. If not provided, the default format is [Turtle](https://www.w3.org/TR/turtle/) format.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/DataFormat"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "query": {
+              "description": "The query to execute.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ConstructQuery"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ],
+  "definitions": {
+    "ConstructQuery": {
+      "title": "ConstructQuery",
+      "description": "Represents a CONSTRUCT query over the triple store, allowing to retrieve a set of triples serialized in a specific format.",
+      "type": "object",
+      "required": [
+        "construct",
+        "prefixes",
+        "where"
+      ],
+      "properties": {
+        "construct": {
+          "description": "The triples to construct. If nothing is provided, the patterns from the `where` clause are used for construction.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TriplePattern"
+          }
+        },
+        "prefixes": {
+          "description": "The prefixes used in the query.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Prefix"
+          }
+        },
+        "where": {
+          "description": "The WHERE clause. This clause is used to specify the triples to construct using variable bindings.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WhereCondition"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "DataFormat": {
+      "title": "DataFormat",
+      "description": "Represents the format in which the data are serialized, for example when returned by a query or when inserted in the store.",
+      "oneOf": [
+        {
+          "title": "RDF XML",
+          "description": "Output in [RDF/XML](https://www.w3.org/TR/rdf-syntax-grammar/) format.",
+          "type": "string",
+          "enum": [
+            "rdf_xml"
+          ]
+        },
+        {
+          "title": "Turtle",
+          "description": "Output in [Turtle](https://www.w3.org/TR/turtle/) format.",
+          "type": "string",
+          "enum": [
+            "turtle"
+          ]
+        },
+        {
+          "title": "N-Triples",
+          "description": "Output in [N-Triples](https://www.w3.org/TR/n-triples/) format.",
+          "type": "string",
+          "enum": [
+            "n_triples"
+          ]
+        },
+        {
+          "title": "N-Quads",
+          "description": "Output in [N-Quads](https://www.w3.org/TR/n-quads/) format.",
+          "type": "string",
+          "enum": [
+            "n_quads"
+          ]
+        }
+      ]
+    },
+    "DescribeQuery": {
+      "title": "DescribeQuery",
+      "description": "Represents a DESCRIBE query over the triple store, allowing to retrieve a description of a resource as a set of triples serialized in a specific format.",
+      "type": "object",
+      "required": [
+        "prefixes",
+        "resource",
+        "where"
+      ],
+      "properties": {
+        "prefixes": {
+          "description": "The prefixes used in the query.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Prefix"
+          }
+        },
+        "resource": {
+          "description": "The resource to describe given as a variable or a node.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/VarOrNamedNode"
+            }
+          ]
+        },
+        "where": {
+          "description": "The WHERE clause. This clause is used to specify the resource identifier to describe using variable bindings.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WhereCondition"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "IRI": {
+      "title": "IRI",
+      "description": "Represents an IRI.",
+      "oneOf": [
+        {
+          "title": "Prefixed",
+          "description": "An IRI prefixed with a prefix. The prefixed IRI is expanded to a full IRI using the prefix definition specified in the query. For example, the prefixed IRI `rdf:type` is expanded to `http://www.w3.org/1999/02/22-rdf-syntax-ns#type`.",
+          "type": "object",
+          "required": [
+            "prefixed"
+          ],
+          "properties": {
+            "prefixed": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "Full",
+          "description": "A full IRI.",
+          "type": "object",
+          "required": [
+            "full"
+          ],
+          "properties": {
+            "full": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Literal": {
+      "title": "Literal",
+      "description": "An RDF [literal](https://www.w3.org/TR/rdf11-concepts/#dfn-literal).",
+      "oneOf": [
+        {
+          "title": "Simple",
+          "description": "A [simple literal](https://www.w3.org/TR/rdf11-concepts/#dfn-simple-literal) without datatype or language form.",
+          "type": "object",
+          "required": [
+            "simple"
+          ],
+          "properties": {
+            "simple": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "LanguageTaggedString",
+          "description": "A [language-tagged string](https://www.w3.org/TR/rdf11-concepts/#dfn-language-tagged-string)",
+          "type": "object",
+          "required": [
+            "language_tagged_string"
+          ],
+          "properties": {
+            "language_tagged_string": {
+              "type": "object",
+              "required": [
+                "language",
+                "value"
+              ],
+              "properties": {
+                "language": {
+                  "description": "The [language tag](https://www.w3.org/TR/rdf11-concepts/#dfn-language-tag).",
+                  "type": "string"
+                },
+                "value": {
+                  "description": "The [lexical form](https://www.w3.org/TR/rdf11-concepts/#dfn-lexical-form).",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "TypedValue",
+          "description": "A value with a datatype.",
+          "type": "object",
+          "required": [
+            "typed_value"
+          ],
+          "properties": {
+            "typed_value": {
+              "type": "object",
+              "required": [
+                "datatype",
+                "value"
+              ],
+              "properties": {
+                "datatype": {
+                  "description": "The [datatype IRI](https://www.w3.org/TR/rdf11-concepts/#dfn-datatype-iri).",
+                  "allOf": [
+                    {
+                      "$ref": "#/definitions/IRI"
+                    }
+                  ]
+                },
+                "value": {
+                  "description": "The [lexical form](https://www.w3.org/TR/rdf11-concepts/#dfn-lexical-form).",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Node": {
+      "title": "Node",
+      "description": "Represents either an IRI (named node) or a blank node.",
+      "oneOf": [
+        {
+          "title": "NamedNode",
+          "description": "An RDF [IRI](https://www.w3.org/TR/rdf11-concepts/#dfn-iri).",
+          "type": "object",
+          "required": [
+            "named_node"
+          ],
+          "properties": {
+            "named_node": {
+              "$ref": "#/definitions/IRI"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "BlankNode",
+          "description": "An RDF [blank node](https://www.w3.org/TR/rdf11-concepts/#dfn-blank-node).",
+          "type": "object",
+          "required": [
+            "blank_node"
+          ],
+          "properties": {
+            "blank_node": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Prefix": {
+      "title": "Prefix",
+      "description": "Represents a prefix in a [SelectQuery]. A prefix is a shortcut for a namespace used in the query.",
+      "type": "object",
+      "required": [
+        "namespace",
+        "prefix"
+      ],
+      "properties": {
+        "namespace": {
+          "description": "The namespace associated with the prefix.",
+          "type": "string"
+        },
+        "prefix": {
+          "description": "The prefix.",
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "SelectItem": {
+      "title": "SelectItem",
+      "description": "Represents an item to select in a [SelectQuery].",
+      "oneOf": [
+        {
+          "title": "Variable",
+          "description": "Represents a variable.",
+          "type": "object",
+          "required": [
+            "variable"
+          ],
+          "properties": {
+            "variable": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "SelectQuery": {
+      "title": "SelectQuery",
+      "description": "Represents a SELECT query over the triple store, allowing to select variables to return and to filter the results.",
+      "type": "object",
+      "required": [
+        "prefixes",
+        "select",
+        "where"
+      ],
+      "properties": {
+        "limit": {
+          "description": "The maximum number of results to return. If `None`, there is no limit. Note: the value of the limit cannot exceed the maximum query limit defined in the store limitations.",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint32",
+          "minimum": 0.0
+        },
+        "prefixes": {
+          "description": "The prefixes used in the query.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Prefix"
+          }
+        },
+        "select": {
+          "description": "The items to select. Note: the number of items to select cannot exceed the maximum query variable count defined in the store limitations.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SelectItem"
+          }
+        },
+        "where": {
+          "description": "The WHERE clause. If `None`, there is no WHERE clause, i.e. all triples are returned without filtering.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/WhereCondition"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "SimpleWhereCondition": {
+      "title": "SimpleWhereCondition",
+      "description": "Represents a simple condition in a [WhereCondition].",
+      "oneOf": [
+        {
+          "title": "TriplePattern",
+          "description": "Represents a triple pattern, i.e. a condition on a triple based on its subject, predicate and object.",
+          "type": "object",
+          "required": [
+            "triple_pattern"
+          ],
+          "properties": {
+            "triple_pattern": {
+              "$ref": "#/definitions/TriplePattern"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "TriplePattern": {
+      "title": "TriplePattern",
+      "description": "Represents a triple pattern in a [SimpleWhereCondition].",
+      "type": "object",
+      "required": [
+        "object",
+        "predicate",
+        "subject"
+      ],
+      "properties": {
+        "object": {
+          "description": "The object of the triple pattern.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/VarOrNodeOrLiteral"
+            }
+          ]
+        },
+        "predicate": {
+          "description": "The predicate of the triple pattern.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/VarOrNode"
+            }
+          ]
+        },
+        "subject": {
+          "description": "The subject of the triple pattern.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/VarOrNode"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "VarOrNamedNode": {
+      "title": "VarOrNamedNode {",
+      "description": "Represents either a variable or a named node (IRI).",
+      "oneOf": [
+        {
+          "title": "Variable",
+          "description": "A variable.",
+          "type": "object",
+          "required": [
+            "variable"
+          ],
+          "properties": {
+            "variable": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "NamedNode",
+          "description": "An RDF [IRI](https://www.w3.org/TR/rdf11-concepts/#dfn-iri).",
+          "type": "object",
+          "required": [
+            "named_node"
+          ],
+          "properties": {
+            "named_node": {
+              "$ref": "#/definitions/IRI"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "VarOrNode": {
+      "title": "VarOrNode",
+      "description": "Represents either a variable or a node.",
+      "oneOf": [
+        {
+          "title": "Variable",
+          "description": "A variable.",
+          "type": "object",
+          "required": [
+            "variable"
+          ],
+          "properties": {
+            "variable": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "Node",
+          "description": "A node, i.e. an IRI or a blank node.",
+          "type": "object",
+          "required": [
+            "node"
+          ],
+          "properties": {
+            "node": {
+              "$ref": "#/definitions/Node"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "VarOrNodeOrLiteral": {
+      "title": "VarOrNodeOrLiteral",
+      "description": "Represents either a variable, a node or a literal.",
+      "oneOf": [
+        {
+          "title": "Variable",
+          "description": "A variable.",
+          "type": "object",
+          "required": [
+            "variable"
+          ],
+          "properties": {
+            "variable": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "Node",
+          "description": "A node, i.e. an IRI or a blank node.",
+          "type": "object",
+          "required": [
+            "node"
+          ],
+          "properties": {
+            "node": {
+              "$ref": "#/definitions/Node"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "Literal",
+          "description": "An RDF [literal](https://www.w3.org/TR/rdf11-concepts/#dfn-literal), i.e. a simple literal, a language-tagged string or a typed value.",
+          "type": "object",
+          "required": [
+            "literal"
+          ],
+          "properties": {
+            "literal": {
+              "$ref": "#/definitions/Literal"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "WhereCondition": {
+      "title": "WhereCondition",
+      "description": "Represents a condition in a [WhereClause].",
+      "oneOf": [
+        {
+          "title": "Simple",
+          "description": "Represents a simple condition.",
+          "type": "object",
+          "required": [
+            "simple"
+          ],
+          "properties": {
+            "simple": {
+              "$ref": "#/definitions/SimpleWhereCondition"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

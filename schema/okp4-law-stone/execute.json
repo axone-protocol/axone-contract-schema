@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecuteMsg",
+  "description": "Execute messages",
+  "oneOf": [
+    {
+      "title": "BreakStone",
+      "description": "Break the stone making this contract unusable, by clearing all the related resources: - Unpin all the pinned objects on `okp4-objectarium` contracts, if any. - Forget the main program (i.e. or at least unpin it). Only the contract admin is authorized to break it, if any. If already broken, this is a no-op.",
+      "type": "string",
+      "enum": [
+        "break_stone"
+      ]
+    }
+  ]
+}
