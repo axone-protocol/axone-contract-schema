@@ -36,7 +36,7 @@ jobs:
       - name: Setup node environment (for building)
         uses: actions/setup-node@v3
         with:
-          node-version: 16.19.0
+          node-version: 18.12.0
 
       - name: Installing quicktype
         run: |
@@ -70,7 +70,7 @@ jobs:
       - name: Setup node environment (for building)
         uses: actions/setup-node@v3
         with:
-          node-version: 16.19.0
+          node-version: 18.12.0
 
       - name: Fetch dependencies
         run: yarn --cwd ts/${{ matrix.package }}
