@@ -1,0 +1,79 @@
+name: Build
+
+on:
+  workflow_call:
+
+  push:
+    branches: [main]
+
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  schema-matrix:
+    runs-on: ubuntu-22.04
+    outputs:
+      schema: ${{ steps.set-matrix.outputs.schema }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: set-matrix
+        run: echo "::set-output name=schema::$(ls schema/ | jq -R -s -c 'split("\n")[:-1]' )"
+
+  generate-sources:
+    runs-on: ubuntu-22.04
+    needs: schema-matrix
+    strategy:
+      matrix: 
+        schema: ${{ fromJson(needs.schema-matrix.outputs.schema) }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Setup node environment (for building)
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.19.0
+
+      - name: Installing quicktype
+        run: |
+          yarn global add quicktype
+          echo "$(yarn global bin)" >> $GITHUB_PATH
+        
+      - name: Generate sources
+        run: |
+          quicktype -s schema schema/${{ matrix.schema }}/*.json -o ts/${{ matrix.schema }}/gen-ts/schema.ts --prefer-types 
+  
+  ts-matrix:
+    runs-on: ubuntu-22.04
+    needs: generate-sources
+    outputs:
+      package: ${{ steps.set-matrix.outputs.package }}
+    steps:
+      - uses: actions/checkout@v3
+      - id: set-matrix
+        run: echo "::set-output name=package::$(ls ts/ | jq -R -s -c 'split("\n")[:-1]' )"
+
+  build-typescript:
+    runs-on: ubuntu-22.04
+    needs: ts-matrix
+    strategy:
+      matrix: 
+        package: ${{ fromJson(needs.ts-matrix.outputs.package) }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Setup node environment (for building)
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.19.0
+
+      - name: Fetch dependencies
+        run: yarn --cwd ts/${{ matrix.package }}
+
+      - name: Build
+        run: yarn --cwd ts/${{ matrix.package }} build
