@@ -45,7 +45,11 @@ jobs:
         
       - name: Generate sources
         run: |
-          quicktype -s schema schema/${{ matrix.schema }}/*.json -o ts/${{ matrix.schema }}/gen-ts/schema.ts --prefer-types 
+          SCHEMA=${{ matrix.schema }}
+          DEST=$(echo "ts/${SCHEMA/okp4-/""}-schema/gen-ts")
+          mkdir ${DEST}
+
+          quicktype -s schema schema/${{ matrix.schema }}/*.json -o ${DEST}/schema.ts --prefer-types 
   
   ts-matrix:
     runs-on: ubuntu-22.04
