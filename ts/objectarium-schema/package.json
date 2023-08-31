@@ -1,14 +1,14 @@
 {
-    "name": "@okp4/cognitarium-schema",
+    "name": "@okp4/objectarium-schema",
     "version": "1.0.0",
     "private": false,
     "repository": {
         "type": "git",
         "url": "git@github.com:okp4/okp4-contract-schema.git",
-        "directory": "ts/cognitarium-schema"
+        "directory": "ts/objectarium-schema"
     },
     "license": "BSD-3-Clause",
-    "description": "Typescript schema for okp4-cognitarium smart contract",
+    "description": "Typescript schema for okp4-objectarium smart contract",
     "homepage": "https://github.com/okp4/okp4-contract-schema",
     "author": {
         "name": "OKP4",
@@ -18,7 +18,7 @@
         "node": "^18.12",
         "yarn": "~1.22.17"
     },
-    "files": [
+    "workspaces": [
         "dist"
     ],
     "devDependencies": {
