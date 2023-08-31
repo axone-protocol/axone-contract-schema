@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-22.04
     needs: schema-matrix
     strategy:
-      matrix: 
+      matrix:
         schema: ${{ fromJson(needs.schema-matrix.outputs.schema) }}
     steps:
       - name: Check out repository
@@ -42,7 +42,7 @@ jobs:
         run: |
           yarn global add quicktype
           echo "$(yarn global bin)" >> $GITHUB_PATH
-      
+
       - name: Prepare package path
         id: package
         run: |
@@ -53,8 +53,8 @@ jobs:
 
       - name: Generate sources
         run: |
-          quicktype -s schema schema/${{ matrix.schema }}/*.json -o ${{ steps.package.outputs.DESTINATION }}/gen-ts/schema.ts --prefer-types 
-          
+          quicktype -s schema schema/${{ matrix.schema }}/*.json -o ${{ steps.package.outputs.DESTINATION }}/gen-ts/schema.ts --prefer-types
+
       - name: Fetch dependencies
         run: yarn --cwd ${{ steps.package.outputs.DESTINATION }}
 
