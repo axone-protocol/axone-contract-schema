@@ -23,7 +23,7 @@ jobs:
       - id: set-matrix
         run: echo "::set-output name=schema::$(ls schema/ | jq -R -s -c 'split("\n")[:-1]' )"
 
-  generate-sources:
+  build-ts:
     runs-on: ubuntu-22.04
     needs: schema-matrix
     strategy:
@@ -42,42 +42,21 @@ jobs:
         run: |
           yarn global add quicktype
           echo "$(yarn global bin)" >> $GITHUB_PATH
-        
-      - name: Generate sources
+      
+      - name: Prepare package path
+        id: package
         run: |
           SCHEMA=${{ matrix.schema }}
-          DEST=$(echo "ts/${SCHEMA/okp4-/""}-schema/gen-ts")
-          mkdir ${DEST}
+          PACKAGE_SRC=$(echo "ts/${SCHEMA/okp4-/""}-schema")
+          mkdir ${PACKAGE_SRC}/gen-ts
+          echo "DESTINATION=$(echo "ts/${SCHEMA/okp4-/""}-schema")" >> $GITHUB_OUTPUT
 
-          quicktype -s schema schema/${{ matrix.schema }}/*.json -o ${DEST}/schema.ts --prefer-types 
-  
-  ts-matrix:
-    runs-on: ubuntu-22.04
-    needs: generate-sources
-    outputs:
-      package: ${{ steps.set-matrix.outputs.package }}
-    steps:
-      - uses: actions/checkout@v3
-      - id: set-matrix
-        run: echo "::set-output name=package::$(ls ts/ | jq -R -s -c 'split("\n")[:-1]' )"
-
-  build-typescript:
-    runs-on: ubuntu-22.04
-    needs: ts-matrix
-    strategy:
-      matrix: 
-        package: ${{ fromJson(needs.ts-matrix.outputs.package) }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-
-      - name: Setup node environment (for building)
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18.12.0
-
+      - name: Generate sources
+        run: |
+          quicktype -s schema schema/${{ matrix.schema }}/*.json -o ${{ steps.package.outputs.DESTINATION }}/gen-ts/schema.ts --prefer-types 
+          
       - name: Fetch dependencies
-        run: yarn --cwd ts/${{ matrix.package }}
+        run: yarn --cwd ${{ steps.package.outputs.DESTINATION }}
 
       - name: Build
-        run: yarn --cwd ts/${{ matrix.package }} build
+        run: yarn --cwd ${{ steps.package.outputs.DESTINATION }} build
