@@ -70,7 +70,7 @@ jobs:
       - name: Copy updated schema
         run: |
           rm -rf schema/*
-          rsync -rmv --include='contracts/*' --include='*.json' --exclude='*' tmp/ schema/
+          rsync -rmv --include='*/' --include='*/schema/raw/*.json' --exclude='*' tmp/contracts/ schema/
           find schema -type f -name "*.json" -exec sh -c 'mv "{}" "$(dirname "{}" | xargs dirname | xargs dirname)"' \;
           git rm --ignore-unmatch --cached tmp
           rm -rf .git/modules/tmp
