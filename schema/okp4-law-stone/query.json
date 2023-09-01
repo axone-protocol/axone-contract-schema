@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryMsg",
+  "description": "Query messages",
+  "oneOf": [
+    {
+      "title": "Ask",
+      "description": "If not broken, ask the logic module the provided query with the law program loaded.",
+      "type": "object",
+      "required": [
+        "ask"
+      ],
+      "properties": {
+        "ask": {
+          "type": "object",
+          "required": [
+            "query"
+          ],
+          "properties": {
+            "query": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "Program",
+      "description": "If not broken, returns the law program location information.",
+      "type": "string",
+      "enum": [
+        "program"
+      ]
+    }
+  ]
+}

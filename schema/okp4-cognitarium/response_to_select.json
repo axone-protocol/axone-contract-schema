@@ -1,0 +1,197 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SelectResponse",
+  "description": "Represents the response of a [QueryMsg::Select] query.",
+  "type": "object",
+  "required": [
+    "head",
+    "results"
+  ],
+  "properties": {
+    "head": {
+      "description": "The head of the response, i.e. the set of variables mentioned in the results.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Head"
+        }
+      ]
+    },
+    "results": {
+      "description": "The results of the select query.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/Results"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Head": {
+      "title": "Head",
+      "description": "Represents the head of a [SelectResponse].",
+      "type": "object",
+      "required": [
+        "vars"
+      ],
+      "properties": {
+        "vars": {
+          "description": "The variables selected in the query.",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "IRI": {
+      "title": "IRI",
+      "description": "Represents an IRI.",
+      "oneOf": [
+        {
+          "title": "Prefixed",
+          "description": "An IRI prefixed with a prefix. The prefixed IRI is expanded to a full IRI using the prefix definition specified in the query. For example, the prefixed IRI `rdf:type` is expanded to `http://www.w3.org/1999/02/22-rdf-syntax-ns#type`.",
+          "type": "object",
+          "required": [
+            "prefixed"
+          ],
+          "properties": {
+            "prefixed": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "Full",
+          "description": "A full IRI.",
+          "type": "object",
+          "required": [
+            "full"
+          ],
+          "properties": {
+            "full": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Results": {
+      "title": "Results",
+      "description": "Represents the results of a [SelectResponse].",
+      "type": "object",
+      "required": [
+        "bindings"
+      ],
+      "properties": {
+        "bindings": {
+          "description": "The bindings of the results.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/definitions/Value"
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Value": {
+      "title": "Value",
+      "oneOf": [
+        {
+          "title": "URI",
+          "description": "Represents an IRI.",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "uri"
+              ]
+            },
+            "value": {
+              "description": "The value of the IRI.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/IRI"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "Literal",
+          "description": "Represents a literal S with optional language tag L or datatype IRI D.",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "datatype": {
+              "description": "The datatype of the literal.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/IRI"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "literal"
+              ]
+            },
+            "value": {
+              "description": "The value of the literal.",
+              "type": "string"
+            },
+            "xml:lang": {
+              "description": "The language tag of the literal.",
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "BlankNode",
+          "description": "Represents a blank node.",
+          "type": "object",
+          "required": [
+            "type",
+            "value"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "blank_node"
+              ]
+            },
+            "value": {
+              "description": "The identifier of the blank node.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ObjectPinsResponse",
+  "description": "ObjectPinsResponse is the response of the GetObjectPins query.",
+  "type": "object",
+  "required": [
+    "data",
+    "page_info"
+  ],
+  "properties": {
+    "data": {
+      "description": "The list of addresses that pinned the object.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "page_info": {
+      "description": "The page information.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/PageInfo"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "PageInfo": {
+      "title": "PageInfo",
+      "description": "PageInfo is the page information returned for paginated queries.",
+      "type": "object",
+      "required": [
+        "cursor",
+        "has_next_page"
+      ],
+      "properties": {
+        "cursor": {
+          "description": "The cursor to the next page.",
+          "type": "string"
+        },
+        "has_next_page": {
+          "description": "Tells if there is a next page.",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AskResponse",
+  "type": "object",
+  "required": [
+    "gas_used",
+    "height"
+  ],
+  "properties": {
+    "answer": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/Answer"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "gas_used": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0.0
+    },
+    "height": {
+      "type": "integer",
+      "format": "uint64",
+      "minimum": 0.0
+    }
+  },
+  "definitions": {
+    "Answer": {
+      "type": "object",
+      "required": [
+        "has_more",
+        "results",
+        "success",
+        "variables"
+      ],
+      "properties": {
+        "has_more": {
+          "type": "boolean"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Result"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "variables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Result": {
+      "type": "object",
+      "required": [
+        "substitutions"
+      ],
+      "properties": {
+        "substitutions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Substitution"
+          }
+        }
+      }
+    },
+    "Substitution": {
+      "type": "object",
+      "required": [
+        "term",
+        "variable"
+      ],
+      "properties": {
+        "term": {
+          "$ref": "#/definitions/Term"
+        },
+        "variable": {
+          "type": "string"
+        }
+      }
+    },
+    "Term": {
+      "type": "object",
+      "required": [
+        "arguments",
+        "name"
+      ],
+      "properties": {
+        "arguments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Term"
+          }
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

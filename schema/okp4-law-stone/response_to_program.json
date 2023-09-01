@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ProgramResponse",
+  "description": "ProgramResponse carry elements to locate the program in a `okp4-objectarium` contract.",
+  "type": "object",
+  "required": [
+    "object_id",
+    "storage_address"
+  ],
+  "properties": {
+    "object_id": {
+      "description": "The program object id in the `okp4-objectarium` contract.",
+      "type": "string"
+    },
+    "storage_address": {
+      "description": "The `okp4-objectarium` contract address on which the law program is stored.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}
