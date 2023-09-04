@@ -27,5 +27,6 @@
     "scripts": {
         "clean": "rm -rf gen-ts && mkdir gen-ts",
         "build": "tsc"
-    }
+    },
+    "exports": "./dist/schema.d.ts"
 }
