@@ -86,18 +86,12 @@ jobs:
           rm -rf .git/modules/tmp
           rm -rf tmp
 
-      - name: Search for all modified files that involve the creation of PR or commit to main
-        id: changed-files
-        uses: tj-actions/changed-files@v37.6.1
-        with:
-          files: |
-            *.json
-
       - name: Commit documentation draft
         uses: stefanzweifel/git-auto-commit-action@v4
-        if: ${{ github.event.inputs.draft == 'true' && steps.changed-files.outputs.any_changed }}
+        if: ${{ github.event.inputs.draft == 'true' }}
         with:
           commit_user_name: ${{ secrets.OKP4_BOT_GIT_COMMITTER_NAME }}
           commit_user_email: ${{ secrets.OKP4_BOT_GIT_COMMITTER_EMAIL }}
           commit_author: ${{ secrets.OKP4_BOT_GIT_AUTHOR_NAME }} <${{ secrets.OKP4_BOT_GIT_AUTHOR_EMAIL }}>
           commit_message: "feat: update schema files"
+          file_pattern: '*.json'
