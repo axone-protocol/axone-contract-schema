@@ -15,6 +15,16 @@ on:
         default: false
 
 jobs:
+  check-params:
+    runs-on: ubuntu-22.04
+    steps:
+      - name:
+        run: |
+          if [[ ! ${{ github.event.inputs.version }} =~ ^v[0-9]+(\.[0-9]+)* ]] && [[ ! ${{ github.event.inputs.version }} = "main" ]]; then
+            >&2 echo "❌ Invalid github ref given '${{ github.event.inputs.version }}', should be eithier 'main' or 'v*'."
+            exit 1
+          fi
+
   update-schema:
     runs-on: ubuntu-22.04
     steps:
