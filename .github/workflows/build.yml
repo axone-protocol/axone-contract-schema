@@ -19,7 +19,7 @@ jobs:
     outputs:
       schema: ${{ steps.set-matrix.outputs.schema }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - id: set-matrix
         run: echo "::set-output name=schema::$(ls schema/ | jq -R -s -c 'split("\n")[:-1]' )"
 
@@ -31,7 +31,7 @@ jobs:
         schema: ${{ fromJson(needs.schema-matrix.outputs.schema) }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup node environment (for building)
         uses: actions/setup-node@v3
