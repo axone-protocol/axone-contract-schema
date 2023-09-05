@@ -15,19 +15,16 @@ on:
         default: false
 
 jobs:
-  check-params:
-    runs-on: ubuntu-22.04
-    steps:
-      - name:
-        run: |
-          if [[ ! ${{ github.event.inputs.version }} =~ ^v[0-9]+(\.[0-9]+)* ]] && [[ ! ${{ github.event.inputs.version }} = "main" ]]; then
-            >&2 echo "❌ Invalid github ref given '${{ github.event.inputs.version }}', should be eithier 'main' or 'v*'."
-            exit 1
-          fi
-
   update-schema:
     runs-on: ubuntu-22.04
     steps:
+      - name: Checks params
+        run: |
+          if [[ ! ${{ github.event.inputs.ref }} =~ ^v[0-9]+(\.[0-9]+)* ]] && [[ ! ${{ github.event.inputs.ref }} = "main" ]]; then
+            >&2 echo "❌ Invalid github ref given '${{ github.event.inputs.ref }}', should be eithier 'main' or 'v*'."
+            exit 1
+          fi
+
       - name: Check out repository
         uses: actions/checkout@v4
         with:
@@ -37,7 +34,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.version }}
+          ref: ${{ github.event.inputs.ref }}
           repository: okp4/contracts
           token: ${{ secrets.OKP4_TOKEN }}
           path: tmp
