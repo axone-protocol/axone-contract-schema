@@ -10,6 +10,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+
+  build:
+    uses: ./.github/workflows/build.yml
+
   schema-matrix:
     runs-on: ubuntu-22.04
     outputs:
@@ -21,7 +27,10 @@ jobs:
 
   publish-npm-package:
     runs-on: ubuntu-22.04
-    needs: schema-matrix
+    needs:
+      - lint
+      - build
+      - schema-matrix
     strategy:
       matrix:
         registry:
