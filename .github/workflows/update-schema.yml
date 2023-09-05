@@ -83,6 +83,11 @@ jobs:
           rm -rf .git/modules/tmp
           rm -rf tmp
 
+      - name: "[TS] Bump npm package version"
+        if: ${{ github.event.inputs.draft == 'false' }}
+        run: |
+          find ts/* -maxdepth 0 -type d -exec sh -c 'cd {} && npm version ${{ github.event.inputs.ref }} --allow-same-version --no-git-tag-version' \;     
+
       - name: Commit documentation draft
         uses: stefanzweifel/git-auto-commit-action@v4
         if: ${{ github.event.inputs.draft == 'true' }}
