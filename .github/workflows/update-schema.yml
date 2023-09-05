@@ -95,7 +95,6 @@ jobs:
 
       - name: Commit documentation draft
         uses: stefanzweifel/git-auto-commit-action@v4
-        if: ${{ github.event.inputs.draft == 'true' }}
         with:
           commit_user_name: ${{ secrets.OKP4_BOT_GIT_COMMITTER_NAME }}
           commit_user_email: ${{ secrets.OKP4_BOT_GIT_COMMITTER_EMAIL }}
