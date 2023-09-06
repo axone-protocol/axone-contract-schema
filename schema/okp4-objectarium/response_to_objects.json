@@ -44,14 +44,6 @@
           "enum": [
             "snappy"
           ]
-        },
-        {
-          "title": "Lzma",
-          "description": "Represents the LZMA algorithm. LZMA is a lossless data compression/decompression algorithm that features a high compression ratio and a variable compression-dictionary size up to 4 GB.\n\nSee [the LZMA wiki page](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm) for more information.",
-          "type": "string",
-          "enum": [
-            "lzma"
-          ]
         }
       ]
     },

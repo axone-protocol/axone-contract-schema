@@ -1,6 +1,6 @@
 {
     "name": "@okp4/cognitarium-schema",
-    "version": "2.1.0",
+    "version": "v2.1.0",
     "private": false,
     "repository": {
         "type": "git",

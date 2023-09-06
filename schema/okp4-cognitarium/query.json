@@ -77,82 +77,9 @@
         }
       },
       "additionalProperties": false
-    },
-    {
-      "title": "Construct",
-      "description": "Returns the resources matching the criteria defined by the provided query as a set of RDF triples serialized in the provided format.",
-      "type": "object",
-      "required": [
-        "construct"
-      ],
-      "properties": {
-        "construct": {
-          "type": "object",
-          "required": [
-            "query"
-          ],
-          "properties": {
-            "format": {
-              "description": "The format in which the triples are serialized. If not provided, the default format is [Turtle](https://www.w3.org/TR/turtle/) format.",
-              "anyOf": [
-                {
-                  "$ref": "#/definitions/DataFormat"
-                },
-                {
-                  "type": "null"
-                }
-              ]
-            },
-            "query": {
-              "description": "The query to execute.",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ConstructQuery"
-                }
-              ]
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
     }
   ],
   "definitions": {
-    "ConstructQuery": {
-      "title": "ConstructQuery",
-      "description": "Represents a CONSTRUCT query over the triple store, allowing to retrieve a set of triples serialized in a specific format.",
-      "type": "object",
-      "required": [
-        "construct",
-        "prefixes",
-        "where"
-      ],
-      "properties": {
-        "construct": {
-          "description": "The triples to construct. If nothing is provided, the patterns from the `where` clause are used for construction.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/TriplePattern"
-          }
-        },
-        "prefixes": {
-          "description": "The prefixes used in the query.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Prefix"
-          }
-        },
-        "where": {
-          "description": "The WHERE clause. This clause is used to specify the triples to construct using variable bindings.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/WhereCondition"
-          }
-        }
-      },
-      "additionalProperties": false
-    },
     "DataFormat": {
       "title": "DataFormat",
       "description": "Represents the format in which the data are serialized, for example when returned by a query or when inserted in the store.",
