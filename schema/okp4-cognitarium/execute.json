@@ -54,11 +54,12 @@
           "type": "object",
           "required": [
             "delete",
-            "prefixes"
+            "prefixes",
+            "where"
           ],
           "properties": {
             "delete": {
-              "description": "The items to delete.",
+              "description": "Specifies the specific triple patterns to delete. If nothing is provided, the patterns from the `where` clause are used for deletion.",
               "type": "array",
               "items": {
                 "$ref": "#/definitions/TriplePattern"
@@ -72,11 +73,8 @@
               }
             },
             "where": {
-              "description": "The WHERE clause to apply. If not provided, all the RDF triples are considered.",
-              "type": [
-                "array",
-                "null"
-              ],
+              "description": "Defines the patterns that data (RDF triples) should match in order for it to be considered for deletion.",
+              "type": "array",
               "items": {
                 "$ref": "#/definitions/WhereCondition"
               }
@@ -283,7 +281,7 @@
     },
     "Prefix": {
       "title": "Prefix",
-      "description": "Represents a prefix in a [SelectQuery]. A prefix is a shortcut for a namespace used in the query.",
+      "description": "Represents a prefix, i.e. a shortcut for a namespace used in a query.",
       "type": "object",
       "required": [
         "namespace",
