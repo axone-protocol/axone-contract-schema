@@ -221,7 +221,7 @@
           "minimum": 0.0
         },
         "max_page_size": {
-          "description": "The maximum elements a page can contains.\n\nShall be less than `u32::MAX - 1`. Default to '30' if not set.",
+          "description": "The maximum elements a page can contain.\n\nShall be less than `u32::MAX - 1`. Default to '30' if not set.",
           "default": 30,
           "type": "integer",
           "format": "uint32",

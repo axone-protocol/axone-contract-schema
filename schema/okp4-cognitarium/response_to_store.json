@@ -47,7 +47,7 @@
       ],
       "properties": {
         "max_byte_size": {
-          "description": "The maximum number of bytes the store can contains. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any.",
+          "description": "The maximum number of bytes the store can contain. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any.",
           "allOf": [
             {
               "$ref": "#/definitions/Uint128"
@@ -55,7 +55,7 @@
           ]
         },
         "max_insert_data_byte_size": {
-          "description": "The maximum number of bytes an insert data query can contains.",
+          "description": "The maximum number of bytes an insert data query can contain.",
           "allOf": [
             {
               "$ref": "#/definitions/Uint128"
@@ -63,7 +63,7 @@
           ]
         },
         "max_insert_data_triple_count": {
-          "description": "The maximum number of triples an insert data query can contains (after parsing).",
+          "description": "The maximum number of triples an insert data query can contain (after parsing).",
           "allOf": [
             {
               "$ref": "#/definitions/Uint128"
@@ -83,7 +83,7 @@
           "minimum": 0.0
         },
         "max_triple_byte_size": {
-          "description": "The maximum number of bytes the store can contains for a single triple. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. The limit is used to prevent storing very large triples, especially literals.",
+          "description": "The maximum number of bytes the store can contain for a single triple. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. The limit is used to prevent storing very large triples, especially literals.",
           "allOf": [
             {
               "$ref": "#/definitions/Uint128"
@@ -91,7 +91,7 @@
           ]
         },
         "max_triple_count": {
-          "description": "The maximum number of triples the store can contains.",
+          "description": "The maximum number of triples the store can contain.",
           "allOf": [
             {
               "$ref": "#/definitions/Uint128"
