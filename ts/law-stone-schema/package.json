@@ -28,5 +28,6 @@
         "clean": "rm -rf gen-ts && mkdir gen-ts",
         "build": "tsc"
     },
-    "exports": "./dist/schema.d.ts"
+    "exports": "./dist/schema.d.ts",
+    "types": "./dist/schema.d.ts"
 }
