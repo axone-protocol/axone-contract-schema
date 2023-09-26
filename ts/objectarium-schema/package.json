@@ -29,7 +29,5 @@
         "build": "tsc"
     },
     "exports": "./dist/schema.d.ts",
-    "typesVersions": {
-        "*": { ".": ["./dist/schema.d.ts"] }
-    }
+    "types": "./dist/schema.d.ts"
 }
