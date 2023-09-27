@@ -74,11 +74,33 @@ jobs:
           git_user_signingkey: true
           git_commit_gpgsign: true
 
-      - name: Copy updated schema
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Install Gomplate
+        run: brew install gomplate
+
+      - name: Copy updated schema and generate README
         run: |
           rm -rf schema/*
           rsync -rmv --include='*/' --include='*/schema/raw/*.json' --exclude='*' tmp/contracts/ schema/
           find schema -type f -name "*.json" -exec sh -c 'mv "{}" "$(dirname "{}" | xargs dirname | xargs dirname)"' \;
+
+          CONTRACTS=$(ls schema/ | jq -R -s -c 'split("\n")[:-1]')
+          for CONTRACT in $(echo ${CONTRACTS} | js -r '.[]'); do
+            NAME=${CONTRACT/okp4-/""}
+            SCHEMA_NAME=$NAME-schema
+
+            jq -n --rawfile docs tmp/contracts/docs/$CONTRACT.md \
+              --arg name "$NAME" \ 
+              --arg contract_name "$CONTRACT" \
+              --arg schema_name "$SCHEMA_NAME" \
+              --arg ref "${{ github.event.inputs.ref }}" \
+              '{docs: $docs, name: $name, contract_name: $contract_name, schema_name: $schema_name, ref: $ref}' > data.json
+
+            gomplate -f ts/README.md.template -d data.json -o ts/$SCHEMA_NAME/README.md
+          done
+
           git rm --ignore-unmatch --cached tmp
           rm -rf .git/modules/tmp
           rm -rf tmp
