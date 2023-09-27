@@ -87,17 +87,18 @@ jobs:
           find schema -type f -name "*.json" -exec sh -c 'mv "{}" "$(dirname "{}" | xargs dirname | xargs dirname)"' \;
 
           CONTRACTS=$(ls schema/ | jq -R -s -c 'split("\n")[:-1]')
-          for CONTRACT in $(echo ${CONTRACTS} | js -r '.[]'); do
+          for CONTRACT in $(echo ${CONTRACTS} | jq -r '.[]'); do
             NAME=${CONTRACT/okp4-/""}
             SCHEMA_NAME=$NAME-schema
 
-            jq -n --rawfile docs tmp/contracts/docs/$CONTRACT.md \
+            jq -n --rawfile docs tmp/docs/$CONTRACT.md \
               --arg name "$NAME" \
               --arg contract_name "$CONTRACT" \
               --arg schema_name "$SCHEMA_NAME" \
               --arg ref "${{ github.event.inputs.ref }}" \
               '{docs: $docs, name: $name, contract_name: $contract_name, schema_name: $schema_name, ref: $ref}' > data.json
 
+            echo "📄 Generate $CONTRACT_NAME readme.md..."
             gomplate -f ts/README.md.template -d data.json -o ts/$SCHEMA_NAME/README.md
           done
 
