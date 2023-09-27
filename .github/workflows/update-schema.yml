@@ -92,7 +92,7 @@ jobs:
             SCHEMA_NAME=$NAME-schema
 
             jq -n --rawfile docs tmp/contracts/docs/$CONTRACT.md \
-              --arg name "$NAME" \ 
+              --arg name "$NAME" \
               --arg contract_name "$CONTRACT" \
               --arg schema_name "$SCHEMA_NAME" \
               --arg ref "${{ github.event.inputs.ref }}" \
@@ -123,4 +123,4 @@ jobs:
           commit_author: ${{ secrets.OKP4_BOT_GIT_AUTHOR_NAME }} <${{ secrets.OKP4_BOT_GIT_AUTHOR_EMAIL }}>
           commit_message: "${{ github.event.inputs.draft == 'true' && 'feat: update schema files' || 'chore(release): perform release' }} ${{ github.event.inputs.draft == 'false' && github.event.inputs.ref || '' }}"
           tagging_message: ${{ github.event.inputs.draft == 'false' && github.event.inputs.ref || '' }}
-          file_pattern: '*.json'
+          file_pattern: '*.json */README.md'
