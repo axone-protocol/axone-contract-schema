@@ -74,11 +74,35 @@ jobs:
           git_user_signingkey: true
           git_commit_gpgsign: true
 
-      - name: Copy updated schema
+      - name: Install gomplate
+        run: |
+          curl -s -L -o /usr/local/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.11.5/gomplate_linux-amd64
+          chmod +x /usr/local/bin/gomplate
+
+      - name: Copy updated schema and generate README
         run: |
           rm -rf schema/*
           rsync -rmv --include='*/' --include='*/schema/raw/*.json' --exclude='*' tmp/contracts/ schema/
           find schema -type f -name "*.json" -exec sh -c 'mv "{}" "$(dirname "{}" | xargs dirname | xargs dirname)"' \;
+
+          CONTRACTS=$(ls schema/ | jq -R -s -c 'split("\n")[:-1]')
+          for CONTRACT in $(echo ${CONTRACTS} | jq -r '.[]'); do
+            NAME=${CONTRACT/okp4-/""}
+            SCHEMA_NAME=$NAME-schema
+
+            jq -n --rawfile docs tmp/docs/$CONTRACT.md \
+              --arg name "$NAME" \
+              --arg contract_name "$CONTRACT" \
+              --arg schema_name "$SCHEMA_NAME" \
+              --arg ref "${{ github.event.inputs.ref }}" \
+              '{docs: $docs, name: $name, contract_name: $contract_name, schema_name: $schema_name, ref: $ref}' > data.json
+
+            echo "📄 Generate $CONTRACT_NAME readme.md..."
+            gomplate -f ts/README.md.template -d data.json -o ts/$SCHEMA_NAME/README.md
+
+            rm data.json
+          done
+
           git rm --ignore-unmatch --cached tmp
           rm -rf .git/modules/tmp
           rm -rf tmp
@@ -101,4 +125,4 @@ jobs:
           commit_author: ${{ secrets.OKP4_BOT_GIT_AUTHOR_NAME }} <${{ secrets.OKP4_BOT_GIT_AUTHOR_EMAIL }}>
           commit_message: "${{ github.event.inputs.draft == 'true' && 'feat: update schema files' || 'chore(release): perform release' }} ${{ github.event.inputs.draft == 'false' && github.event.inputs.ref || '' }}"
           tagging_message: ${{ github.event.inputs.draft == 'false' && github.event.inputs.ref || '' }}
-          file_pattern: '*.json'
+          file_pattern: '*.json */README.md'

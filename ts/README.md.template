@@ -1,6 +1,6 @@
-# Contract schemas
+# OKP4 {{ (ds "data").name }} schema
 
-> Generated types for [OKP4 contracts schemas](https://github.com/okp4/contracts).
+> Generated typescript types for [{{ (ds "data").contract_name }} contract](https://github.com/okp4/contracts/tree/{{ (ds "data").ref }}/contracts/{{ (ds "data").contract_name }}).
 
 [![version](https://img.shields.io/github/v/release/okp4/okp4-contract-schema?style=for-the-badge&logo=github)](https://github.com/okp4/okp4-contract-schema/releases)
 [![build](https://img.shields.io/github/actions/workflow/status/okp4/okp4-contract-schema/build.yml?branch=main&label=build&style=for-the-badge&logo=github)](https://github.com/okp4/okp4-contract-schema/actions/workflows/build.yml)
@@ -11,15 +11,26 @@
 [![contributor covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?style=for-the-badge)](https://github.com/okp4/.github/blob/main/CODE_OF_CONDUCT.md)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg?style=for-the-badge)](https://opensource.org/licenses/BSD-3-Clause)
 
-## Purpose
+## Usage 
 
-This repository contains [OKP4 contract schemas](https://github.com/okp4/contracts) and enables the generation of JSON Schema types in multiple programming languages, including:
+First add or install the module to your existing project using either `yarn` or `npm`. 
 
-- TypeScript ([ts](ts/))
+```bash
+yarn add @okp4/{{ (ds "data").schema_name }}
+```
 
-## You want to get involved? 😍
+or 
+```bash
+npm install --save @okp4/{{ (ds "data").schema_name }}
+```
 
-Please check out OKP4 health files :
+Then import wanted type : 
 
-- [Contributing](https://github.com/okp4/.github/blob/main/CONTRIBUTING.md)
-- [Code of conduct](https://github.com/okp4/.github/blob/main/CODE_OF_CONDUCT.md)
+```typescript
+import type { InstantiateMsg } from "@okp4/{{ (ds "data").schema_name }}";
+```
+
+---
+
+{{ (ds "data").docs }}
+
