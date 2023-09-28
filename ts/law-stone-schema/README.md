@@ -1,6 +1,6 @@
 # OKP4 law-stone schema
 
-> Generated typescript types for [okp4-law-stone contract](https://github.com/okp4/contracts/tree/main/contracts/okp4-law-stone).
+> Generated typescript types for [okp4-law-stone contract](https://github.com/okp4/contracts/tree/v3.0.0/contracts/okp4-law-stone).
 
 [![version](https://img.shields.io/github/v/release/okp4/okp4-contract-schema?style=for-the-badge&logo=github)](https://github.com/okp4/okp4-contract-schema/releases)
 [![build](https://img.shields.io/github/actions/workflow/status/okp4/okp4-contract-schema/build.yml?branch=main&label=build&style=for-the-badge&logo=github)](https://github.com/okp4/okp4-contract-schema/actions/workflows/build.yml)
