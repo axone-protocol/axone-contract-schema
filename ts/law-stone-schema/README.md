@@ -1,6 +1,6 @@
 # OKP4 law-stone schema
 
-> Generated typescript types for [okp4-law-stone contract](https://github.com/okp4/contracts/tree/v2.1.0/contracts/okp4-law-stone).
+> Generated typescript types for [okp4-law-stone contract](https://github.com/okp4/contracts/tree/main/contracts/okp4-law-stone).
 
 [![version](https://img.shields.io/github/v/release/okp4/okp4-contract-schema?style=for-the-badge&logo=github)](https://github.com/okp4/okp4-contract-schema/releases)
 [![build](https://img.shields.io/github/actions/workflow/status/okp4/okp4-contract-schema/build.yml?branch=main&label=build&style=for-the-badge&logo=github)](https://github.com/okp4/okp4-contract-schema/actions/workflows/build.yml)
@@ -32,19 +32,13 @@ import type { InstantiateMsg } from "@okp4/law-stone-schema";
 
 ---
 
-# okp4-law-stone Schema
-
-```txt
-undefined
-```
-
 # Law Stone
 
 ## Overview
 
 The `okp4-law-stone` smart contract aims to provide GaaS (i.e. Governance as a Service) in any [Cosmos blockchains](https://cosmos.network/) using the [CosmWasm](https://cosmwasm.com/) framework and the [Logic](https://docs.okp4.network/modules/next/logic) OKP4 module.
 
-This contract is built around a Prolog program describing the law by rules and facts. The law stone is immutable, this means it can only been questioned, there is no update mechanisms.
+This contract is built around a Prolog program describing the law by rules and facts. The law stone is immutable, this means it can only be questioned, there are no update mechanisms.
 
 The `okp4-law-stone` responsibility is to guarantee the availability of its rules in order to question them, but not to ensure the rules application.
 
@@ -54,12 +48,117 @@ To be able to free the underlying resources (i.e. objects in `okp4-objectarium`)
 
 ➡️ Checkout the [examples](https://github.com/okp4/contracts/tree/main/contracts/okp4-law-stone/examples/) for usage information.
 
-| Abstract            | Extensible | Status         | Identifiable            | Custom Properties | Additional Properties | Access Restrictions | Defined In                                                               |
-| :------------------ | :--------- | :------------- | :---------------------- | :---------------- | :-------------------- | :------------------ | :----------------------------------------------------------------------- |
-| Can be instantiated | No         | Unknown status | Unknown identifiability | Forbidden         | Allowed               | none                | [okp4-law-stone.json](schema/okp4-law-stone.json "open original schema") |
+## InstantiateMsg
 
-## okp4-law-stone Type
+Instantiate message
 
-unknown ([okp4-law-stone](okp4-law-stone.md))
+|parameter|description|
+|----------|-----------|
+|`program`|*(Required.) * **[Binary](#binary)**. The Prolog program carrying law rules and facts.|
+|`storage_address`|*(Required.) * **string**. The `okp4-objectarium` contract address on which to store the law program.|
 
+## ExecuteMsg
+
+Execute messages
+
+### ExecuteMsg::BreakStone
+
+Break the stone making this contract unusable, by clearing all the related resources: - Unpin all the pinned objects on `okp4-objectarium` contracts, if any. - Forget the main program (i.e. or at least unpin it). Only the contract admin is authorized to break it, if any. If already broken, this is a no-op.
+
+|literal|
+|-------|
+|`"break_stone"`|
+
+## QueryMsg
+
+Query messages
+
+### QueryMsg::Ask
+
+If not broken, ask the logic module the provided query with the law program loaded.
+
+|parameter|description|
+|----------|-----------|
+|`ask`|*(Required.) * **object**. |
+|`ask.query`|*(Required.) * **string**. |
+
+### QueryMsg::Program
+
+If not broken, returns the law program location information.
+
+|literal|
+|-------|
+|`"program"`|
+
+## Responses
+
+### ask
+
+
+
+|property|description|
+|----------|-----------|
+|`answer`|**[Answer](#answer)\|null**. |
+|`gas_used`|*(Required.) * **integer**. |
+|`height`|*(Required.) * **integer**. |
+
+### program
+
+ProgramResponse carry elements to locate the program in a `okp4-objectarium` contract.
+
+|property|description|
+|----------|-----------|
+|`object_id`|*(Required.) * **string**. The program object id in the `okp4-objectarium` contract.|
+|`storage_address`|*(Required.) * **string**. The `okp4-objectarium` contract address on which the law program is stored.|
+
+## Definitions
+
+### Answer
+
+
+
+|property|description|
+|----------|-----------|
+|`has_more`|*(Required.) * **boolean**. |
+|`results`|*(Required.) * **Array&lt;[Result](#result)&gt;**. |
+|`success`|*(Required.) * **boolean**. |
+|`variables`|*(Required.) * **Array&lt;string&gt;**. |
+
+### Binary
+
+A string containing Base64-encoded data.
+
+|type|
+|----|
+|**string**.|
+
+### Result
+
+
+
+|property|description|
+|----------|-----------|
+|`substitutions`|*(Required.) * **Array&lt;[Substitution](#substitution)&gt;**. |
+
+### Substitution
+
+
+
+|property|description|
+|----------|-----------|
+|`term`|*(Required.) * **object**. |
+|`variable`|*(Required.) * **string**. |
+
+### Term
+
+
+
+|property|description|
+|----------|-----------|
+|`arguments`|*(Required.) * **Array&lt;[Term](#term)&gt;**. |
+|`name`|*(Required.) * **string**. |
+
+---
+
+*Rendered by [Fadroma](https://fadroma.tech) ([@fadroma/schema 1.1.0](https://www.npmjs.com/package/@fadroma/schema)) from `okp4-law-stone.json` (`d2b5da624dff3dad`)*
 

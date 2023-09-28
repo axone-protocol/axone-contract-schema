@@ -16,7 +16,8 @@
       "default": {
         "accepted_compression_algorithms": [
           "passthrough",
-          "snappy"
+          "snappy",
+          "lzma"
         ],
         "hash_algorithm": "sha256"
       },
@@ -63,7 +64,8 @@
           "description": "The acceptable compression algorithms for the objects in the bucket. If this parameter is not set (none or empty array), then all compression algorithms are accepted. If this parameter is set, then only the compression algorithms in the array are accepted.\n\nWhen an object is stored in the bucket without a specified compression algorithm, the first algorithm in the array is used. Therefore, the order of the algorithms in the array is significant. Typically, the most efficient compression algorithm, such as the NoCompression algorithm, should be placed first in the array.\n\nAny attempt to store an object using a different compression algorithm than the ones specified here will fail.",
           "default": [
             "passthrough",
-            "snappy"
+            "snappy",
+            "lzma"
           ],
           "type": "array",
           "items": {
@@ -151,6 +153,14 @@
           "enum": [
             "snappy"
           ]
+        },
+        {
+          "title": "Lzma",
+          "description": "Represents the LZMA algorithm. LZMA is a lossless data compression/decompression algorithm that features a high compression ratio and a variable compression-dictionary size up to 4 GB.\n\nSee [the LZMA wiki page](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm) for more information.",
+          "type": "string",
+          "enum": [
+            "lzma"
+          ]
         }
       ]
     },
@@ -211,7 +221,7 @@
           "minimum": 0.0
         },
         "max_page_size": {
-          "description": "The maximum elements a page can contains.\n\nShall be less than `u32::MAX - 1`. Default to '30' if not set.",
+          "description": "The maximum elements a page can contain.\n\nShall be less than `u32::MAX - 1`. Default to '30' if not set.",
           "default": 30,
           "type": "integer",
           "format": "uint32",
