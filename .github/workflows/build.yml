@@ -53,7 +53,7 @@ jobs:
 
       - name: Generate sources
         run: |
-          quicktype -s schema schema/${{ matrix.schema }}/*.json -o ${{ steps.package.outputs.DESTINATION }}/gen-ts/schema.ts --prefer-types
+          quicktype -s schema schema/${{ matrix.schema }}/*.json -o ${{ steps.package.outputs.DESTINATION }}/gen-ts/schema.ts --prefer-types --prefer-unions
 
       - name: Fetch dependencies
         run: yarn --cwd ${{ steps.package.outputs.DESTINATION }}
