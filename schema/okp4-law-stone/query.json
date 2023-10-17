@@ -33,6 +33,14 @@
       "enum": [
         "program"
       ]
+    },
+    {
+      "title": "ProgramCode",
+      "description": "ProgramCode returns the law program code.",
+      "type": "string",
+      "enum": [
+        "program_code"
+      ]
     }
   ]
 }
