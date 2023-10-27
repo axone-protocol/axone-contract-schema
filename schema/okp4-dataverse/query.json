@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryMsg",
+  "description": "`QueryMsg` defines the set of possible queries that can be made to retrieve information about the dataverse.\n\nThis enum provides variants for querying the dataverse's details and other related information.",
+  "oneOf": [
+    {
+      "title": "Dataverse",
+      "description": "Retrieves information about the current dataverse instance.",
+      "type": "object",
+      "required": [
+        "dataverse"
+      ],
+      "properties": {
+        "dataverse": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

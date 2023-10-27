@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "InstantiateMsg",
+  "description": "`InstantiateMsg` is used to initialize a new instance of the dataverse.",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "description": "A name to give to the dataverse instantiated.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

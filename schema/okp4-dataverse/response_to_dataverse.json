@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DataverseResponse",
+  "description": "DataverseResponse is the response of the Dataverse query.",
+  "type": "object",
+  "required": [
+    "name"
+  ],
+  "properties": {
+    "name": {
+      "description": "The name of the dataverse.",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

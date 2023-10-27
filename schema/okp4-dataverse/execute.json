@@ -1,0 +1,281 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ExecuteMsg",
+  "description": "`ExecuteMsg` defines the set of possible actions that can be performed on the dataverse.\n\nThis enum provides variants for registering services, datasets, and other operations related to the dataverse.",
+  "oneOf": [
+    {
+      "title": "RegisterService",
+      "description": "Registers a new service within the dataverse. Service is a generic concept for any kind of service that can be provided through a network (e.g. a REST API, a gRPC service, etc.).\n\nEach service is identified and located by its unique URI which defines the entry point of the service.\n\n#### Examples:\n\n```rust ExecuteMsg::RegisterService { subject:    \"https://ontology.okp4.space/dataverse/service/metadata/52549532-887d-409b-a9c0-fb68f9e521d2\", identity:   \"did:key:z6MkrpCPVDHcsqi3aaqnemLC1aBTUwkfPwTyzc8sFWYwm1PA\", identifier: \"urn:uuid:803cd033-2eed-4db7-847b-f46715a42a70\" } ```",
+      "type": "object",
+      "required": [
+        "register_service"
+      ],
+      "properties": {
+        "register_service": {
+          "type": "object",
+          "required": [
+            "identifier",
+            "identity",
+            "subject"
+          ],
+          "properties": {
+            "identifier": {
+              "description": "The unique URI that identifies and locates the service.\n\nThe URI serves a dual purpose: 1. **Identification**: It provides a unique identifier for the service, ensuring that each service can be distinctly recognized within the dataverse. 2. **Endpoint**: The URI acts as the access point or endpoint for the service. It specifies where the service can be accessed and how interactions with the service should be initiated.",
+              "type": "string"
+            },
+            "identity": {
+              "description": "The decentralized identity of the service.",
+              "type": "string"
+            },
+            "registrar": {
+              "description": "The URI of the entity responsible for registering and managing the service in the dataverse (i.e. on the blockchain). It's an optional field, if not provided the service is registered by the entity that invokes the transaction.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "subject": {
+              "description": "The unique RDF identifier for the resource representation of the service within the dataverse.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "RegisterDataset",
+      "description": "Registers a new dataset within the dataverse.\n\nA `Dataset` represents a collection of related data that is organized and presented in a specific format by the provider. This data can be in various forms, such as CSV files, images, videos, and more. It can also refer to data sources like databases and APIs.\n\nEach dataset is uniquely identified by its URI, which serves as both the identifier and the access point for the dataset. When accessing a dataset, it's crucial to understand the protocol and methods supported by the dataset's endpoint. For instance, a dataset with an HTTP-based URI might be accessible via GET requests and may require specific headers or parameters for successful retrieval.\n\n#### Examples:\n\n```rust ExecuteMsg::RegisterDataset { subject:     \"https://ontology.okp4.space/dataverse/dataset/96a562a9-5feb-4a41-bcf2-cc8610af9f78\", identifier:  \"ipfs://bafybeicn7i3soqdgr7dwnrwytgq4zxy7a5jpkizrvhm5mv6bgjd32wm3q4\", provided_by: \"urn:uuid:803cd033-2eed-4db7-847b-f46715a42a70\" } ```",
+      "type": "object",
+      "required": [
+        "register_dataset"
+      ],
+      "properties": {
+        "register_dataset": {
+          "type": "object",
+          "required": [
+            "identifier",
+            "provided_by",
+            "subject"
+          ],
+          "properties": {
+            "identifier": {
+              "description": "The unique URI that identifies the dataset.",
+              "type": "string"
+            },
+            "provided_by": {
+              "description": "The URI of the service, already registered in the dataverse, that provides the dataset.",
+              "type": "string"
+            },
+            "registrar": {
+              "description": "The URI of the entity responsible for registering and managing the dataset in the dataverse (i.e. on the blockchain). It's an optional field, if not provided the dataset is registered by the entity that invokes the transaction.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "subject": {
+              "description": "The unique RDF identifier for the resource representation of the dataset within the dataverse.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "FoundZone",
+      "description": "Founds a new zone within the dataverse.\n\n`Zone` is a conceptual framework that is established based on a set of rules, within which recognized digital Resources must conform, considering associated consents.\n\n#### Example\n\n``` ExecuteMsg::FoundZone { subject:    \"https://ontology.okp4.space/dataverse/zone/ef347285-e52a-430d-9679-dcb76b962ce7\", identifier: \"urn:uuid:6d1aaad8-9411-4758-a9f9-ed43358af1fd\" } ```",
+      "type": "object",
+      "required": [
+        "found_zone"
+      ],
+      "properties": {
+        "found_zone": {
+          "type": "object",
+          "required": [
+            "identifier",
+            "subject"
+          ],
+          "properties": {
+            "identifier": {
+              "description": "The unique URI that identifies the zone.",
+              "type": "string"
+            },
+            "registrar": {
+              "description": "The URI of the entity responsible for registering and managing the zone in the dataverse (i.e. on the blockchain). It's an optional field, if not provided the zone is registered by the entity that invokes the transaction.",
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "subject": {
+              "description": "The unique RDF identifier for the resource representation of the zone within the dataverse.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "AttachMetadata",
+      "description": "Attaches metadata to a specified resource registered in the dataverse.\n\nMetadata provides additional information or details about a resource.",
+      "type": "object",
+      "required": [
+        "attach_metadata"
+      ],
+      "properties": {
+        "attach_metadata": {
+          "type": "object",
+          "required": [
+            "metadata",
+            "subject"
+          ],
+          "properties": {
+            "format": {
+              "description": "RDF format in which the metadata is represented. If not provided, the default format is [Turtle](https://www.w3.org/TR/turtle/) format.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RdfFormat"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "metadata": {
+              "description": "The serialized metadata intended for attachment. This metadata should adhere to the format specified in the `format` field.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Binary"
+                }
+              ]
+            },
+            "subject": {
+              "description": "The unique RDF identifier of the resource for which the metadata should be attached.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "DetachMetadata",
+      "description": "Remove a previously associated metadata (from a specific resource within the dataverse). Once removed the metadata is no longer accessible.",
+      "type": "object",
+      "required": [
+        "detach_metadata"
+      ],
+      "properties": {
+        "detach_metadata": {
+          "type": "object",
+          "required": [
+            "subject"
+          ],
+          "properties": {
+            "subject": {
+              "description": "The RDF identifier of the metadata to be removed.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "title": "ReviseMetadata",
+      "description": "Revises a previously associated metadata in order to update it or amend it.",
+      "type": "object",
+      "required": [
+        "revise_metadata"
+      ],
+      "properties": {
+        "revise_metadata": {
+          "type": "object",
+          "required": [
+            "metadata",
+            "subject"
+          ],
+          "properties": {
+            "format": {
+              "description": "RDF format in which the metadata is represented. If not provided, the default format is [Turtle](https://www.w3.org/TR/turtle/) format.",
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RdfFormat"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "metadata": {
+              "description": "The serialized metadata intended for revision. This metadata should adhere to the format specified in the `format` field.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Binary"
+                }
+              ]
+            },
+            "subject": {
+              "description": "The RDF identifier of the metadata to be revised.",
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ],
+  "definitions": {
+    "Binary": {
+      "description": "Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.\n\nThis is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.",
+      "type": "string"
+    },
+    "RdfFormat": {
+      "title": "RdfFormat",
+      "description": "`RdfFormat` represents the various serialization formats for RDF (Resource Description Framework) data.",
+      "oneOf": [
+        {
+          "title": "RdfXml",
+          "description": "RDF/XML Format\n\nRDF/XML is a syntax to express RDF information in XML. See the [official RDF/XML specification](https://www.w3.org/TR/rdf-syntax-grammar/).",
+          "type": "string",
+          "enum": [
+            "rdf_xml"
+          ]
+        },
+        {
+          "title": "Turtle",
+          "description": "Turtle (Terse RDF Triple Language) Format\n\nTurtle is a textual format for representing RDF triples in a more compact and human-readable way compared to RDF/XML. See the [official Turtle specification](https://www.w3.org/TR/turtle/).",
+          "type": "string",
+          "enum": [
+            "turtle"
+          ]
+        },
+        {
+          "title": "NTriples",
+          "description": "N-Triples Format\n\nN-Triples is a line-based, plain text format for encoding an RDF graph. Each line corresponds to a single RDF triple. See the [official N-Triples specification](https://www.w3.org/TR/n-triples/).",
+          "type": "string",
+          "enum": [
+            "n_triples"
+          ]
+        },
+        {
+          "title": "NQuads",
+          "description": "N-Quads Format\n\nN-Quads is an extension of N-Triples to support RDF datasets by adding an optional fourth element to represent the graph name. See the [official N-Quads specification](https://www.w3.org/TR/n-quads/).",
+          "type": "string",
+          "enum": [
+            "n_quads"
+          ]
+        }
+      ]
+    }
+  }
+}
