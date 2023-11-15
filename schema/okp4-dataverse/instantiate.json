@@ -8,7 +8,7 @@
   ],
   "properties": {
     "name": {
-      "description": "A name to give to the dataverse instantiated.",
+      "description": "A unique name to identify the dataverse instance.",
       "type": "string"
     }
   },
