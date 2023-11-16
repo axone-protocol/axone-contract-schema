@@ -56,7 +56,7 @@
           ],
           "properties": {
             "identifier": {
-              "description": "The URI that identifies the dataset. This URI makes sense only in the context of the service that provides the resource.\n\nPreconditions: - The URI must be unique within the dataverse.",
+              "description": "The URI that identifies the resource. This URI makes sense only in the context of the service that provides the resource.\n\nPreconditions: - The URI must be unique within the dataverse.",
               "type": "string"
             },
             "identity": {
@@ -64,11 +64,11 @@
               "type": "string"
             },
             "provided_by": {
-              "description": "The URI of the service, already registered in the dataverse, that provides the dataset.\n\nPreconditions: - The Service must be registered in the dataverse before the resource can be registered.",
+              "description": "The URI of the service, already registered in the dataverse, that provides the resource.\n\nPreconditions: - The Service must be registered in the dataverse before the resource can be registered.",
               "type": "string"
             },
             "registrar": {
-              "description": "The URI of the entity responsible for registering and managing the resource in the dataverse (i.e. on the blockchain). It's an optional field, if not provided the dataset is registered by the entity that invokes the transaction.",
+              "description": "The URI of the entity responsible for registering and managing the resource in the dataverse (i.e. on the blockchain). It's an optional field, if not provided the resource is registered by the entity that invokes the transaction.",
               "type": [
                 "string",
                 "null"
