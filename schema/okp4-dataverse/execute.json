@@ -4,116 +4,8 @@
   "description": "`ExecuteMsg` defines the set of possible actions that can be performed on the dataverse.\n\nThis enum provides variants for registering services, datasets, and other operations related to the dataverse.",
   "oneOf": [
     {
-      "title": "RegisterService",
-      "description": "Registers a new Service within the dataverse.\n\nThe term 'Service' in this context is employed to denote any form of service that is accessible over a network. This encompasses, but is not limited to, services such as REST APIs, gRPC services, and similar network-based services.\n\nA fundamental characteristic of each service is its unique Uniform Resource Identifier (URI), which serves as the definitive entry point for accessing the service. This URI is pivotal in the identification and location of the service within the network.",
-      "type": "object",
-      "required": [
-        "register_service"
-      ],
-      "properties": {
-        "register_service": {
-          "type": "object",
-          "required": [
-            "identifier",
-            "identity"
-          ],
-          "properties": {
-            "identifier": {
-              "description": "The URI that identifies and locates the service.\n\nThe URI serves a dual purpose: 1. **Identification**: It provides a unique identifier for the service, ensuring that each service can be distinctly recognized within the dataverse. 2. **Endpoint**: The URI acts as the access point or endpoint for the service. It specifies where the service can be accessed and how interactions with the service should be initiated.",
-              "type": "string"
-            },
-            "identity": {
-              "description": "The decentralized identity (DID) of the service.\n\nPreconditions: - The identity must be unique within the dataverse.",
-              "type": "string"
-            },
-            "registrar": {
-              "description": "The URI of the entity responsible for registering and managing the service in the dataverse (i.e. on the blockchain). It's an optional field, if not provided the service is registered by the entity that invokes the transaction.",
-              "type": [
-                "string",
-                "null"
-              ]
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
-    },
-    {
-      "title": "RegisterDigitalResource",
-      "description": "Registers a new digital resource within the dataverse.\n\nA Digital Resource represents a broad category encompassing various digital entities registerable in the dataverse. This category includes, but is not limited to, datasets, algorithms, machine learning models, and other digital assets.\n\nThe unique identification of each Digital Resource is achieved through a combination of its Uniform Resource Identifier (URI) and the specific service responsible for its provision. This dual-component identification mechanism guarantees the distinct recognition and operationalization of each Digital Resource within the dataverse environment.",
-      "type": "object",
-      "required": [
-        "register_digital_resource"
-      ],
-      "properties": {
-        "register_digital_resource": {
-          "type": "object",
-          "required": [
-            "identifier",
-            "identity",
-            "provided_by"
-          ],
-          "properties": {
-            "identifier": {
-              "description": "The URI that identifies the resource. This URI makes sense only in the context of the service that provides the resource.\n\nPreconditions: - The URI must be unique within the dataverse.",
-              "type": "string"
-            },
-            "identity": {
-              "description": "The decentralized identity (DID) of the Digital Resource.\n\nPreconditions: - The identity must be unique within the dataverse.",
-              "type": "string"
-            },
-            "provided_by": {
-              "description": "The URI of the service, already registered in the dataverse, that provides the resource.\n\nPreconditions: - The Service must be registered in the dataverse before the resource can be registered.",
-              "type": "string"
-            },
-            "registrar": {
-              "description": "The URI of the entity responsible for registering and managing the resource in the dataverse (i.e. on the blockchain). It's an optional field, if not provided the resource is registered by the entity that invokes the transaction.",
-              "type": [
-                "string",
-                "null"
-              ]
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
-    },
-    {
-      "title": "FoundZone",
-      "description": "Founds a new zone within the dataverse.\n\n`Zone` is a conceptual framework that is established based on a set of rules, within which recognized Resources must conform, considering associated consents.",
-      "type": "object",
-      "required": [
-        "found_zone"
-      ],
-      "properties": {
-        "found_zone": {
-          "type": "object",
-          "required": [
-            "identity"
-          ],
-          "properties": {
-            "identity": {
-              "description": "The decentralized identity (DID) of the Zone. This identity must be unique within the dataverse.",
-              "type": "string"
-            },
-            "registrar": {
-              "description": "The URI of the entity responsible for registering and managing the zone in the dataverse (i.e. on the blockchain). It's an optional field, if not provided the zone is registered by the entity that invokes the transaction.",
-              "type": [
-                "string",
-                "null"
-              ]
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
-    },
-    {
       "title": "SubmitClaims",
-      "description": "Submits new claims about a resource to the dataverse.\n\nA claim is a statement made by an entity, the issuer (e.g. a person, an organization, or a machine) about a resource (e.g. an entity, a service, or a zone) that the issuer asserts to be true.\n\nThe claims are submitted to the dataverse in the form of Verifiable Presentations (VPs), which combine and present credentials. The data in the presentation concerns usually the same subject, but there is no limit to the number of subjects or issuers in the data.\n\nPreconditions: - The claims must be submitted in the form of Verifiable Presentations (VPs). - The subjects of the Verifiable Credentials must exist in the dataverse before the claims can be submitted. - The identifiers of the Veriable Credentials must be unique within the dataverse. - The claims must be signed by the issuer and the signature must be verifiable.",
+      "description": "Submits new claims about a resource to the dataverse.\n\nThe SubmitClaims message is a pivotal component in the dataverse, enabling entities to contribute new claims about various resources. A claim represents a statement made by an entity, referred to as the issuer, which could be a person, organization, or service. These claims pertain to a diverse range of resources, including digital resources, services, zones, or individuals, and are asserted as factual by the issuer.\n\n#### Format\n\nClaims are injected into the dataverse through Verifiable Presentations (VPs). These presentations effectively amalgamate and showcase multiple credentials, thus providing a cohesive and comprehensive view of the assertions being made.\n\nWhile the data in a VP typically revolves around a common subject, it accommodates an unlimited number of subjects and issuers. This flexibility allows for a broad spectrum of claims to be represented.\n\nPrimarily, the claims leverage the OKP4 ontology, which facilitates articulating assertions about widely acknowledged resources in the dataverse, including digital services, digital resources, zones, governance, and more.\n\nAdditionally, other schemas may also be employed to supplement and enhance the validated knowledge contributed to these resources.\n\n#### Preconditions\n\nTo maintain integrity and coherence in the dataverse, several preconditions are set for the submission of claims:\n\n1. **Format Requirement**: Claims must be encapsulated within Verifiable Presentations (VPs).\n\n2. **Unique Identifier Mandate**: Each Verifiable Credential within the dataverse must possess a unique identifier.\n\n3. **Issuer Signature**: Claims must bear the issuer's signature. This signature must be verifiable, ensuring authenticity and credibility.",
       "type": "object",
       "required": [
         "submit_claims"
@@ -152,7 +44,7 @@
     },
     {
       "title": "RevokeClaims",
-      "description": "Revoke or withdraw a previously submitted claims.\n\nPreconditions: - The identifier of the claims must exist in the dataverse.",
+      "description": "Revoke or withdraw a previously submitted claims.\n\n#### Preconditions:\n\n1. **Identifier Existance**: The identifier of the claims must exist in the dataverse.",
       "type": "object",
       "required": [
         "revoke_claims"
