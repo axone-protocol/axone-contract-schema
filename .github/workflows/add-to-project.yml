@@ -13,4 +13,4 @@ jobs:
       - uses: actions/add-to-project@v0.6.1
         with:
           project-url: https://github.com/orgs/axone-protocol/projects/2
-          github-token: ${{ secrets.OKP4_TOKEN }}
+          github-token: ${{ secrets.OPS_TOKEN }}
