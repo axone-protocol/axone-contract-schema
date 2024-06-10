@@ -1,0 +1,33 @@
+{
+    "name": "@axone/objectarium-dataverse",
+    "version": "v3.0.0",
+    "private": false,
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:axone-protocol/axone-contract-schema.git",
+        "directory": "ts/dataverse-schema"
+    },
+    "license": "BSD-3-Clause",
+    "description": "Typescript schema for axone-dataverse smart contract",
+    "homepage": "https://github.com/axone-protocol/axone-contract-schema",
+    "author": {
+        "name": "AXONE",
+        "web": "https://axone.xyz"
+    },
+    "engines": {
+        "node": "^18.12",
+        "yarn": "~1.22.17"
+    },
+    "files": [
+        "dist"
+    ],
+    "devDependencies": {
+        "typescript": "^4.6.3"
+    },
+    "scripts": {
+        "clean": "rm -rf gen-ts && mkdir gen-ts",
+        "build": "tsc"
+    },
+    "exports": "./dist/schema.d.ts",
+    "types": "./dist/schema.d.ts"
+}
