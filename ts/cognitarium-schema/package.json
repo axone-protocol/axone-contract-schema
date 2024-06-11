@@ -1,18 +1,18 @@
 {
-    "name": "@okp4/cognitarium-schema",
+    "name": "@axone/cognitarium-schema",
     "version": "v3.0.0",
     "private": false,
     "repository": {
         "type": "git",
-        "url": "git@github.com:okp4/okp4-contract-schema.git",
+        "url": "git@github.com:axone-protocol/axone-contract-schema.git",
         "directory": "ts/cognitarium-schema"
     },
     "license": "BSD-3-Clause",
-    "description": "Typescript schema for okp4-cognitarium smart contract",
-    "homepage": "https://github.com/okp4/okp4-contract-schema",
+    "description": "Typescript schema for axone-cognitarium smart contract",
+    "homepage": "https://github.com/axone-protocol/axone-contract-schema",
     "author": {
-        "name": "OKP4",
-        "web": "https://okp4.com"
+        "name": "AXONE",
+        "web": "https://axone.xyz"
     },
     "engines": {
         "node": "^18.12",

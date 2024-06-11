@@ -47,9 +47,9 @@ jobs:
         id: package
         run: |
           SCHEMA=${{ matrix.schema }}
-          PACKAGE_SRC=$(echo "ts/${SCHEMA/okp4-/""}-schema")
+          PACKAGE_SRC=$(echo "ts/${SCHEMA/axone-/""}-schema")
           mkdir ${PACKAGE_SRC}/gen-ts
-          echo "DESTINATION=$(echo "ts/${SCHEMA/okp4-/""}-schema")" >> $GITHUB_OUTPUT
+          echo "DESTINATION=$(echo "ts/${SCHEMA/axone-/""}-schema")" >> $GITHUB_OUTPUT
 
       - name: Generate sources
         run: |
