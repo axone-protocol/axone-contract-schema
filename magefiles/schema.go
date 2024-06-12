@@ -7,11 +7,15 @@ import (
 	"fmt"
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 const (
 	CONTRACTS_REPOSITORY = "https://github.com/axone-protocol/contracts.git"
-	CONTRACTS_TMP_DIR    = "tmp/contracts"
+	CONTRACTS_TMP_DIR    = "tmp"
+	SCHEMA_DIR           = "schema"
 )
 
 type Schema mg.Namespace
@@ -22,7 +26,7 @@ func (Schema) Download(ref string) error {
 
 	fmt.Println("📥 Downloading contracts schemas")
 
-	ensureGit()
+	EnsureGit()
 
 	if err := sh.Run("git",
 		"clone",
@@ -46,24 +50,34 @@ func (s Schema) Generate(ref string) error {
 
 	fmt.Println("🔨 Generating contracts json schema")
 
-	ensureCargo()
+	EnsureCargoMake()
 
+	RunInPath(CONTRACTS_TMP_DIR, "cargo", "make", "schema")
+	if err := sh.Rm(SCHEMA_DIR); err != nil {
+		return err
+	}
+
+	fmt.Println("🔨 Moving generated json schema")
+	err := sh.Run("bash", "-c",
+		fmt.Sprintf("rsync -rmv --include='*/' --include='*/schema/raw/*.json' --exclude='*' %s/contracts/ %s/", CONTRACTS_TMP_DIR, SCHEMA_DIR))
+
+	schemas, err := sh.Output("find", SCHEMA_DIR, "-type", "f", "-name", "*.json")
+	if err != nil {
+		return err
+	}
+
+	for _, schema := range strings.Split(schemas, "\n") {
+		dest := filepath.Join(schema, "../../../", filepath.Base(schema))
+		if err := os.Rename(schema, dest); err != nil {
+			return err
+		}
+	}
+	fmt.Println("✨ Contracts json schema generated")
 	return nil
 }
 
+// Clean remove temporary files
 func (Schema) Clean() error {
 	fmt.Println("🧹 Cleaning schema temporary files")
 	return sh.Rm(CONTRACTS_TMP_DIR)
-}
-
-func ensureGit() {
-	if err := sh.Run("command", "-v", "git"); err != nil {
-		panic("git is not installed")
-	}
-}
-
-func ensureCargo() {
-	if err := sh.Run("command", "-v", "cargo"); err != nil {
-		panic("cargo is not installed")
-	}
 }
