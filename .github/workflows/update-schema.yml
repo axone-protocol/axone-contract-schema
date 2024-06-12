@@ -31,14 +31,6 @@ jobs:
           token: ${{ secrets.OPS_TOKEN }}
           fetch-depth: 2
 
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.ref }}
-          repository: axone-protocol/contracts
-          token: ${{ secrets.OPS_TOKEN }}
-          path: tmp
-
       - name: Cache cargo registry
         uses: actions/cache@v3
         with:
@@ -50,20 +42,31 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
+      - name: Setup Go environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: true
+          cache-dependency-path: |
+              **/go.sum
+              **/go.mod
+
       - name: Setup rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.69
+          toolchain: 1.75
           default: true
           override: true
 
       - name: Install cargo make
         uses: davidB/rust-cargo-make@v1
+      
+      - name: Install Mage
+        run: go install github.com/magefile/mage@v1.15
 
-      - name: Build schema
+      - name: Download & generate schema
         run: |
-          cd tmp
-          cargo make schema
+          mage -v schema:generate ${{ github.event.inputs.ref }}
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v5
@@ -81,10 +84,6 @@ jobs:
 
       - name: Copy updated schema and generate README
         run: |
-          rm -rf schema/*
-          rsync -rmv --include='*/' --include='*/schema/raw/*.json' --exclude='*' tmp/contracts/ schema/
-          find schema -type f -name "*.json" -exec sh -c 'mv "{}" "$(dirname "{}" | xargs dirname | xargs dirname)"' \;
-
           CONTRACTS=$(ls schema/ | jq -R -s -c 'split("\n")[:-1]')
           for CONTRACT in $(echo ${CONTRACTS} | jq -r '.[]'); do
             NAME=${CONTRACT/axone-/""}
