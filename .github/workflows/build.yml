@@ -49,7 +49,7 @@ jobs:
 
       - name: Install Mage
         run: go install github.com/magefile/mage@v1.15
-        
+
       - name: Installing quicktype
         run: |
           yarn global add quicktype

@@ -60,10 +60,10 @@ jobs:
 
       - name: Install cargo make
         uses: davidB/rust-cargo-make@v1
-      
+
       - name: Install Mage
         run: go install github.com/magefile/mage@v1.15
-      
+
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v5
         with:
