@@ -30,7 +30,7 @@ func (Build) Ts(schema string) error {
 			filepath.Join(dest, "gen-ts", "schema.ts")))
 
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to generate typescript types: %w", err)
 	}
 
 	err = sh.Run("yarn", "--cwd", dest)

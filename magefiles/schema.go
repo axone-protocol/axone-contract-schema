@@ -57,7 +57,7 @@ func (s Schema) Generate(ref string) error {
 
 	runInPath(CONTRACTS_TMP_DIR, "cargo", "make", "schema")
 	if err := sh.Rm(SCHEMA_DIR); err != nil {
-		return err
+		return fmt.Errorf("failed to remove schema directory: %w", err)
 	}
 
 	fmt.Println("🔨 Moving generated json schema")
@@ -66,13 +66,13 @@ func (s Schema) Generate(ref string) error {
 
 	schemas, err := sh.Output("find", SCHEMA_DIR, "-type", "f", "-name", "*.json")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to find all json schema in '%s': %w", SCHEMA_DIR, err)
 	}
 
 	for _, schema := range strings.Split(schemas, "\n") {
 		dest := filepath.Join(schema, "../../../", filepath.Base(schema))
 		if err := os.Rename(schema, dest); err != nil {
-			return err
+			return fmt.Errorf("failed to move schema '%s' to '%s': %w", schema, dest, err)
 		}
 	}
 	fmt.Println("✨ Contracts json schema generated")
@@ -88,7 +88,7 @@ func (s Schema) Readme(ref string) error {
 
 	contractsDir, err := os.ReadDir(SCHEMA_DIR)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read contracts directory '%s': %w", SCHEMA_DIR, err)
 	}
 
 	for _, contract := range contractsDir {
@@ -98,7 +98,7 @@ func (s Schema) Readme(ref string) error {
 
 		err := generateReadme(contract.Name())
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to generate readme for contract '%s': %w", contract.Name(), err)
 		}
 	}
 	return nil
