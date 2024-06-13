@@ -4,7 +4,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/magefile/mage/sh"
 	"os"
 	"path/filepath"
@@ -28,14 +27,14 @@ func runInPath(path string, cmd string, args ...string) error {
 
 // EnsureGit ensures that git is installed, if not it panics.
 func ensureGit() {
-	if err := sh.Run("command", "-v", "git"); err != nil {
+	if err := sh.Run("git", "--help"); err != nil {
 		panic("git is not installed")
 	}
 }
 
 // EnsureCargo ensures that cargo is installed, if not it panics.
 func ensureCargo() {
-	if err := sh.Run("command", "-v", "cargo"); err != nil {
+	if err := sh.Run("cargo", "--help"); err != nil {
 		panic("cargo is not installed")
 	}
 }
@@ -53,9 +52,7 @@ func ensureCargoMake() {
 
 // EnsureQuicktype ensures that quicktype is installed, if not it panics.
 func ensureQuicktype() {
-	t, e := sh.Output("type", "quicktype")
-	fmt.Printf("⚠️ : %s, error : %s\n", t, e)
-	if err := sh.Run("type", "quicktype"); err != nil {
+	if err := sh.Run("quicktype", "--help"); err != nil {
 		panic("quicktype is not installed")
 	}
 }
