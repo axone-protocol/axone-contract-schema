@@ -4,6 +4,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/magefile/mage/sh"
 	"os"
 	"path/filepath"
@@ -52,7 +53,9 @@ func ensureCargoMake() {
 
 // EnsureQuicktype ensures that quicktype is installed, if not it panics.
 func ensureQuicktype() {
-	if err := sh.Run("command", "-v", "quicktype"); err != nil {
+	t, e := sh.Output("type", "quicktype")
+	fmt.Printf("⚠️ : %s, error : %s\n", t, e)
+	if err := sh.Run("type", "quicktype"); err != nil {
 		panic("quicktype is not installed")
 	}
 }

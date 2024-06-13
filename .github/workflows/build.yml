@@ -38,25 +38,23 @@ jobs:
         with:
           node-version: 18.12.0
 
+      - name: Setup Go environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: true
+          cache-dependency-path: |
+            **/go.sum
+            **/go.mod
+
+      - name: Install Mage
+        run: go install github.com/magefile/mage@v1.15
+        
       - name: Installing quicktype
         run: |
           yarn global add quicktype
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
-      - name: Prepare package path
-        id: package
-        run: |
-          SCHEMA=${{ matrix.schema }}
-          PACKAGE_SRC=$(echo "ts/${SCHEMA/axone-/""}-schema")
-          mkdir ${PACKAGE_SRC}/gen-ts
-          echo "DESTINATION=$(echo "ts/${SCHEMA/axone-/""}-schema")" >> $GITHUB_OUTPUT
-
-      - name: Generate sources
-        run: |
-          quicktype -s schema schema/${{ matrix.schema }}/*.json -o ${{ steps.package.outputs.DESTINATION }}/gen-ts/schema.ts --prefer-types --prefer-unions
-
-      - name: Fetch dependencies
-        run: yarn --cwd ${{ steps.package.outputs.DESTINATION }}
-
       - name: Build
-        run: yarn --cwd ${{ steps.package.outputs.DESTINATION }} build
+        run: |
+          mage -v build:ts ${{ matrix.schema }}
