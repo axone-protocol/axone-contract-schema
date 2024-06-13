@@ -47,9 +47,7 @@ func (Schema) Download(ref string) error {
 func (s Schema) Generate(ref string) error {
 	mg.Deps(mg.F(Schema.Download, ref))
 
-	defer func() {
-		s.Clean()
-	}()
+	defer s.Clean()
 
 	fmt.Println("🔨 Generating contracts json schema")
 
