@@ -63,11 +63,7 @@ jobs:
       
       - name: Install Mage
         run: go install github.com/magefile/mage@v1.15
-
-      - name: Download & generate schema
-        run: |
-          mage -v schema:generate ${{ github.event.inputs.ref }}
-
+      
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v5
         with:
@@ -77,34 +73,13 @@ jobs:
           git_user_signingkey: true
           git_commit_gpgsign: true
 
-      - name: Install gomplate
+      - name: Download & generate schema
         run: |
-          curl -s -L -o /usr/local/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.11.5/gomplate_linux-amd64
-          chmod +x /usr/local/bin/gomplate
+          mage -v schema:generate ${{ github.event.inputs.ref }}
 
-      - name: Copy updated schema and generate README
+      - name: Generate readme
         run: |
-          CONTRACTS=$(ls schema/ | jq -R -s -c 'split("\n")[:-1]')
-          for CONTRACT in $(echo ${CONTRACTS} | jq -r '.[]'); do
-            NAME=${CONTRACT/axone-/""}
-            SCHEMA_NAME=$NAME-schema
-
-            jq -n --rawfile docs tmp/docs/$CONTRACT.md \
-              --arg name "$NAME" \
-              --arg contract_name "$CONTRACT" \
-              --arg schema_name "$SCHEMA_NAME" \
-              --arg ref "${{ github.event.inputs.ref }}" \
-              '{docs: $docs, name: $name, contract_name: $contract_name, schema_name: $schema_name, ref: $ref}' > data.json
-
-            echo "📄 Generate $CONTRACT_NAME readme.md..."
-            gomplate -f ts/README.md.template -d data.json -o ts/$SCHEMA_NAME/README.md
-
-            rm data.json
-          done
-
-          git rm --ignore-unmatch --cached tmp
-          rm -rf .git/modules/tmp
-          rm -rf tmp
+          mage -v schema:readme ${{ github.event.inputs.ref }}
 
       - name: Setup node environment
         uses: actions/setup-node@v3
