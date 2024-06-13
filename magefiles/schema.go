@@ -15,7 +15,6 @@ import (
 const (
 	CONTRACTS_REPOSITORY = "https://github.com/axone-protocol/contracts.git"
 	CONTRACTS_TMP_DIR    = "tmp"
-	SCHEMA_DIR           = "schema"
 )
 
 type Schema mg.Namespace
@@ -40,7 +39,7 @@ func (Schema) Download(ref string) error {
 	return nil
 }
 
-// Generate build and generate contracts json schema
+// Generate build and generate contracts json schema and readme
 func (s Schema) Generate(ref string) error {
 	mg.Deps(mg.F(Schema.Download, ref))
 
@@ -74,6 +73,36 @@ func (s Schema) Generate(ref string) error {
 	}
 	fmt.Println("✨ Contracts json schema generated")
 	return nil
+}
+
+// Readme generate contracts readme on all target
+func (s Schema) Readme(ref string) error {
+	mg.Deps(mg.F(Schema.Download, ref))
+
+	fmt.Println("📄 Generating contracts readme")
+
+	contractsDir, err := os.ReadDir(SCHEMA_DIR)
+	if err != nil {
+		return err
+	}
+
+	for _, contract := range contractsDir {
+		if !contract.IsDir() {
+			continue
+		}
+
+		err := generateReadme(contract.Name())
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// tag returns the git tag for the current branch or "" if none.
+func tag() string {
+	s, _ := sh.Output("git", "describe", "--tags")
+	return s
 }
 
 // Clean remove temporary files

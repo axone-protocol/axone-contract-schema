@@ -1,6 +1,6 @@
-# AXONE {{ (ds "data").name }} schema
+# AXONE {{ .Name }} schema
 
-> Generated typescript types for [{{ (ds "data").contract_name }} contract](https://github.com/axone-protocol/contracts/tree/{{ (ds "data").ref }}/contracts/{{ (ds "data").contract_name }}).
+> Generated typescript types for [{{ .ContractName }} contract](https://github.com/axone-protocol/contracts/tree/{{ .Ref }}/contracts/{{ .ContractName }}).
 
 [![version](https://img.shields.io/github/v/release/axone-protocol/axone-contract-schema?style=for-the-badge&logo=github)](https://github.com/axone-protocol/axone-contract-schema/releases)
 [![build](https://img.shields.io/github/actions/workflow/status/axone-protocol/axone-contract-schema/build.yml?branch=main&label=build&style=for-the-badge&logo=github)](https://github.com/axone-protocol/axone-contract-schema/actions/workflows/build.yml)
@@ -11,26 +11,26 @@
 [![contributor covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?style=for-the-badge)](https://github.com/axone-protocol/.github/blob/main/CODE_OF_CONDUCT.md)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg?style=for-the-badge)](https://opensource.org/licenses/BSD-3-Clause)
 
-## Usage 
+## Usage
 
-First add or install the module to your existing project using either `yarn` or `npm`. 
+First add or install the module to your existing project using either `yarn` or `npm`.
 
 ```bash
-yarn add @axone/{{ (ds "data").schema_name }}
+yarn add @axone/{{ .SchemaName }}
 ```
 
-or 
+or
 ```bash
-npm install --save @axone/{{ (ds "data").schema_name }}
+npm install --save @axone/{{ .SchemaName }}
 ```
 
-Then import wanted type : 
+Then import wanted type :
 
 ```typescript
-import type { InstantiateMsg } from "@axone/{{ (ds "data").schema_name }}";
+import type { InstantiateMsg } from "@axone/{{ .SchemaName }}";
 ```
 
 ---
 
-{{ (ds "data").docs }}
+{{ .Docs }}
 
