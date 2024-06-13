@@ -19,7 +19,8 @@ const (
 
 type Schema mg.Namespace
 
-// Download download contracts schemas
+// Download download contracts schemas at a given ref.
+// ref can be a branch, tag or commit hash.
 func (Schema) Download(ref string) error {
 	mg.Deps(Schema.Clean)
 
@@ -39,7 +40,10 @@ func (Schema) Download(ref string) error {
 	return nil
 }
 
-// Generate build and generate contracts json schema and readme
+// Generate build and generate contracts json schemas at the given ref.
+// It first downloads the contracts repository at the given ref., then
+// generate the json schema using cargo make and finally move the generated schema to the schema directory.
+// ref can be a branch, tag or commit hash.
 func (s Schema) Generate(ref string) error {
 	mg.Deps(mg.F(Schema.Download, ref))
 

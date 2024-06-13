@@ -14,7 +14,7 @@ import (
 
 type Build mg.Namespace
 
-// Ts build typescript schemas
+// Ts build typescript schema for the given contract schema.
 func (Build) Ts(schema string) error {
 	fmt.Println("⚙️ Building typescript")
 
