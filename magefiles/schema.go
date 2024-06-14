@@ -80,7 +80,7 @@ func (s Schema) Generate(ref string) error {
 	return nil
 }
 
-// Readme generate contracts readme on all target
+// Readme generate contracts readme on all target.
 func (s Schema) Readme(ref string) error {
 	mg.Deps(mg.F(Schema.Download, ref))
 	defer func() { _ = s.Clean() }()
@@ -111,7 +111,7 @@ func tag() string {
 	return s
 }
 
-// Clean remove temporary files
+// Clean remove temporary files.
 func (Schema) Clean() error {
 	fmt.Println("🧹 Cleaning schema temporary files")
 	return sh.Rm(CONTRACTS_TMP_DIR)

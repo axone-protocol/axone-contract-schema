@@ -16,7 +16,7 @@ type ReadmeParams struct {
 	Ref          string
 }
 
-// generate readmes for the given contract in all target languages
+// generate readmes for the given contract in all target languages.
 func generateReadme(contract string) error {
 	fmt.Printf("    📄 Generating %s readme\n", contract)
 
@@ -39,7 +39,7 @@ func generateReadme(contract string) error {
 	return ts(params)
 }
 
-// generate typescript readmes
+// generate typescript readmes.
 func ts(params ReadmeParams) error {
 	fmt.Println("       ➡️ Typescript readme")
 	tmplPath := filepath.Join("ts", "README.md.template")
