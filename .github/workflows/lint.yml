@@ -4,10 +4,10 @@ on:
   workflow_call:
 
   push:
-    branches: [ main ]
+    branches: [main]
 
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
   workflow_dispatch:
 
@@ -82,3 +82,45 @@ jobs:
           message: 🙅 Closing the PR because it does not respect naming conventions. Edit the branch name and submit a new PR.
     env:
       GITHUB_TOKEN: ${{ secrets.OPS_TOKEN }}
+
+  lint-magefiles:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Find changed go files
+        id: changed-go-files
+        uses: tj-actions/changed-files@v44.5.2
+        with:
+          files: |
+            **/*.go
+            magefiles/go.mod
+            magefiles/go.sum
+
+      - name: Setup Go environment
+        uses: actions/setup-go@v5.0.1
+        if: steps.changed-go-files.outputs.any_changed == 'true'
+        with:
+          go-version: "1.22"
+          cache: false
+
+      - name: Lint Mage go code (golangci-lint)
+        uses: golangci/golangci-lint-action@v6
+        if: steps.changed-go-files.outputs.any_changed == 'true'
+        with:
+          version: v1.59
+          working-directory: magefiles
+
+      - name: Lint Magefiles format (gofumpt)
+        if: steps.changed-go-files.outputs.any_changed == 'true'
+        run: |
+          go install mvdan.cc/gofumpt@v0.6.0
+          if [ "$(gofumpt -l magefiles)" != "" ]; then
+            echo "❌ Magefiles are not gofumpt!"
+            exit 1
+          fi
+          echo "✅ Magefiles are gofumpt!"
