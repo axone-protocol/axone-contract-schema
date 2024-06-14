@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -17,7 +18,7 @@ func runInPath(path string, cmd string, args ...string) error {
 
 	defer func() {
 		dirs := filepath.SplitList(path)
-		os.Chdir(strings.Repeat("../", len(dirs)))
+		_ = os.Chdir(strings.Repeat("../", len(dirs)))
 	}()
 
 	return sh.Run(cmd, args...)
@@ -41,11 +42,11 @@ func ensureCargo() {
 func ensureCargoMake() {
 	ensureCargo()
 
-	if err := sh.Run("cargo", "make", "--help"); err == nil {
-		return
+	if err := sh.Run("cargo", "make", "--help"); err != nil {
+		if err := sh.Run("cargo", "install", "cargo-make"); err != nil {
+			panic(fmt.Sprintf("failed to install cargo-make: %v", err))
+		}
 	}
-
-	sh.Run("cargo", "install", "--force", "cargo-make")
 }
 
 // EnsureQuicktype ensures that quicktype is installed, if not it panics.

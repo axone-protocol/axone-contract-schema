@@ -23,13 +23,14 @@ func (Build) Ts(schema string) error {
 
 	name := strings.TrimPrefix(schema, "axone-")
 	dest := filepath.Join(TS_DIR, fmt.Sprintf("%s-schema", name))
-	os.Mkdir(filepath.Join(dest, "gen-ts"), os.ModePerm)
+	if err := os.Mkdir(filepath.Join(dest, "gen-ts"), os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create directory: %w", err)
+	}
 
 	err := sh.Run("bash", "-c",
 		fmt.Sprintf("quicktype -s schema %s -o %s --prefer-types --prefer-unions",
 			filepath.Join(SCHEMA_DIR, schema, "*.json"),
 			filepath.Join(dest, "gen-ts", "schema.ts")))
-
 	if err != nil {
 		return fmt.Errorf("failed to generate typescript types: %w", err)
 	}

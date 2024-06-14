@@ -45,20 +45,25 @@ func (Schema) Download(ref string) error {
 func (s Schema) Generate(ref string) error {
 	mg.Deps(mg.F(Schema.Download, ref))
 
-	defer s.Clean()
+	defer func() { _ = s.Clean() }()
 
 	fmt.Println("🔨 Generating contracts json schema")
 
 	ensureCargoMake()
 
-	runInPath(CONTRACTS_TMP_DIR, "cargo", "make", "schema")
+	if err := runInPath(CONTRACTS_TMP_DIR, "cargo", "make", "schema"); err != nil {
+		return fmt.Errorf("failed to generate contracts json schema: %w", err)
+	}
+
 	if err := sh.Rm(SCHEMA_DIR); err != nil {
 		return fmt.Errorf("failed to remove schema directory: %w", err)
 	}
 
 	fmt.Println("🔨 Moving generated json schema")
-	err := sh.Run("bash", "-c",
-		fmt.Sprintf("rsync -rmv --include='*/' --include='*/schema/raw/*.json' --exclude='*' %s/contracts/ %s/", CONTRACTS_TMP_DIR, SCHEMA_DIR))
+	if err := sh.Run("bash", "-c",
+		fmt.Sprintf("rsync -rmv --include='*/' --include='*/schema/raw/*.json' --exclude='*' %s/contracts/ %s/", CONTRACTS_TMP_DIR, SCHEMA_DIR)); err != nil {
+		return fmt.Errorf("failed to move generated json schema: %w", err)
+	}
 
 	schemas, err := sh.Output("find", SCHEMA_DIR, "-type", "f", "-name", "*.json")
 	if err != nil {
@@ -78,7 +83,7 @@ func (s Schema) Generate(ref string) error {
 // Readme generate contracts readme on all target
 func (s Schema) Readme(ref string) error {
 	mg.Deps(mg.F(Schema.Download, ref))
-	defer s.Clean()
+	defer func() { _ = s.Clean() }()
 
 	fmt.Println("📄 Generating contracts readme")
 
