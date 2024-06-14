@@ -1,15 +1,16 @@
-//go:build mage
-// +build mage
+//go:build (darwin && cgo) || linux || mage
+// +build darwin,cgo linux mage
 
 package main
 
 import (
 	"fmt"
-	"github.com/magefile/mage/mg"
-	"github.com/magefile/mage/sh"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/magefile/mage/mg"
+	"github.com/magefile/mage/sh"
 )
 
 type Build mg.Namespace

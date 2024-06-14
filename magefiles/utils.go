@@ -1,13 +1,11 @@
-//go:build mage
-// +build mage
-
 package main
 
 import (
-	"github.com/magefile/mage/sh"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/magefile/mage/sh"
 )
 
 // RunInPath runs a command in a specific path.
