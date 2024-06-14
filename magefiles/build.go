@@ -50,10 +50,12 @@ func (Build) Go(schema string) error {
 
 	name := strings.TrimPrefix(schema, "axone-")
 	dest := filepath.Join(GO_DIR, fmt.Sprintf("%s-schema", name))
-	os.MkdirAll(dest, os.ModePerm)
+	if err := os.MkdirAll(dest, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create directory: %w", err)
+	}
 
 	err := sh.Run("bash", "-c",
-		fmt.Sprintf("quicktype -s schema %s -o %s --lang go --just-types-and-package --package schema",
+		fmt.Sprintf("quicktype -s schema %s -o %s --lang go --package schema",
 			filepath.Join(SCHEMA_DIR, schema, "*.json"),
 			filepath.Join(dest, "schema.go")))
 
