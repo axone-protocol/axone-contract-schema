@@ -58,7 +58,6 @@ func (Build) Go(schema string) error {
 		fmt.Sprintf("quicktype -s schema %s -o %s --lang go --package schema",
 			filepath.Join(SCHEMA_DIR, schema, "*.json"),
 			filepath.Join(dest, "schema.go")))
-
 	if err != nil {
 		return fmt.Errorf("failed to generate go types: %w", err)
 	}
