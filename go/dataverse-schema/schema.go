@@ -1,4 +1,61 @@
+// This file was generated from JSON Schema using quicktype, do not modify it directly.
+// To parse and unparse this JSON data, add this code to your project and do:
+//
+//    executeMsg, err := UnmarshalExecuteMsg(bytes)
+//    bytes, err = executeMsg.Marshal()
+//
+//    instantiateMsg, err := UnmarshalInstantiateMsg(bytes)
+//    bytes, err = instantiateMsg.Marshal()
+//
+//    queryMsg, err := UnmarshalQueryMsg(bytes)
+//    bytes, err = queryMsg.Marshal()
+//
+//    dataverseResponse, err := UnmarshalDataverseResponse(bytes)
+//    bytes, err = dataverseResponse.Marshal()
+
 package schema
+
+import "encoding/json"
+
+func UnmarshalExecuteMsg(data []byte) (ExecuteMsg, error) {
+	var r ExecuteMsg
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *ExecuteMsg) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+func UnmarshalInstantiateMsg(data []byte) (InstantiateMsg, error) {
+	var r InstantiateMsg
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *InstantiateMsg) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+func UnmarshalQueryMsg(data []byte) (QueryMsg, error) {
+	var r QueryMsg
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *QueryMsg) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+func UnmarshalDataverseResponse(data []byte) (DataverseResponse, error) {
+	var r DataverseResponse
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *DataverseResponse) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
 
 // `ExecuteMsg` defines the set of possible actions that can be performed on the dataverse.
 //

@@ -1,6 +1,115 @@
+// This file was generated from JSON Schema using quicktype, do not modify it directly.
+// To parse and unparse this JSON data, add this code to your project and do:
+//
+//    executeMsg, err := UnmarshalExecuteMsg(bytes)
+//    bytes, err = executeMsg.Marshal()
+//
+//    instantiateMsg, err := UnmarshalInstantiateMsg(bytes)
+//    bytes, err = instantiateMsg.Marshal()
+//
+//    queryMsg, err := UnmarshalQueryMsg(bytes)
+//    bytes, err = queryMsg.Marshal()
+//
+//    bucketResponse, err := UnmarshalBucketResponse(bytes)
+//    bytes, err = bucketResponse.Marshal()
+//
+//    objectResponse, err := UnmarshalObjectResponse(bytes)
+//    bytes, err = objectResponse.Marshal()
+//
+//    binary, err := UnmarshalBinary(bytes)
+//    bytes, err = binary.Marshal()
+//
+//    objectPinsResponse, err := UnmarshalObjectPinsResponse(bytes)
+//    bytes, err = objectPinsResponse.Marshal()
+//
+//    objectsResponse, err := UnmarshalObjectsResponse(bytes)
+//    bytes, err = objectsResponse.Marshal()
+
 package schema
 
+import "encoding/json"
+
+func UnmarshalExecuteMsg(data []byte) (ExecuteMsg, error) {
+	var r ExecuteMsg
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *ExecuteMsg) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+func UnmarshalInstantiateMsg(data []byte) (InstantiateMsg, error) {
+	var r InstantiateMsg
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *InstantiateMsg) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+func UnmarshalQueryMsg(data []byte) (QueryMsg, error) {
+	var r QueryMsg
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *QueryMsg) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+func UnmarshalBucketResponse(data []byte) (BucketResponse, error) {
+	var r BucketResponse
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *BucketResponse) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+func UnmarshalObjectResponse(data []byte) (ObjectResponse, error) {
+	var r ObjectResponse
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *ObjectResponse) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
 type Binary string
+
+func UnmarshalBinary(data []byte) (Binary, error) {
+	var r Binary
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *Binary) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+func UnmarshalObjectPinsResponse(data []byte) (ObjectPinsResponse, error) {
+	var r ObjectPinsResponse
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *ObjectPinsResponse) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+func UnmarshalObjectsResponse(data []byte) (ObjectsResponse, error) {
+	var r ObjectsResponse
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *ObjectsResponse) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
 
 // Execute messages
 //
