@@ -42,3 +42,22 @@ func (Build) Ts(schema string) error {
 
 	return sh.Run("yarn", "--cwd", dest, "build")
 }
+
+func (Build) Go(schema string) error {
+	fmt.Println("⚙️ Building go")
+
+	name := strings.TrimPrefix(schema, "axone-")
+	dest := filepath.Join(GO_DIR, fmt.Sprintf("%s-schema", name))
+	os.MkdirAll(dest, os.ModePerm)
+
+	err := sh.Run("bash", "-c",
+		fmt.Sprintf("quicktype -s schema %s -o %s --lang go --just-types-and-package --package schema",
+			filepath.Join(SCHEMA_DIR, schema, "*.json"),
+			filepath.Join(dest, "schema.go")))
+
+	if err != nil {
+		return fmt.Errorf("failed to generate go types: %w", err)
+	}
+
+	return nil
+}
