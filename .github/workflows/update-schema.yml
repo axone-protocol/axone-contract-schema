@@ -31,14 +31,6 @@ jobs:
           token: ${{ secrets.OPS_TOKEN }}
           fetch-depth: 2
 
-      - name: Check out repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.ref }}
-          repository: axone-protocol/contracts
-          token: ${{ secrets.OPS_TOKEN }}
-          path: tmp
-
       - name: Cache cargo registry
         uses: actions/cache@v3
         with:
@@ -50,20 +42,27 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
+      - name: Setup Go environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: true
+          cache-dependency-path: |
+              **/go.sum
+              **/go.mod
+
       - name: Setup rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.69
+          toolchain: 1.75
           default: true
           override: true
 
       - name: Install cargo make
         uses: davidB/rust-cargo-make@v1
 
-      - name: Build schema
-        run: |
-          cd tmp
-          cargo make schema
+      - name: Install Mage
+        run: go install github.com/magefile/mage@v1.15
 
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v6
@@ -74,38 +73,13 @@ jobs:
           git_user_signingkey: true
           git_commit_gpgsign: true
 
-      - name: Install gomplate
+      - name: Download & generate schema
         run: |
-          curl -s -L -o /usr/local/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.11.5/gomplate_linux-amd64
-          chmod +x /usr/local/bin/gomplate
+          mage -v schema:generate ${{ github.event.inputs.ref }}
 
-      - name: Copy updated schema and generate README
+      - name: Generate readme
         run: |
-          rm -rf schema/*
-          rsync -rmv --include='*/' --include='*/schema/raw/*.json' --exclude='*' tmp/contracts/ schema/
-          find schema -type f -name "*.json" -exec sh -c 'mv "{}" "$(dirname "{}" | xargs dirname | xargs dirname)"' \;
-
-          CONTRACTS=$(ls schema/ | jq -R -s -c 'split("\n")[:-1]')
-          for CONTRACT in $(echo ${CONTRACTS} | jq -r '.[]'); do
-            NAME=${CONTRACT/axone-/""}
-            SCHEMA_NAME=$NAME-schema
-
-            jq -n --rawfile docs tmp/docs/$CONTRACT.md \
-              --arg name "$NAME" \
-              --arg contract_name "$CONTRACT" \
-              --arg schema_name "$SCHEMA_NAME" \
-              --arg ref "${{ github.event.inputs.ref }}" \
-              '{docs: $docs, name: $name, contract_name: $contract_name, schema_name: $schema_name, ref: $ref}' > data.json
-
-            echo "📄 Generate $CONTRACT_NAME readme.md..."
-            gomplate -f ts/README.md.template -d data.json -o ts/$SCHEMA_NAME/README.md
-
-            rm data.json
-          done
-
-          git rm --ignore-unmatch --cached tmp
-          rm -rf .git/modules/tmp
-          rm -rf tmp
+          mage -v schema:readme ${{ github.event.inputs.ref }}
 
       - name: Setup node environment
         uses: actions/setup-node@v4
