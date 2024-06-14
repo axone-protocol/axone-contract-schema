@@ -23,11 +23,12 @@ jobs:
       - id: set-matrix
         run: echo "::set-output name=schema::$(ls schema/ | jq -R -s -c 'split("\n")[:-1]' )"
 
-  build-ts:
+  build-target:
     runs-on: ubuntu-22.04
     needs: schema-matrix
     strategy:
       matrix:
+        target: [ts, go]
         schema: ${{ fromJson(needs.schema-matrix.outputs.schema) }}
     steps:
       - name: Check out repository
@@ -57,4 +58,4 @@ jobs:
 
       - name: Build
         run: |
-          mage -v build:ts ${{ matrix.schema }}
+          mage -v build:${{ matrix.target }} ${{ matrix.schema }}
