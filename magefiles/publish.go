@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/magefile/mage/mg"
-	"github.com/magefile/mage/sh"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/magefile/mage/mg"
+	"github.com/magefile/mage/sh"
 )
 
 type BumpVersion mg.Namespace
