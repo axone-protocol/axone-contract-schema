@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -18,11 +17,25 @@ func runInPath(path string, cmd string, args ...string) error {
 	}
 
 	defer func() {
-		dirs := filepath.SplitList(path)
+		dirs := strings.Split(path, "/")
 		_ = os.Chdir(strings.Repeat("../", len(dirs)))
 	}()
 
 	return sh.Run(cmd, args...)
+}
+
+func outputInPath(path string, cmd string, args ...string) (_ string, err error) {
+	err = os.Chdir(path)
+	if err != nil {
+		return "", err
+	}
+
+	defer func() {
+		dirs := strings.Split(path, "/")
+		_ = os.Chdir(strings.Repeat("../", len(dirs)))
+	}()
+
+	return sh.Output(cmd, args...)
 }
 
 func isVersionTagValid(tag string) error {
