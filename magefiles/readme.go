@@ -17,7 +17,7 @@ type ReadmeParams struct {
 }
 
 // generate readmes for the given contract in all target languages.
-func generateReadme(contract string) error {
+func generateReadmes(contract string) error {
 	fmt.Printf("    📄 Generating %s readme\n", contract)
 
 	readme, err := os.ReadFile(filepath.Join(CONTRACTS_TMP_DIR, "docs", fmt.Sprintf("%s.md", contract)))
@@ -36,19 +36,23 @@ func generateReadme(contract string) error {
 		Ref:          tag(),
 	}
 
-	return ts(params)
+	for _, languagePath := range []string{GO_DIR, TS_DIR} {
+		if err := generate(languagePath, params); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-// generate typescript readmes.
-func ts(params ReadmeParams) error {
-	fmt.Println("       ➡️ Typescript readme")
-	tmplPath := filepath.Join("ts", "README.md.template")
+func generate(languagePath string, params ReadmeParams) error {
+	fmt.Printf("       ➡️ %s readme\n", languagePath)
+	tmplPath := filepath.Join(languagePath, "README.md.template")
 	tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
 		return fmt.Errorf("failed to parse template '%s': %w", tmplPath, err)
 	}
 
-	readmeFile, err := os.Create(filepath.Join("ts", params.SchemaName, "README.md"))
+	readmeFile, err := os.Create(filepath.Join(languagePath, params.SchemaName, "README.md"))
 	if err != nil {
 		return fmt.Errorf("could not create readme file: %w", err)
 	}

@@ -97,7 +97,7 @@ func (s Schema) Readme(ref string) error {
 			continue
 		}
 
-		err := generateReadme(contract.Name())
+		err := generateReadmes(contract.Name())
 		if err != nil {
 			return fmt.Errorf("failed to generate readme for contract '%s': %w", contract.Name(), err)
 		}
