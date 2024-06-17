@@ -11,9 +11,14 @@ import (
 type BumpVersion mg.Namespace
 
 func (BumpVersion) Ts(version string) error {
-	fmt.Println("🔖 Bumping version")
+	fmt.Println("🔖 Bump typescript packages version")
 
 	ensureYarn()
+
+	err := isVersionTagValid(version)
+	if err != nil {
+		return err
+	}
 
 	packages, err := os.ReadDir(TS_DIR)
 	if err != nil {
@@ -24,7 +29,7 @@ func (BumpVersion) Ts(version string) error {
 		if !pkg.IsDir() {
 			continue
 		}
-
+		fmt.Printf("    ➡️ Bumping %s to version %s\n", pkg.Name(), version)
 		err := sh.Run("yarn",
 			"--cwd", filepath.Join(TS_DIR, pkg.Name()),
 			"version",

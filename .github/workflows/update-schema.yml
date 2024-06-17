@@ -158,10 +158,24 @@ jobs:
           name: schema
           path: ./
 
-      - name: "[TS] Bump npm package version"
+      - name: Setup Go environment
+        uses: actions/setup-go@v5
+        if: ${{ github.event.inputs.draft == 'false' }}
+        with:
+          go-version: "1.22"
+          cache: true
+          cache-dependency-path: |
+            **/go.sum
+            **/go.mod
+
+      - name: Install Mage
+        if: ${{ github.event.inputs.draft == 'false' }}
+        run: go install github.com/magefile/mage@v1.15
+
+      - name: "Bump ts version"
         if: ${{ github.event.inputs.draft == 'false' }}
         run: |
-          find ts/* -maxdepth 0 -type d -exec sh -c 'cd {} && yarn version --new-version ${{ github.event.inputs.ref }} --allow-same-version --no-git-tag-version' \;
+          mage -v bumpVersion:ts ${{ github.event.inputs.ref }}
 
       - name: Commit documentation draft
         uses: stefanzweifel/git-auto-commit-action@v5

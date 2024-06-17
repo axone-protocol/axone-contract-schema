@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/magefile/mage/sh"
@@ -22,6 +23,20 @@ func runInPath(path string, cmd string, args ...string) error {
 	}()
 
 	return sh.Run(cmd, args...)
+}
+
+func isVersionTagValid(tag string) error {
+	pattern := `v(?P<Major>0|(?:[1-9]\d*))(?:\.(?P<Minor>0|(?:[1-9]\d*))(?:\.(?P<Patch>0|(?:[1-9]\d*)))?(?:\-(?P<PreRelease>[0-9A-Z\.-]+))?(?:\+(?P<Meta>[0-9A-Z\.-]+))?)?`
+	re, err := regexp.Compile(pattern)
+	if err != nil {
+		return fmt.Errorf("failed to compile regex: %w", err)
+	}
+
+	if !re.MatchString(tag) {
+		return fmt.Errorf("tag version '%s' is not valid, should be 'vX.Y.Z'", tag)
+	}
+
+	return nil
 }
 
 // EnsureGit ensures that git is installed, if not it panics.
