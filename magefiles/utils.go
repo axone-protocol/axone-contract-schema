@@ -55,3 +55,10 @@ func ensureQuicktype() {
 		panic("quicktype is not installed")
 	}
 }
+
+// EnsureYarn ensures that yarn is installed, if not it panics.
+func ensureYarn() {
+	if err := sh.Run("yarn", "--help"); err != nil {
+		panic("yarn is not installed")
+	}
+}

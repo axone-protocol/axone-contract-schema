@@ -19,6 +19,7 @@ type Build mg.Namespace
 func (Build) Ts(schema string) error {
 	fmt.Printf("⚙️ Generate typescript types for %s\n", schema)
 
+	ensureYarn()
 	ensureQuicktype()
 
 	name := strings.TrimPrefix(schema, "axone-")
