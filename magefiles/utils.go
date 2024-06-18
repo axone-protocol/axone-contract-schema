@@ -5,35 +5,42 @@ import (
 	"os"
 	"regexp"
 	"strconv"
-	"strings"
 
 	"github.com/magefile/mage/sh"
 )
 
 // RunInPath runs a command in a specific path.
-func runInPath(path string, cmd string, args ...string) error {
-	err := os.Chdir(path)
+func runInPath(path string, cmd string, args ...string) (err error) {
+	oldPath, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	err = os.Chdir(path)
 	if err != nil {
 		return err
 	}
 
 	defer func() {
-		dirs := strings.Split(path, "/")
-		_ = os.Chdir(strings.Repeat("../", len(dirs)))
+		err = os.Chdir(oldPath)
 	}()
 
 	return sh.Run(cmd, args...)
 }
 
 func outputInPath(path string, cmd string, args ...string) (_ string, err error) {
+	oldPath, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
 	err = os.Chdir(path)
 	if err != nil {
 		return "", err
 	}
 
 	defer func() {
-		dirs := strings.Split(path, "/")
-		_ = os.Chdir(strings.Repeat("../", len(dirs)))
+		err = os.Chdir(oldPath)
 	}()
 
 	return sh.Output(cmd, args...)
