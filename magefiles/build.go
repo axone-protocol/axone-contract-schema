@@ -46,6 +46,7 @@ func (Build) Ts(schema string) error {
 	return sh.Run("yarn", "--cwd", dest, "build")
 }
 
+// Go build go schema for the given contract schema.
 func (Build) Go(schema string) error {
 	fmt.Printf("⚙️ Generate go types for %s\n", schema)
 

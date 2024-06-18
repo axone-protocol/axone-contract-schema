@@ -14,6 +14,7 @@ import (
 
 type BumpVersion mg.Namespace
 
+// Ts bumps the version of the typescript packages with the given version.
 func (BumpVersion) Ts(version string) error {
 	fmt.Println("🔖 Bump typescript packages version")
 
@@ -47,6 +48,7 @@ func (BumpVersion) Ts(version string) error {
 	return nil
 }
 
+// Go bumps the version of the go packages with the given version.
 func (BumpVersion) Go(version string) error {
 	fmt.Println("🔖 Bump go packages version")
 
@@ -94,6 +96,8 @@ func (BumpVersion) Go(version string) error {
 
 type Publish mg.Namespace
 
+// Ts publishes the typescript packages for the given schema.
+// If the ref is a tag, it will publish it as latest, otherwise as next.
 func (Publish) Ts(schema string, ref string) error {
 	mg.Deps(mg.F(Build.Ts, schema))
 

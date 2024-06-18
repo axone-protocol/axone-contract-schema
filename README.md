@@ -27,11 +27,16 @@ This repository contains [AXONE contract schemas](https://github.com/axone-proto
 ### Available commands
 
 ```bash
+Targets:
+  build:go           build go schema for the given contract schema.
   build:ts           build typescript schema for the given contract schema.
-  schema:clean       remove temporary files
+  bumpVersion:go     bumps the version of the go packages with the given version.
+  bumpVersion:ts     bumps the version of the typescript packages with the given version.
+  publish:ts         publishes the typescript packages for the given schema.
+  schema:clean       remove temporary files.
   schema:download    download contracts schemas at a given ref.
   schema:generate    build and generate contracts json schemas at the given ref.
-  schema:readme      generate contracts readme on all target
+  schema:readme      generate contracts readme on all target.
 ```
 
 Download and generate schema for a specific version:
