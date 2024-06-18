@@ -1,6 +1,6 @@
 # AXONE law-stone schema
 
-> Generated typescript types for [axone-law-stone contract](https://github.com/axone-protocol/contracts/tree/v3.0.0-54-gb243e6d/contracts/axone-law-stone).
+> Generated go types for [axone-law-stone contract](https://github.com/axone-protocol/contracts/tree/v3.0.0-54-gb243e6d/contracts/axone-law-stone).
 
 [![version](https://img.shields.io/github/v/release/axone-protocol/axone-contract-schema?style=for-the-badge&logo=github)](https://github.com/axone-protocol/axone-contract-schema/releases)
 [![build](https://img.shields.io/github/actions/workflow/status/axone-protocol/axone-contract-schema/build.yml?branch=main&label=build&style=for-the-badge&logo=github)](https://github.com/axone-protocol/axone-contract-schema/actions/workflows/build.yml)
@@ -11,23 +11,10 @@
 [![contributor covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg?style=for-the-badge)](https://github.com/axone-protocol/.github/blob/main/CODE_OF_CONDUCT.md)
 [![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg?style=for-the-badge)](https://opensource.org/licenses/BSD-3-Clause)
 
-## Usage
-
-First add or install the module to your existing project using either `yarn` or `npm`.
+## Installation
 
 ```bash
-yarn add @axone/law-stone-schema
-```
-
-or
-```bash
-npm install --save @axone/law-stone-schema
-```
-
-Then import wanted type :
-
-```typescript
-import type { InstantiateMsg } from "@axone/law-stone-schema";
+go get github.com/axone-protocol/axone-contract-schema/go/law-stone-schema
 ```
 
 ---
