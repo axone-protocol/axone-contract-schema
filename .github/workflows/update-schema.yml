@@ -133,7 +133,7 @@ jobs:
 
       - name: Installing quicktype
         run: |
-          yarn global add quicktype
+          yarn global add quicktype@23
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
       - name: Build
