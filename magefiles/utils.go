@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/magefile/mage/sh"
@@ -38,18 +39,42 @@ func outputInPath(path string, cmd string, args ...string) (_ string, err error)
 	return sh.Output(cmd, args...)
 }
 
-func isVersionTagValid(tag string) error {
+type Version struct {
+	Major int
+	Minor int
+	Patch int
+}
+
+func parseVersion(tag string) (*Version, error) {
 	pattern := `v(?P<Major>0|(?:[1-9]\d*))(?:\.(?P<Minor>0|(?:[1-9]\d*))(?:\.(?P<Patch>0|(?:[1-9]\d*)))?(?:\-(?P<PreRelease>[0-9A-Z\.-]+))?(?:\+(?P<Meta>[0-9A-Z\.-]+))?)?`
 	re, err := regexp.Compile(pattern)
 	if err != nil {
-		return fmt.Errorf("failed to compile regex: %w", err)
+		return nil, fmt.Errorf("failed to compile regex: %w", err)
 	}
 
-	if !re.MatchString(tag) {
-		return fmt.Errorf("tag version '%s' is not valid, should be 'vX.Y.Z'", tag)
+	matches := re.FindStringSubmatch(tag)
+	if matches == nil {
+		return nil, fmt.Errorf("tag version '%s' is not valid, should be 'vX.Y.Z'", tag)
 	}
+	version := &Version{}
+	for i, name := range re.SubexpNames() {
+		switch name {
+		case "Major":
+			version.Major, err = strconv.Atoi(matches[i])
+		case "Minor":
+			version.Minor, err = strconv.Atoi(matches[i])
+		case "Patch":
+			version.Patch, err = strconv.Atoi(matches[i])
+		}
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse version %s: %w", name, err)
+		}
+	}
+	return version, nil
+}
 
-	return nil
+func (v *Version) String() string {
+	return fmt.Sprintf("v%d.%d.%d", v.Major, v.Minor, v.Patch)
 }
 
 // EnsureGit ensures that git is installed, if not it panics.

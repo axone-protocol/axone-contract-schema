@@ -15,12 +15,12 @@ import (
 type BumpVersion mg.Namespace
 
 // Ts bumps the version of the typescript packages with the given version.
-func (BumpVersion) Ts(version string) error {
+func (BumpVersion) Ts(v string) error {
 	fmt.Println("🔖 Bump typescript packages version")
 
 	ensureYarn()
 
-	err := isVersionTagValid(version)
+	version, err := parseVersion(v)
 	if err != nil {
 		return err
 	}
@@ -38,7 +38,7 @@ func (BumpVersion) Ts(version string) error {
 		err := sh.Run("yarn",
 			"--cwd", filepath.Join(TS_DIR, pkg.Name()),
 			"version",
-			"--new-version", version,
+			"--new-version", version.String(),
 			"--allow-same-version",
 			"--no-git-tag-version")
 		if err != nil {
@@ -49,15 +49,13 @@ func (BumpVersion) Ts(version string) error {
 }
 
 // Go bumps the version of the go packages with the given version.
-func (BumpVersion) Go(version string) error {
+func (BumpVersion) Go(v string) error {
 	fmt.Println("🔖 Bump go packages version")
 
-	err := isVersionTagValid(version)
+	version, err := parseVersion(v)
 	if err != nil {
 		return err
 	}
-
-	majorVersion := strings.Split(version, ".")[0]
 
 	packages, err := os.ReadDir(GO_DIR)
 	if err != nil {
@@ -79,7 +77,7 @@ func (BumpVersion) Go(version string) error {
 		moduleNameUnversioned := regexp.
 			MustCompile(`/v[0-9]+$`).
 			ReplaceAllString(moduleName, "")
-		moduleNameVersioned := fmt.Sprintf("%s/%s", moduleNameUnversioned, majorVersion)
+		moduleNameVersioned := fmt.Sprintf("%s/v%d", moduleNameUnversioned, version.Major)
 
 		fmt.Printf("    🔬 Updating module path to %s\n", moduleNameVersioned)
 		err = runInPath(filepath.Join(GO_DIR, pkg.Name()), "go",
