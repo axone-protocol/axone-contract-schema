@@ -19,11 +19,12 @@ type Build mg.Namespace
 func (Build) Ts(schema string) error {
 	fmt.Printf("⚙️ Generate typescript types for %s\n", schema)
 
+	ensureYarn()
 	ensureQuicktype()
 
 	name := strings.TrimPrefix(schema, "axone-")
 	dest := filepath.Join(TS_DIR, fmt.Sprintf("%s-schema", name))
-	if err := os.Mkdir(filepath.Join(dest, "gen-ts"), os.ModePerm); err != nil {
+	if err := os.MkdirAll(filepath.Join(dest, "gen-ts"), os.ModePerm); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
@@ -45,6 +46,7 @@ func (Build) Ts(schema string) error {
 	return sh.Run("yarn", "--cwd", dest, "build")
 }
 
+// Go build go schema for the given contract schema.
 func (Build) Go(schema string) error {
 	fmt.Printf("⚙️ Generate go types for %s\n", schema)
 

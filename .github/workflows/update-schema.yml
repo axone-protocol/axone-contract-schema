@@ -81,15 +81,106 @@ jobs:
         run: |
           mage -v schema:readme ${{ github.event.inputs.ref }}
 
-      - name: Setup node environment
+      - name: Upload artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: schema
+          path: ./
+          retention-days: 1
+          overwrite: true
+
+  schema-matrix:
+    runs-on: ubuntu-22.04
+    needs: update-schema
+    outputs:
+      schema: ${{ steps.set-matrix.outputs.schema }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: set-matrix
+        run: echo "::set-output name=schema::$(ls schema/ | jq -R -s -c 'split("\n")[:-1]' )"
+
+  build-target:
+    runs-on: ubuntu-22.04
+    needs: schema-matrix
+    strategy:
+      matrix:
+        target: [ts, go]
+        schema: ${{ fromJson(needs.schema-matrix.outputs.schema) }}
+      max-parallel: 1
+    steps:
+      - name: Download artefact
+        uses: actions/download-artifact@v4
+        with:
+          name: schema
+          path: ./
+
+      - name: Setup node environment (for building)
         uses: actions/setup-node@v4
         with:
-          node-version: 18.12
+          node-version: 18.12.0
 
-      - name: "[TS] Bump npm package version"
+      - name: Setup Go environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: true
+          cache-dependency-path: |
+            **/go.sum
+            **/go.mod
+
+      - name: Install Mage
+        run: go install github.com/magefile/mage@v1.15
+
+      - name: Installing quicktype
+        run: |
+          yarn global add quicktype@23
+          echo "$(yarn global bin)" >> $GITHUB_PATH
+
+      - name: Build
+        run: |
+          mage -v build:${{ matrix.target }} ${{ matrix.schema }}
+
+      - name: Upload artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: schema
+          path: ./
+          retention-days: 1
+          overwrite: true
+
+  publish-new-schema:
+    runs-on: ubuntu-22.04
+    needs: build-target
+    steps:
+      - name: Download artefact
+        uses: actions/download-artifact@v4
+        with:
+          name: schema
+          path: ./
+
+      - name: Setup Go environment
+        uses: actions/setup-go@v5
+        if: ${{ github.event.inputs.draft == 'false' }}
+        with:
+          go-version: "1.22"
+          cache: true
+          cache-dependency-path: |
+            **/go.sum
+            **/go.mod
+
+      - name: Install Mage
+        if: ${{ github.event.inputs.draft == 'false' }}
+        run: go install github.com/magefile/mage@v1.15
+
+      - name: "Bump ts version"
         if: ${{ github.event.inputs.draft == 'false' }}
         run: |
-          find ts/* -maxdepth 0 -type d -exec sh -c 'cd {} && yarn version --new-version ${{ github.event.inputs.ref }} --allow-same-version --no-git-tag-version' \;
+          mage -v bumpVersion:ts ${{ github.event.inputs.ref }}
+
+      - name: "Bump go version"
+        if: ${{ github.event.inputs.draft == 'false' }}
+        run: |
+          mage -v bumpVersion:go ${{ github.event.inputs.ref }}
 
       - name: Commit documentation draft
         uses: stefanzweifel/git-auto-commit-action@v5
@@ -99,4 +190,4 @@ jobs:
           commit_author: ${{ vars.BOT_GIT_AUTHOR_NAME }} <${{ vars.BOT_GIT_AUTHOR_EMAIL }}>
           commit_message: "${{ github.event.inputs.draft == 'true' && 'feat: update schema files' || 'chore(release): perform release' }} ${{ github.event.inputs.draft == 'false' && github.event.inputs.ref || '' }}"
           tagging_message: ${{ github.event.inputs.draft == 'false' && github.event.inputs.ref || '' }}
-          file_pattern: '*.json */README.md'
+          file_pattern: '*.json */README.md go/**/*.go'

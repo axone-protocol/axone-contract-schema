@@ -54,39 +54,26 @@ jobs:
           registry-url: ${{ matrix.registry.url }}
           scope: "@axone"
 
+      - name: Setup Go environment
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache: true
+          cache-dependency-path: |
+            **/go.sum
+            **/go.mod
+
+      - name: Install Mage
+        run: go install github.com/magefile/mage@v1.15
+
       - name: Installing quicktype
         run: |
-          yarn global add quicktype
+          yarn global add quicktype@23
           echo "$(yarn global bin)" >> $GITHUB_PATH
 
-      - name: Prepare package path
-        id: package
+      - name: Publish
         run: |
-          SCHEMA=${{ matrix.schema }}
-          PACKAGE_SRC=$(echo "ts/${SCHEMA/axone-/""}-schema")
-          mkdir ${PACKAGE_SRC}/gen-ts
-          echo "DESTINATION=$(echo "ts/${SCHEMA/axone-/""}-schema")" >> $GITHUB_OUTPUT
-
-      - name: Generate sources
-        run: |
-          quicktype -s schema schema/${{ matrix.schema }}/*.json -o ${{ steps.package.outputs.DESTINATION }}/gen-ts/schema.ts --prefer-types --prefer-unions
-
-      - name: Publish package
-        run: |
-          set -eu
-
-          yarn --cwd ${{ steps.package.outputs.DESTINATION }} && yarn --cwd ${{ steps.package.outputs.DESTINATION }} build
-          DATE=$(date +%Y%m%d%H%M%S)
-          publish=(yarn --cwd ${{ steps.package.outputs.DESTINATION }} publish --access=public --no-git-tag-version --non-interactive)
-
-          if [[ $GITHUB_REF == refs/tags/v* ]]; then
-            publish+=(--tag latest)
-          else
-            publish+=(--prerelease --preid next.$DATE --tag next)
-          fi
-
-          echo "🚀 Publishing npm package with following command line: ${publish[@]}"
-          "${publish[@]}"
+          mage -v publish:ts ${{ matrix.schema }} $GITHUB_REF
         env:
           NODE_AUTH_TOKEN: ${{ secrets[matrix.registry.auth-token-secret] }}
 
