@@ -23,8 +23,7 @@ func (Build) Ts(schema string) error {
 
 	ensureTsCodegen()
 
-	name := strings.TrimPrefix(schema, "axone-")
-	dest := filepath.Join(TS_DIR, fmt.Sprintf("%s-schema", name))
+	name, dest := schemaDestination(schema)
 
 	err := sh.Run("ts-codegen", "generate",
 		"--schema", filepath.Join(SCHEMA_DIR, schema),
@@ -51,8 +50,8 @@ func (Build) Ts(schema string) error {
 func (Build) Go(schema string) error {
 	fmt.Printf("⚙️ Generate go types for %s\n", schema)
 
-	name := strings.TrimPrefix(schema, "axone-")
-	dest := filepath.Join(GO_DIR, fmt.Sprintf("%s-schema", name))
+	_, dest := schemaDestination(schema)
+
 	if err := os.MkdirAll(dest, os.ModePerm); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
@@ -74,8 +73,13 @@ type Clean mg.Namespace
 func (Clean) Ts(schema string) error {
 	fmt.Printf("🧹 Cleaning generated typescript files for %s\n", schema)
 
-	name := strings.TrimPrefix(schema, "axone-")
-	dest := filepath.Join(TS_DIR, fmt.Sprintf("%s-schema", name))
+	_, dest := schemaDestination(schema)
 
 	return sh.Run("yarn", "--cwd", dest, "clean")
+}
+
+func schemaDestination(schema string) (name string, destination string) {
+	name = strings.TrimPrefix(schema, "axone-")
+	destination = filepath.Join(TS_DIR, fmt.Sprintf("%s-schema", name))
+	return
 }
