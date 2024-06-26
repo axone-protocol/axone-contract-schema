@@ -50,6 +50,8 @@ func (Build) Ts(schema string) error {
 func (Build) Go(schema string) error {
 	fmt.Printf("⚙️ Generate go types for %s\n", schema)
 
+	ensureQuicktype()
+
 	_, dest := schemaDestination(schema, GO_DIR)
 
 	if err := os.MkdirAll(dest, os.ModePerm); err != nil {
