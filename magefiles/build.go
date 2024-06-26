@@ -19,8 +19,7 @@ type Build mg.Namespace
 func (Build) Ts(schema string) error {
 	fmt.Printf("⚙️ Generate typescript types for %s\n", schema)
 
-	ensureYarn()
-	ensureQuicktype()
+	ensureTsCodegen()
 
 	name := strings.TrimPrefix(schema, "axone-")
 	dest := filepath.Join(TS_DIR, fmt.Sprintf("%s-schema", name))
@@ -28,10 +27,13 @@ func (Build) Ts(schema string) error {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
-	err := sh.Run("bash", "-c",
-		fmt.Sprintf("quicktype -s schema %s -o %s --prefer-types --prefer-unions",
-			filepath.Join(SCHEMA_DIR, schema, "*.json"),
-			filepath.Join(dest, "gen-ts", "schema.ts")))
+	err := sh.Run("ts-codegen", "generate",
+		"--schema", filepath.Join(SCHEMA_DIR, schema),
+		"--out", filepath.Join(dest, "gen-ts"),
+		"--typesOnly",
+		"--no-bundle",
+		"--name", schema,
+	)
 	if err != nil {
 		return fmt.Errorf("failed to generate typescript types: %w", err)
 	}
