@@ -34,7 +34,7 @@ func (Build) Ts(schema string) error {
 		"--out", filepath.Join(dest, "gen-ts"),
 		"--typesOnly",
 		"--no-bundle",
-		"--name", schema,
+		"--name", name,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to generate typescript types: %w", err)
