@@ -81,7 +81,7 @@ func parseVersion(tag string) (*Version, error) {
 }
 
 func (v *Version) String() string {
-	return fmt.Sprintf("v%d.%d.%d", v.Major, v.Minor, v.Patch)
+	return fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
 }
 
 // EnsureGit ensures that git is installed, if not it panics.
