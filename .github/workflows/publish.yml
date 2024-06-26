@@ -35,7 +35,7 @@ jobs:
       matrix:
         registry:
           - url: "https://npm.pkg.github.com"
-            auth-token-secret: NPM_REGISTRY_TOKEN
+            auth-token-secret: GITHUB_TOKEN
           - url: "https://registry.npmjs.org"
             auth-token-secret: NPM_PUBLIC_REGISTRY_TOKEN
         schema: ${{ fromJson(needs.schema-matrix.outputs.schema) }}
