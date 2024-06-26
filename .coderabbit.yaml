@@ -3,3 +3,4 @@ reviews:
     - "!go/**/*.go"
     - "!go/**/*.md"
     - "!ts/**/*.md"
+    - "!schema/**/*.json"
