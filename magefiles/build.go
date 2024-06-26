@@ -25,9 +25,6 @@ func (Build) Ts(schema string) error {
 
 	name := strings.TrimPrefix(schema, "axone-")
 	dest := filepath.Join(TS_DIR, fmt.Sprintf("%s-schema", name))
-	if err := os.MkdirAll(filepath.Join(dest, "gen-ts"), os.ModePerm); err != nil {
-		return fmt.Errorf("failed to create directory: %w", err)
-	}
 
 	err := sh.Run("ts-codegen", "generate",
 		"--schema", filepath.Join(SCHEMA_DIR, schema),
