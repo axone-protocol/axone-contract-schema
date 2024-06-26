@@ -17,6 +17,8 @@ type Build mg.Namespace
 
 // Ts build typescript schema for the given contract schema.
 func (Build) Ts(schema string) error {
+	mg.Deps(mg.F(Clean.Ts, schema))
+
 	fmt.Printf("⚙️ Generate typescript types for %s\n", schema)
 
 	ensureTsCodegen()
@@ -68,4 +70,15 @@ func (Build) Go(schema string) error {
 
 	fmt.Println("🔨 Building go")
 	return runInPath(dest, "go", "build")
+}
+
+type Clean mg.Namespace
+
+func (Clean) Ts(schema string) error {
+	fmt.Printf("🧹 Cleaning generated typescript files for %s\n", schema)
+
+	name := strings.TrimPrefix(schema, "axone-")
+	dest := filepath.Join(TS_DIR, fmt.Sprintf("%s-schema", name))
+
+	return sh.Run("yarn", "--cwd", dest, "clean")
 }
