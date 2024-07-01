@@ -109,6 +109,22 @@ func ensureCargoMake() {
 	}
 }
 
+// EnsureTsCodegen ensures that ts-codegen is installed, if not, it tries to install it.
+func ensureTsCodegen() {
+	if err := sh.Run("ts-codegen", "help"); err == nil {
+		return
+	}
+
+	ensureYarn()
+
+	fmt.Println("⚠️ ts-codegen not found, installing...")
+	if err := sh.Run("yarn",
+		"global",
+		"add", fmt.Sprintf("@cosmwasm/ts-codegen@%s", TS_CODEGEN_VERSION)); err != nil {
+		panic(fmt.Sprintf("failed to install ts-codegen: %v", err))
+	}
+}
+
 // EnsureQuicktype ensures that quicktype is installed, if not it panics.
 func ensureQuicktype() {
 	if err := sh.Run("quicktype", "--help"); err != nil {
