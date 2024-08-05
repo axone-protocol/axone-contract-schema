@@ -139,7 +139,7 @@ func ensureGoCodegen() {
 	}
 
 	fmt.Printf("🔨 Installing go-codegen...\n")
-	if err := sh.Run("go", "install", "github.com/srdtrk/go-codegen@v0.2.5"); err != nil {
+	if err := sh.Run("go", "install", fmt.Sprintf("github.com/srdtrk/go-codegen@v%s", GO_CODEGEN_VERSION)); err != nil {
 		panic(fmt.Sprintf("failed to install go-codegen: %v", err))
 	}
 }
