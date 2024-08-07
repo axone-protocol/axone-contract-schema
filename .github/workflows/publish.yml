@@ -72,8 +72,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets[matrix.registry.auth-token-secret] }}
 
+  create_release:
+    runs-on: ubuntu-22.04
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - lint
+      - build
+    steps:
       - name: Create release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           body: Schema changelog avalaible on [contract repository](https://github.com/axone-protocol/contracts/blob/${{ github.ref_name }}/CHANGELOG.md).
