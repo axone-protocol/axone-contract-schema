@@ -48,22 +48,37 @@ func (Build) Ts(schema string) error {
 
 // Go build go schema for the given contract schema.
 func (Build) Go(schema string) error {
+	if schema == "axone-cognitarium" {
+		fmt.Println("🚪 Skipping axone-cognitarium schema since codegen generation is failing")
+		return nil
+	}
+
 	fmt.Printf("⚙️ Generate go types for %s\n", schema)
 
-	ensureQuicktype()
+	ensureGoCodegen()
 
 	_, dest := schemaDestination(schema, GO_DIR)
-
 	if err := os.MkdirAll(dest, os.ModePerm); err != nil {
 		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
-	err := sh.Run("bash", "-c",
-		fmt.Sprintf("quicktype -s schema %s -o %s --lang go --package schema",
-			filepath.Join(SCHEMA_DIR, schema, "*.json"),
-			filepath.Join(dest, "schema.go")))
+	err := sh.Run("go-codegen", "generate",
+		"messages",
+		filepath.Join(SCHEMA_DIR, fmt.Sprintf("%s.json", schema)),
+		"-o", filepath.Join(dest, "schema.go"),
+		"--package-name", "schema")
 	if err != nil {
 		return fmt.Errorf("failed to generate go types: %w", err)
+	}
+
+	fmt.Println("👨‍💻 Generate go client")
+	err = sh.Run("go-codegen", "generate",
+		"query-client",
+		filepath.Join(SCHEMA_DIR, fmt.Sprintf("%s.json", schema)),
+		"-o", filepath.Join(dest, "client.go"),
+		"--package-name", "schema")
+	if err != nil {
+		return fmt.Errorf("failed to generate go client: %w", err)
 	}
 
 	fmt.Println("🔨 Building go")

@@ -125,16 +125,21 @@ func ensureTsCodegen() {
 	}
 }
 
-// EnsureQuicktype ensures that quicktype is installed, if not it panics.
-func ensureQuicktype() {
-	if err := sh.Run("quicktype", "--help"); err != nil {
-		panic("quicktype is not installed")
-	}
-}
-
 // EnsureYarn ensures that yarn is installed, if not it panics.
 func ensureYarn() {
 	if err := sh.Run("yarn", "--help"); err != nil {
 		panic("yarn is not installed")
+	}
+}
+
+// EnsureGoCodegen ensures that go-codegen is installed, if not it tries to install it.
+func ensureGoCodegen() {
+	if err := sh.Run("go-codegen", "--help"); err == nil {
+		return
+	}
+
+	fmt.Printf("🔨 Installing go-codegen...\n")
+	if err := sh.Run("go", "install", fmt.Sprintf("github.com/srdtrk/go-codegen@v%s", GO_CODEGEN_VERSION)); err != nil {
+		panic(fmt.Sprintf("failed to install go-codegen: %v", err))
 	}
 }
