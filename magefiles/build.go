@@ -48,6 +48,11 @@ func (Build) Ts(schema string) error {
 
 // Go build go schema for the given contract schema.
 func (Build) Go(schema string) error {
+	if schema == "axone-cognitarium" {
+		fmt.Println("🚪 Skipping axone-cognitarium schema since codegen generation is failing")
+		return nil
+	}
+
 	fmt.Printf("⚙️ Generate go types for %s\n", schema)
 
 	ensureGoCodegen()
