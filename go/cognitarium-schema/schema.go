@@ -44,12 +44,81 @@ type QueryMsg struct {
 
 // Represents a DESCRIBE query over the triple store, allowing to retrieve a description of a resource as a set of triples serialized in a specific format.
 type DescribeQuery struct {
+	// The WHERE clause. This clause is used to specify the resource identifier to describe using variable bindings.
+	Where *WhereClause `json:"where,omitempty"`
 	// The prefixes used in the query.
 	Prefixes []Prefix `json:"prefixes"`
 	// The resource to describe given as a variable or a node.
 	Resource VarOrNamedNode `json:"resource"`
-	// The WHERE clause. This clause is used to specify the resource identifier to describe using variable bindings.
-	Where []WhereCondition `json:"where"`
+}
+
+// Represents a prefix, i.e. a shortcut for a namespace used in a query.
+type Prefix struct {
+	// The namespace associated with the prefix.
+	Namespace string `json:"namespace"`
+	// The prefix.
+	Prefix string `json:"prefix"`
+}
+
+// Represents a WHERE clause, i.e. a set of conditions to filter the results.
+type WhereClause struct {
+	// Represents a basic graph pattern expressed as a set of triple patterns.
+	Bgp *WhereClause_Bgp `json:"bgp,omitempty"`
+	// Evaluates right for all result row of left
+	LateralJoin *WhereClause_LateralJoin `json:"lateral_join,omitempty"`
+	// Filters the inner clause matching the expression. The solutions coming from the inner clause that do not match the expression are discarded. The variables provided in the inner clause are available in the filter expression.
+	Filter *WhereClause_Filter `json:"filter,omitempty"`
+}
+
+// Represents a triple pattern in a [SimpleWhereCondition].
+type TriplePattern struct {
+	// The object of the triple pattern.
+	Object VarOrNodeOrLiteral `json:"object"`
+	// The predicate of the triple pattern.
+	Predicate VarOrNamedNode `json:"predicate"`
+	// The subject of the triple pattern.
+	Subject VarOrNode `json:"subject"`
+}
+
+type QueryMsg_Construct struct {
+	// The format in which the triples are serialized. If not provided, the default format is [Turtle](https://www.w3.org/TR/turtle/) format.
+	Format *DataFormat `json:"format,omitempty"`
+	// The query to execute.
+	Query ConstructQuery `json:"query"`
+}
+
+// Represents the response of a [QueryMsg::Select] query.
+type SelectResponse struct {
+	// The head of the response, i.e. the set of variables mentioned in the results.
+	Head Head `json:"head"`
+	// The results of the select query.
+	Results Results `json:"results"`
+}
+
+// Contains limitations regarding store usages.
+type StoreLimits struct {
+	// The maximum number of bytes the store can contain for a single triple. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. The limit is used to prevent storing very large triples, especially literals.
+	MaxTripleByteSize Uint128 `json:"max_triple_byte_size"`
+	// The maximum number of triples the store can contain.
+	MaxTripleCount Uint128 `json:"max_triple_count"`
+	// The maximum number of bytes the store can contain. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any.
+	MaxByteSize Uint128 `json:"max_byte_size"`
+	// The maximum number of bytes an insert data query can contain.
+	MaxInsertDataByteSize Uint128 `json:"max_insert_data_byte_size"`
+	// The maximum number of triples an insert data query can contain (after parsing).
+	MaxInsertDataTripleCount Uint128 `json:"max_insert_data_triple_count"`
+	// The maximum limit of a query, i.e. the maximum number of triples returned by a select query.
+	MaxQueryLimit int `json:"max_query_limit"`
+	// The maximum number of variables a query can select.
+	MaxQueryVariableCount int `json:"max_query_variable_count"`
+}
+
+// Represents either an IRI (named node) or a blank node.
+type Node struct {
+	// An RDF [IRI](https://www.w3.org/TR/rdf11-concepts/#dfn-iri).
+	NamedNode *Node_NamedNode `json:"named_node,omitempty"`
+	// An RDF [blank node](https://www.w3.org/TR/rdf11-concepts/#dfn-blank-node).
+	BlankNode *Node_BlankNode `json:"blank_node,omitempty"`
 }
 
 // Represents a triple template to be forged for a construct query.
@@ -60,6 +129,84 @@ type TripleConstructTemplate struct {
 	Predicate VarOrNamedNode `json:"predicate"`
 	// The subject of the triple pattern.
 	Subject VarOrNode `json:"subject"`
+}
+
+// Contains information related to triple store.
+type StoreResponse struct {
+	// The store limits.
+	Limits StoreLimits `json:"limits"`
+	// The store owner.
+	Owner string `json:"owner"`
+	// The store current usage.
+	Stat StoreStat `json:"stat"`
+}
+
+/*
+A thin wrapper around u128 that is using strings for JSON encoding/decoding, such that the full u128 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.
+
+# Examples
+
+Use `from` to create instances of this and `u128` to get the value out:
+
+``` # use cosmwasm_std::Uint128; let a = Uint128::from(123u128); assert_eq!(a.u128(), 123);
+
+let b = Uint128::from(42u64); assert_eq!(b.u128(), 42);
+
+let c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```
+*/
+type Uint128 string
+
+// Represents either a variable, a node or a literal.
+type VarOrNodeOrLiteral struct {
+	// A variable.
+	Variable *VarOrNodeOrLiteral_Variable `json:"variable,omitempty"`
+	// A node, i.e. an IRI or a blank node.
+	Node *VarOrNodeOrLiteral_Node `json:"node,omitempty"`
+	// An RDF [literal](https://www.w3.org/TR/rdf11-concepts/#dfn-literal), i.e. a simple literal, a language-tagged string or a typed value.
+	Literal *VarOrNodeOrLiteral_Literal `json:"literal,omitempty"`
+}
+
+/*
+Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
+
+This is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.
+*/
+type Binary string
+
+// Represents either a variable or a node.
+type VarOrNode struct {
+	// A variable.
+	Variable *VarOrNode_Variable `json:"variable,omitempty"`
+	// A node, i.e. an IRI or a blank node.
+	Node *VarOrNode_Node `json:"node,omitempty"`
+}
+
+// Represents a CONSTRUCT query over the triple store, allowing to retrieve a set of triples serialized in a specific format.
+type ConstructQuery struct {
+	// The triples to construct. If nothing is provided and the `where` clause is a single Bgp, the patterns are used for construction.
+	Construct []TripleConstructTemplate `json:"construct"`
+	// The prefixes used in the query.
+	Prefixes []Prefix `json:"prefixes"`
+	// The WHERE clause. This clause is used to specify the triples to construct using variable bindings.
+	Where WhereClause `json:"where"`
+}
+
+// Contains requested limitations regarding store usages.
+type StoreLimitsInput struct {
+	// The maximum limit of a query, i.e. the maximum number of triples returned by a select query. Default to 30 if not set.
+	MaxQueryLimit int `json:"max_query_limit"`
+	// The maximum number of variables a query can select. Default to 30 if not set.
+	MaxQueryVariableCount int `json:"max_query_variable_count"`
+	// The maximum number of bytes the store can contain for a single triple. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. The limit is used to prevent storing very large triples, especially literals. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxTripleByteSize Uint128 `json:"max_triple_byte_size"`
+	// The maximum number of triples the store can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxTripleCount Uint128 `json:"max_triple_count"`
+	// The maximum number of bytes the store can contain. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxByteSize Uint128 `json:"max_byte_size"`
+	// The maximum number of bytes an insert data query can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxInsertDataByteSize Uint128 `json:"max_insert_data_byte_size"`
+	// The maximum number of triples an insert data query can contain (after parsing). Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxInsertDataTripleCount Uint128 `json:"max_insert_data_triple_count"`
 }
 
 // Represents the format in which the data are serialized, for example when returned by a query or when inserted in the store.
@@ -76,81 +223,6 @@ const (
 	DataFormat_NQuads DataFormat = "n_quads"
 )
 
-type QueryMsg_Store struct{}
-
-// Represents a prefix, i.e. a shortcut for a namespace used in a query.
-type Prefix struct {
-	// The namespace associated with the prefix.
-	Namespace string `json:"namespace"`
-	// The prefix.
-	Prefix string `json:"prefix"`
-}
-
-type QueryMsg_Select struct {
-	// The query to execute.
-	Query SelectQuery `json:"query"`
-}
-
-type QueryMsg_Construct struct {
-	// The format in which the triples are serialized. If not provided, the default format is [Turtle](https://www.w3.org/TR/turtle/) format.
-	Format *DataFormat `json:"format,omitempty"`
-	// The query to execute.
-	Query ConstructQuery `json:"query"`
-}
-
-type ExecuteMsg_DeleteData struct {
-	// Specifies the specific triple templates to delete. If nothing is provided, the patterns from the `where` clause are used for deletion.
-	Delete []TripleDeleteTemplate `json:"delete"`
-	// The prefixes used in the operation.
-	Prefixes []Prefix `json:"prefixes"`
-	// Defines the patterns that data (RDF triples) should match in order for it to be considered for deletion.
-	Where []WhereCondition `json:"where"`
-}
-
-// Represents either a variable, a node or a literal.
-type VarOrNodeOrLiteral struct {
-	// A variable.
-	Variable *VarOrNodeOrLiteral_Variable `json:"variable,omitempty"`
-	// A node, i.e. an IRI or a blank node.
-	Node *VarOrNodeOrLiteral_Node `json:"node,omitempty"`
-	// An RDF [literal](https://www.w3.org/TR/rdf11-concepts/#dfn-literal), i.e. a simple literal, a language-tagged string or a typed value.
-	Literal *VarOrNodeOrLiteral_Literal `json:"literal,omitempty"`
-}
-
-// Represents either a variable or a named node (IRI).
-type VarOrNamedNode struct {
-	// A variable.
-	Variable *VarOrNamedNode_Variable `json:"variable,omitempty"`
-	// An RDF [IRI](https://www.w3.org/TR/rdf11-concepts/#dfn-iri).
-	NamedNode *VarOrNamedNode_NamedNode `json:"named_node,omitempty"`
-}
-
-// Represents a CONSTRUCT query over the triple store, allowing to retrieve a set of triples serialized in a specific format.
-type ConstructQuery struct {
-	// The triples to construct. If nothing is provided, the patterns from the `where` clause are used for construction.
-	Construct []TripleConstructTemplate `json:"construct"`
-	// The prefixes used in the query.
-	Prefixes []Prefix `json:"prefixes"`
-	// The WHERE clause. This clause is used to specify the triples to construct using variable bindings.
-	Where []WhereCondition `json:"where"`
-}
-
-// Represents the response of a [QueryMsg::Describe] query.
-type DescribeResponse struct {
-	// The data serialized in the specified format.
-	Data Binary `json:"data"`
-	// The format of the data.
-	Format DataFormat `json:"format"`
-}
-
-// Represents either a variable or a node.
-type VarOrNode struct {
-	// A variable.
-	Variable *VarOrNode_Variable `json:"variable,omitempty"`
-	// A node, i.e. an IRI or a blank node.
-	Node *VarOrNode_Node `json:"node,omitempty"`
-}
-
 // An RDF [literal](https://www.w3.org/TR/rdf11-concepts/#dfn-literal).
 type Literal struct {
 	// A [simple literal](https://www.w3.org/TR/rdf11-concepts/#dfn-simple-literal) without datatype or language form.
@@ -161,62 +233,29 @@ type Literal struct {
 	TypedValue *Literal_TypedValue `json:"typed_value,omitempty"`
 }
 
+type QueryMsg_Select struct {
+	// The query to execute.
+	Query SelectQuery `json:"query"`
+}
+
+type ExecuteMsg_InsertData struct {
+	// The data to insert. The data must be serialized in the format specified by the `format` field. And the data are subject to the limitations defined by the `limits` specified at contract instantiation.
+	Data Binary `json:"data"`
+	// The data format in which the triples are serialized. If not provided, the default format is [Turtle](https://www.w3.org/TR/turtle/) format.
+	Format *DataFormat `json:"format,omitempty"`
+}
+
+type QueryMsg_Describe struct {
+	// The format in which the triples are serialized. If not provided, the default format is [Turtle](https://www.w3.org/TR/turtle/) format.
+	Format *DataFormat `json:"format,omitempty"`
+	// The query to execute.
+	Query DescribeQuery `json:"query"`
+}
+
 // Represents the head of a [SelectResponse].
 type Head struct {
 	// The variables selected in the query.
 	Vars []string `json:"vars"`
-}
-
-// Represents the response of a [QueryMsg::Select] query.
-type SelectResponse struct {
-	// The head of the response, i.e. the set of variables mentioned in the results.
-	Head Head `json:"head"`
-	// The results of the select query.
-	Results Results `json:"results"`
-}
-
-// Represents either an IRI (named node) or a blank node.
-type Node struct {
-	// An RDF [IRI](https://www.w3.org/TR/rdf11-concepts/#dfn-iri).
-	NamedNode *Node_NamedNode `json:"named_node,omitempty"`
-	// An RDF [blank node](https://www.w3.org/TR/rdf11-concepts/#dfn-blank-node).
-	BlankNode *Node_BlankNode `json:"blank_node,omitempty"`
-}
-
-// Represents an item to select in a [SelectQuery].
-type SelectItem struct {
-	// Represents a variable.
-	Variable *SelectItem_Variable `json:"variable,omitempty"`
-}
-
-// Represents a simple condition in a [WhereCondition].
-type SimpleWhereCondition struct {
-	// Represents a triple pattern, i.e. a condition on a triple based on its subject, predicate and object.
-	TriplePattern *SimpleWhereCondition_TriplePattern `json:"triple_pattern,omitempty"`
-}
-
-// Represents the results of a [SelectResponse].
-type Results struct {
-	// The bindings of the results.
-	Bindings []map[string]Value `json:"bindings"`
-}
-
-// Contains limitations regarding store usages.
-type StoreLimits struct {
-	// The maximum number of triples the store can contain.
-	MaxTripleCount Uint128 `json:"max_triple_count"`
-	// The maximum number of bytes the store can contain. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any.
-	MaxByteSize Uint128 `json:"max_byte_size"`
-	// The maximum number of bytes an insert data query can contain.
-	MaxInsertDataByteSize Uint128 `json:"max_insert_data_byte_size"`
-	// The maximum number of triples an insert data query can contain (after parsing).
-	MaxInsertDataTripleCount Uint128 `json:"max_insert_data_triple_count"`
-	// The maximum limit of a query, i.e. the maximum number of triples returned by a select query.
-	MaxQueryLimit int `json:"max_query_limit"`
-	// The maximum number of variables a query can select.
-	MaxQueryVariableCount int `json:"max_query_variable_count"`
-	// The maximum number of bytes the store can contain for a single triple. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. The limit is used to prevent storing very large triples, especially literals.
-	MaxTripleByteSize Uint128 `json:"max_triple_byte_size"`
 }
 
 // Represents the response of a [QueryMsg::Construct] query.
@@ -227,42 +266,21 @@ type ConstructResponse struct {
 	Format DataFormat `json:"format"`
 }
 
-// Contains requested limitations regarding store usages.
-type StoreLimitsInput struct {
-	// The maximum number of triples the store can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxTripleCount Uint128 `json:"max_triple_count"`
-	// The maximum number of bytes the store can contain. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxByteSize Uint128 `json:"max_byte_size"`
-	// The maximum number of bytes an insert data query can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxInsertDataByteSize Uint128 `json:"max_insert_data_byte_size"`
-	// The maximum number of triples an insert data query can contain (after parsing). Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxInsertDataTripleCount Uint128 `json:"max_insert_data_triple_count"`
-	// The maximum limit of a query, i.e. the maximum number of triples returned by a select query. Default to 30 if not set.
-	MaxQueryLimit int `json:"max_query_limit"`
-	// The maximum number of variables a query can select. Default to 30 if not set.
-	MaxQueryVariableCount int `json:"max_query_variable_count"`
-	// The maximum number of bytes the store can contain for a single triple. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. The limit is used to prevent storing very large triples, especially literals. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxTripleByteSize Uint128 `json:"max_triple_byte_size"`
+type ExecuteMsg_DeleteData struct {
+	// Specifies the specific triple templates to delete. If nothing is provided and the `where` clause is a single Bgp, the patterns are used for deletion.
+	Delete []TripleDeleteTemplate `json:"delete"`
+	// The prefixes used in the operation.
+	Prefixes []Prefix `json:"prefixes"`
+	// Defines the patterns that data (RDF triples) should match in order for it to be considered for deletion, if any.
+	Where *WhereClause `json:"where,omitempty"`
 }
 
-// Represents a triple pattern in a [SimpleWhereCondition].
-type TriplePattern struct {
-	// The object of the triple pattern.
-	Object VarOrNodeOrLiteral `json:"object"`
-	// The predicate of the triple pattern.
-	Predicate VarOrNamedNode `json:"predicate"`
-	// The subject of the triple pattern.
-	Subject VarOrNode `json:"subject"`
-}
-
-// Contains usage information about the triple store.
-type StoreStat struct {
-	// The total number of IRI namespace present in the store.
-	NamespaceCount Uint128 `json:"namespace_count"`
-	// The total number of triple present in the store.
-	TripleCount Uint128 `json:"triple_count"`
-	// The total triple size in the store, in bytes.
-	ByteSize Uint128 `json:"byte_size"`
+// Represents either a variable or a named node (IRI).
+type VarOrNamedNode struct {
+	// A variable.
+	Variable *VarOrNamedNode_Variable `json:"variable,omitempty"`
+	// An RDF [IRI](https://www.w3.org/TR/rdf11-concepts/#dfn-iri).
+	NamedNode *VarOrNamedNode_NamedNode `json:"named_node,omitempty"`
 }
 
 // Represents either a variable, a named node or a literal.
@@ -275,11 +293,26 @@ type VarOrNamedNodeOrLiteral struct {
 	Literal *VarOrNamedNodeOrLiteral_Literal `json:"literal,omitempty"`
 }
 
-type QueryMsg_Describe struct {
-	// The format in which the triples are serialized. If not provided, the default format is [Turtle](https://www.w3.org/TR/turtle/) format.
-	Format *DataFormat `json:"format,omitempty"`
-	// The query to execute.
-	Query DescribeQuery `json:"query"`
+type QueryMsg_Store struct{}
+
+// Represents an IRI.
+type IRI struct {
+	// An IRI prefixed with a prefix. The prefixed IRI is expanded to a full IRI using the prefix definition specified in the query. For example, the prefixed IRI `rdf:type` is expanded to `http://www.w3.org/1999/02/22-rdf-syntax-ns#type`.
+	Prefixed *IRI_Prefixed `json:"prefixed,omitempty"`
+	// A full IRI.
+	Full *IRI_Full `json:"full,omitempty"`
+}
+
+// Represents a SELECT query over the triple store, allowing to select variables to return and to filter the results.
+type SelectQuery struct {
+	// The maximum number of results to return. If `None`, there is no limit. Note: the value of the limit cannot exceed the maximum query limit defined in the store limitations.
+	Limit *int `json:"limit,omitempty"`
+	// The prefixes used in the query.
+	Prefixes []Prefix `json:"prefixes"`
+	// The items to select. Note: the number of items to select cannot exceed the maximum query variable count defined in the store limitations.
+	Select []SelectItem `json:"select"`
+	// The WHERE clause. If `None`, there is no WHERE clause, i.e. all triples are returned without filtering.
+	Where WhereClause `json:"where"`
 }
 
 // Value is the interface for the enum.
@@ -355,30 +388,47 @@ func (v Value) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v)
 }
 
-// Contains information related to triple store.
-type StoreResponse struct {
-	// The store limits.
-	Limits StoreLimits `json:"limits"`
-	// The store owner.
-	Owner string `json:"owner"`
-	// The store current usage.
-	Stat StoreStat `json:"stat"`
+// Represents the results of a [SelectResponse].
+type Results struct {
+	// The bindings of the results.
+	Bindings []map[string]Value `json:"bindings"`
 }
 
-/*
-A thin wrapper around u128 that is using strings for JSON encoding/decoding, such that the full u128 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.
+// Contains usage information about the triple store.
+type StoreStat struct {
+	// The total triple size in the store, in bytes.
+	ByteSize Uint128 `json:"byte_size"`
+	// The total number of IRI namespace present in the store.
+	NamespaceCount Uint128 `json:"namespace_count"`
+	// The total number of triple present in the store.
+	TripleCount Uint128 `json:"triple_count"`
+}
 
-# Examples
-
-Use `from` to create instances of this and `u128` to get the value out:
-
-``` # use cosmwasm_std::Uint128; let a = Uint128::from(123u128); assert_eq!(a.u128(), 123);
-
-let b = Uint128::from(42u64); assert_eq!(b.u128(), 42);
-
-let c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```
-*/
-type Uint128 string
+// Represents a logical combination of operations whose evaluation results in a term.
+type Expression struct {
+	// A named node constant.
+	NamedNode *Expression_NamedNode `json:"named_node,omitempty"`
+	// A literal constant.
+	Literal *Expression_Literal `json:"literal,omitempty"`
+	// A variable that must be bound for evaluation.
+	Variable *Expression_Variable `json:"variable,omitempty"`
+	// Logical conjunction of expressions. All expressions must evaluate to true for the conjunction to be true. If the conjunction is empty, it is considered true.
+	And *Expression_And `json:"and,omitempty"`
+	// Logical disjunction of expressions. At least one expression must evaluate to true for the disjunction to be true. If the disjunction is empty, it is considered false.
+	Or *Expression_Or `json:"or,omitempty"`
+	// Equality comparison.
+	Equal *Expression_Equal `json:"equal,omitempty"`
+	// Greater than comparison.
+	Greater *Expression_Greater `json:"greater,omitempty"`
+	// Greater or equal comparison.
+	GreaterOrEqual *Expression_GreaterOrEqual `json:"greater_or_equal,omitempty"`
+	// Less than comparison.
+	Less *Expression_Less `json:"less,omitempty"`
+	// Less or equal comparison.
+	LessOrEqual *Expression_LessOrEqual `json:"less_or_equal,omitempty"`
+	// Negation of an expression.
+	Not *Expression_Not `json:"not,omitempty"`
+}
 
 // Represents a triple template to be deleted.
 type TripleDeleteTemplate struct {
@@ -390,87 +440,131 @@ type TripleDeleteTemplate struct {
 	Subject VarOrNamedNode `json:"subject"`
 }
 
-// Represents a condition in a [WhereClause].
-type WhereCondition struct {
-	// Represents a simple condition.
-	Simple *WhereCondition_Simple `json:"simple,omitempty"`
+// Represents an item to select in a [SelectQuery].
+type SelectItem struct {
+	// Represents a variable.
+	Variable *SelectItem_Variable `json:"variable,omitempty"`
 }
 
-/*
-Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
-
-This is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.
-*/
-type Binary string
-
-// Represents a SELECT query over the triple store, allowing to select variables to return and to filter the results.
-type SelectQuery struct {
-	// The maximum number of results to return. If `None`, there is no limit. Note: the value of the limit cannot exceed the maximum query limit defined in the store limitations.
-	Limit *int `json:"limit,omitempty"`
-	// The prefixes used in the query.
-	Prefixes []Prefix `json:"prefixes"`
-	// The items to select. Note: the number of items to select cannot exceed the maximum query variable count defined in the store limitations.
-	Select []SelectItem `json:"select"`
-	// The WHERE clause. If `None`, there is no WHERE clause, i.e. all triples are returned without filtering.
-	Where []WhereCondition `json:"where"`
-}
-
-type ExecuteMsg_InsertData struct {
-	// The data to insert. The data must be serialized in the format specified by the `format` field. And the data are subject to the limitations defined by the `limits` specified at contract instantiation.
+// Represents the response of a [QueryMsg::Describe] query.
+type DescribeResponse struct {
+	// The data serialized in the specified format.
 	Data Binary `json:"data"`
-	// The data format in which the triples are serialized. If not provided, the default format is [Turtle](https://www.w3.org/TR/turtle/) format.
-	Format *DataFormat `json:"format,omitempty"`
+	// The format of the data.
+	Format DataFormat `json:"format"`
 }
 
-// Represents an IRI.
-type IRI struct {
-	// An IRI prefixed with a prefix. The prefixed IRI is expanded to a full IRI using the prefix definition specified in the query. For example, the prefixed IRI `rdf:type` is expanded to `http://www.w3.org/1999/02/22-rdf-syntax-ns#type`.
-	Prefixed *IRI_Prefixed `json:"prefixed,omitempty"`
-	// A full IRI.
-	Full *IRI_Full `json:"full,omitempty"`
+type VarOrNode_Variable string
+
+type WhereClause_Filter struct {
+	Expr  Expression  `json:"expr"`
+	Inner WhereClause `json:"inner"`
 }
+
+type VarOrNodeOrLiteral_Variable string
+
+// The language tag of the literal.
+type Value_Xmllang string
+
+type Expression_And []Expression
+
+// The value of the IRI.
+type Value_Value IRI
+
+type WhereClause_LateralJoin struct {
+	Left  WhereClause `json:"left"`
+	Right WhereClause `json:"right"`
+}
+
+type IRI_Prefixed string
+type VarOrNodeOrLiteral_Literal Literal
+
+type IRI_Full string
 type VarOrNamedNode_NamedNode IRI
 
+type VarOrNamedNodeOrLiteral_Variable string
+
+type VarOrNamedNode_Variable string
+
+type Expression_Variable string
+
+var (
+	_ json.Marshaler   = (*Tuple_of_Expression_and_Expression)(nil)
+	_ json.Unmarshaler = (*Tuple_of_Expression_and_Expression)(nil)
+)
+
+// Tuple_of_Expression_and_Expression is a tuple with custom marshal and unmarshal methods
+type Tuple_of_Expression_and_Expression struct {
+	F0 Expression
+	F1 Expression
+}
+
+// MarshalJSON implements the json.Marshaler interface for Tuple_of_Expression_and_Expression
+func (t Tuple_of_Expression_and_Expression) MarshalJSON() ([]byte, error) {
+	f0, err := json.Marshal(t.F0)
+	if err != nil {
+		return nil, err
+	}
+
+	f1, err := json.Marshal(t.F1)
+	if err != nil {
+		return nil, err
+	}
+
+	return []byte("[" + string(f0) + "," + string(f1) + "]"), nil
+}
+
+// UnmarshalJSON implements the json.Unmarshaler interface for Tuple_of_Expression_and_Expression
+func (t *Tuple_of_Expression_and_Expression) UnmarshalJSON(data []byte) error {
+	var arr []json.RawMessage
+	if err := json.Unmarshal(data, &arr); err != nil {
+		return err
+	}
+	if len(arr) != 2 {
+		return errors.New("expected 2 elements in the tuple")
+	}
+
+	if err := json.Unmarshal(arr[0], &t.F0); err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(arr[1], &t.F1); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type Node_NamedNode IRI
+type Expression_Literal Literal
+
+type Expression_Or []Expression
+
+type SelectItem_Variable string
+type Expression_Not Expression
+
+type Expression_LessOrEqual Tuple_of_Expression_and_Expression
+type Expression_Less Tuple_of_Expression_and_Expression
+type Expression_GreaterOrEqual Tuple_of_Expression_and_Expression
+type Expression_Greater Tuple_of_Expression_and_Expression
+type Expression_Equal Tuple_of_Expression_and_Expression
+
 type Node_BlankNode string
+type VarOrNamedNodeOrLiteral_Literal Literal
+
+type Literal_Simple string
+type VarOrNodeOrLiteral_Node Node
 
 // Nullable_IRI is a nullable type of IRI
 // The datatype of the literal.
 type Nullable_IRI = *IRI
 
-type IRI_Full string
-
-type VarOrNodeOrLiteral_Variable string
-
-type SelectItem_Variable string
-
-// The value of the IRI.
-type Value_Value IRI
-
-// The language tag of the literal.
-type Value_Xmllang string
-type VarOrNamedNodeOrLiteral_Literal Literal
-type VarOrNamedNodeOrLiteral_NamedNode IRI
-
-type VarOrNode_Variable string
-
 type Literal_LanguageTaggedString struct {
-	// The [lexical form](https://www.w3.org/TR/rdf11-concepts/#dfn-lexical-form).
-	Value string `json:"value"`
 	// The [language tag](https://www.w3.org/TR/rdf11-concepts/#dfn-language-tag).
 	Language string `json:"language"`
+	// The [lexical form](https://www.w3.org/TR/rdf11-concepts/#dfn-lexical-form).
+	Value string `json:"value"`
 }
-type Node_NamedNode IRI
-
-type VarOrNamedNodeOrLiteral_Variable string
-
-type Value_Type string
-
-const (
-	Value_Type_Uri       Value_Type = "uri"
-	Value_Type_Literal   Value_Type = "literal"
-	Value_Type_BlankNode Value_Type = "blank_node"
-)
-
 type VarOrNode_Node Node
 
 type Literal_TypedValue struct {
@@ -479,13 +573,10 @@ type Literal_TypedValue struct {
 	// The [lexical form](https://www.w3.org/TR/rdf11-concepts/#dfn-lexical-form).
 	Value string `json:"value"`
 }
+type Expression_NamedNode IRI
 
-type IRI_Prefixed string
-type VarOrNodeOrLiteral_Node Node
+type VarOrNamedNodeOrLiteral_NamedNode IRI
 
-type VarOrNamedNode_Variable string
-
-type Literal_Simple string
-type SimpleWhereCondition_TriplePattern TriplePattern
-type VarOrNodeOrLiteral_Literal Literal
-type WhereCondition_Simple SimpleWhereCondition
+type WhereClause_Bgp struct {
+	Patterns []TriplePattern `json:"patterns"`
+}
