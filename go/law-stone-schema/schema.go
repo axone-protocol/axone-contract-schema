@@ -41,26 +41,9 @@ type QueryMsg struct {
 	ProgramCode *QueryMsg_ProgramCode `json:"program_code,omitempty"`
 }
 
-type AskResponse struct {
-	UserOutput *string `json:"user_output,omitempty"`
-	Answer *Answer `json:"answer,omitempty"`
-	GasUsed int `json:"gas_used"`
-	Height int `json:"height"`
-}
-
 type ExecuteMsg_BreakStone struct{}
 
-// ProgramResponse carry elements to locate the program in a `axone-objectarium` contract.
-type ProgramResponse struct {
-	// The program object id in the `axone-objectarium` contract.
-	ObjectId string `json:"object_id"`
-	// The `axone-objectarium` contract address on which the law program is stored.
-	StorageAddress string `json:"storage_address"`
-}
-
 type QueryMsg_Program struct{}
-
-type QueryMsg_ProgramCode struct{}
 
 type Answer struct {
 	HasMore bool `json:"has_more"`
@@ -78,6 +61,14 @@ type Substitution struct {
 	Variable string `json:"variable"`
 }
 
+// ProgramResponse carry elements to locate the program in a `axone-objectarium` contract.
+type ProgramResponse struct {
+	// The program object id in the `axone-objectarium` contract.
+	ObjectId string `json:"object_id"`
+	// The `axone-objectarium` contract address on which the law program is stored.
+	StorageAddress string `json:"storage_address"`
+}
+
 /*
 Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
 
@@ -87,4 +78,13 @@ type Binary string
 
 type QueryMsg_Ask struct {
 	Query string `json:"query"`
+}
+
+type QueryMsg_ProgramCode struct{}
+
+type AskResponse struct {
+	Answer *Answer `json:"answer,omitempty"`
+	GasUsed int `json:"gas_used"`
+	Height int `json:"height"`
+	UserOutput *string `json:"user_output,omitempty"`
 }

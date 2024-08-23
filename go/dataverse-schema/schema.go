@@ -71,47 +71,16 @@ type QueryMsg struct {
 	Dataverse *QueryMsg_Dataverse `json:"dataverse,omitempty"`
 }
 
-/*
-A thin wrapper around u128 that is using strings for JSON encoding/decoding, such that the full u128 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.
-
-# Examples
-
-Use `from` to create instances of this and `u128` to get the value out:
-
-``` # use cosmwasm_std::Uint128; let a = Uint128::from(123u128); assert_eq!(a.u128(), 123);
-
-let b = Uint128::from(42u64); assert_eq!(b.u128(), 42);
-
-let c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```
-*/
-type Uint128 string
-
-type ExecuteMsg_RevokeClaims struct {
-	// The unique identifier of the claims to be revoked.
-	Identifier string `json:"identifier"`
-}
-
-/*
-Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
-
-This is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.
-*/
-type Binary string
-
-type QueryMsg_Dataverse struct{}
-
 // `TripleStoreConfig` represents the configuration related to the management of the triple store.
 type TripleStoreConfig struct {
-	// The code id that will be used to instantiate the triple store contract in which to store dataverse semantic data. It must implement the cognitarium interface.
-	CodeId Uint64 `json:"code_id"`
 	// Limitations regarding triple store usage.
 	Limits TripleStoreLimitsInput `json:"limits"`
+	// The code id that will be used to instantiate the triple store contract in which to store dataverse semantic data. It must implement the cognitarium interface.
+	CodeId Uint64 `json:"code_id"`
 }
 
 // Contains requested limitations regarding store usages.
 type TripleStoreLimitsInput struct {
-	// The maximum number of bytes the store can contain. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxByteSize *Uint128 `json:"max_byte_size,omitempty"`
 	// The maximum number of bytes an insert data query can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
 	MaxInsertDataByteSize *Uint128 `json:"max_insert_data_byte_size,omitempty"`
 	// The maximum number of triples an insert data query can contain (after parsing). Default to [Uint128::MAX] if not set, which can be considered as no limit.
@@ -124,6 +93,8 @@ type TripleStoreLimitsInput struct {
 	MaxTripleByteSize *Uint128 `json:"max_triple_byte_size,omitempty"`
 	// The maximum number of triples the store can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
 	MaxTripleCount *Uint128 `json:"max_triple_count,omitempty"`
+	// The maximum number of bytes the store can contain. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxByteSize *Uint128 `json:"max_byte_size,omitempty"`
 }
 
 /*
@@ -138,13 +109,6 @@ Use `from` to create instances of this and `u64` to get the value out:
 let b = Uint64::from(70u32); assert_eq!(b.u64(), 70); ```
 */
 type Uint64 string
-
-type ExecuteMsg_SubmitClaims struct {
-	// The Verifiable Credential containing the claims. The claims must be serialized in the format specified by the `format` field.
-	Claims Binary `json:"claims"`
-	// RDF dataset serialization format for the claims. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format.
-	Format *RdfDatasetFormat `json:"format,omitempty"`
-}
 
 // Represents the various serialization formats for an RDF dataset, i.e. a collection of RDF graphs ([RDF Dataset](https://www.w3.org/TR/rdf11-concepts/#section-dataset)).
 type RdfDatasetFormat string
@@ -171,8 +135,44 @@ type Addr string
 
 // DataverseResponse is the response of the Dataverse query.
 type DataverseResponse struct {
-	// The name of the dataverse.
-	Name string `json:"name"`
 	// The cognitarium contract address.
 	TriplestoreAddress Addr `json:"triplestore_address"`
+	// The name of the dataverse.
+	Name string `json:"name"`
 }
+
+/*
+A thin wrapper around u128 that is using strings for JSON encoding/decoding, such that the full u128 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.
+
+# Examples
+
+Use `from` to create instances of this and `u128` to get the value out:
+
+``` # use cosmwasm_std::Uint128; let a = Uint128::from(123u128); assert_eq!(a.u128(), 123);
+
+let b = Uint128::from(42u64); assert_eq!(b.u128(), 42);
+
+let c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```
+*/
+type Uint128 string
+
+type ExecuteMsg_SubmitClaims struct {
+	// The Verifiable Credential containing the claims. The claims must be serialized in the format specified by the `format` field.
+	Claims Binary `json:"claims"`
+	// RDF dataset serialization format for the claims. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format.
+	Format *RdfDatasetFormat `json:"format,omitempty"`
+}
+
+type ExecuteMsg_RevokeClaims struct {
+	// The unique identifier of the claims to be revoked.
+	Identifier string `json:"identifier"`
+}
+
+/*
+Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
+
+This is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.
+*/
+type Binary string
+
+type QueryMsg_Dataverse struct{}
