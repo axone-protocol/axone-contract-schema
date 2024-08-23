@@ -67,25 +67,6 @@ func (q *queryClient) queryContract(ctx context.Context, rawQueryData []byte, op
 	return out.Data, nil
 }
 
-func (q *queryClient) Store(ctx context.Context, req *QueryMsg_Store, opts ...grpc.CallOption) (*StoreResponse, error) {
-	rawQueryData, err := json.Marshal(map[string]any{"store": req})
-	if err != nil {
-		return nil, err
-	}
-
-	rawResponseData, err := q.queryContract(ctx, rawQueryData, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	var response StoreResponse
-	if err := json.Unmarshal(rawResponseData, &response); err != nil {
-		return nil, err
-	}
-
-	return &response, nil
-}
-
 func (q *queryClient) Construct(ctx context.Context, req *QueryMsg_Construct, opts ...grpc.CallOption) (*ConstructResponse, error) {
 	rawQueryData, err := json.Marshal(map[string]any{"construct": req})
 	if err != nil {
@@ -136,6 +117,25 @@ func (q *queryClient) Select(ctx context.Context, req *QueryMsg_Select, opts ...
 	}
 
 	var response SelectResponse
+	if err := json.Unmarshal(rawResponseData, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (q *queryClient) Store(ctx context.Context, req *QueryMsg_Store, opts ...grpc.CallOption) (*StoreResponse, error) {
+	rawQueryData, err := json.Marshal(map[string]any{"store": req})
+	if err != nil {
+		return nil, err
+	}
+
+	rawResponseData, err := q.queryContract(ctx, rawQueryData, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	var response StoreResponse
 	if err := json.Unmarshal(rawResponseData, &response); err != nil {
 		return nil, err
 	}
