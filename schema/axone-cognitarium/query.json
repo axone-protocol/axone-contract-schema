@@ -6,10 +6,17 @@
     {
       "title": "Store",
       "description": "Returns information about the triple store.",
-      "type": "string",
-      "enum": [
+      "type": "object",
+      "required": [
         "store"
-      ]
+      ],
+      "properties": {
+        "store": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
     },
     {
       "title": "Select",
@@ -133,7 +140,7 @@
           "description": "The triples to construct. If nothing is provided, the patterns from the `where` clause are used for construction.",
           "type": "array",
           "items": {
-            "$ref": "#/definitions/TriplePattern"
+            "$ref": "#/definitions/TripleConstructTemplate"
           }
         },
         "prefixes": {
@@ -479,6 +486,43 @@
         }
       ]
     },
+    "TripleConstructTemplate": {
+      "title": "TripleConstructTemplate",
+      "description": "Represents a triple template to be forged for a construct query.",
+      "type": "object",
+      "required": [
+        "object",
+        "predicate",
+        "subject"
+      ],
+      "properties": {
+        "object": {
+          "description": "The object of the triple pattern.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/VarOrNodeOrLiteral"
+            }
+          ]
+        },
+        "predicate": {
+          "description": "The predicate of the triple pattern.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/VarOrNamedNode"
+            }
+          ]
+        },
+        "subject": {
+          "description": "The subject of the triple pattern.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/VarOrNode"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "TriplePattern": {
       "title": "TriplePattern",
       "description": "Represents a triple pattern in a [SimpleWhereCondition].",
@@ -501,7 +545,7 @@
           "description": "The predicate of the triple pattern.",
           "allOf": [
             {
-              "$ref": "#/definitions/VarOrNode"
+              "$ref": "#/definitions/VarOrNamedNode"
             }
           ]
         },

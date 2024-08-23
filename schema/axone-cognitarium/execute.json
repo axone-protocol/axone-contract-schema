@@ -44,7 +44,7 @@
     },
     {
       "title": "DeleteData",
-      "description": "Delete the data (RDF triples) from the store matching the patterns defined by the provided query. For non-existing triples it acts as no-op.\n\nExample: ```json { \"prefixes\": [ { \"prefix\": \"foaf\", \"namespace\": \"http://xmlns.com/foaf/0.1/\" } ], \"delete\": [ { \"subject\": { \"variable\": \"s\" }, \"predicate\": { \"variable\": \"p\" }, \"object\": { \"variable\": \"o\" } } ], \"where\": [ { \"simple\": { \"triplePattern\": { \"subject\": { \"variable\": \"s\" }, \"predicate\": { \"node\": { \"namedNode\": {\"prefixed\": \"foaf:givenName\"} } }, \"object\": { \"literal\": { \"simple\": \"Myrddin\" } } } } }, { \"simple\": { \"triplePattern\": { \"subject\": { \"variable\": \"s\" }, \"predicate\": { \"variable\": \"p\" }, \"object\": { \"variable\": \"o\" } } } } ] ```\n\nOnly the smart contract owner (i.e. the address who instantiated it) is authorized to perform this action.",
+      "description": "Delete the data (RDF triples) from the store matching the patterns defined by the provided query. For non-existing triples it acts as no-op.\n\nExample: ```json { \"prefixes\": [ { \"prefix\": \"foaf\", \"namespace\": \"http://xmlns.com/foaf/0.1/\" } ], \"delete\": [ { \"subject\": { \"variable\": \"s\" }, \"predicate\": { \"variable\": \"p\" }, \"object\": { \"variable\": \"o\" } } ], \"where\": [ { \"simple\": { \"triplePattern\": { \"subject\": { \"variable\": \"s\" }, \"predicate\": { \"namedNode\": {\"prefixed\": \"foaf:givenName\"} }, \"object\": { \"literal\": { \"simple\": \"Myrddin\" } } } } }, { \"simple\": { \"triplePattern\": { \"subject\": { \"variable\": \"s\" }, \"predicate\": { \"variable\": \"p\" }, \"object\": { \"variable\": \"o\" } } } } ] ```\n\nOnly the smart contract owner (i.e. the address who instantiated it) is authorized to perform this action.",
       "type": "object",
       "required": [
         "delete_data"
@@ -59,10 +59,10 @@
           ],
           "properties": {
             "delete": {
-              "description": "Specifies the specific triple patterns to delete. If nothing is provided, the patterns from the `where` clause are used for deletion.",
+              "description": "Specifies the specific triple templates to delete. If nothing is provided, the patterns from the `where` clause are used for deletion.",
               "type": "array",
               "items": {
-                "$ref": "#/definitions/TriplePattern"
+                "$ref": "#/definitions/TripleDeleteTemplate"
               }
             },
             "prefixes": {
@@ -319,6 +319,43 @@
         }
       ]
     },
+    "TripleDeleteTemplate": {
+      "title": "TripleDeleteTemplate",
+      "description": "Represents a triple template to be deleted.",
+      "type": "object",
+      "required": [
+        "object",
+        "predicate",
+        "subject"
+      ],
+      "properties": {
+        "object": {
+          "description": "The object of the triple pattern.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/VarOrNamedNodeOrLiteral"
+            }
+          ]
+        },
+        "predicate": {
+          "description": "The predicate of the triple pattern.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/VarOrNamedNode"
+            }
+          ]
+        },
+        "subject": {
+          "description": "The subject of the triple pattern.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/VarOrNamedNode"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
     "TriplePattern": {
       "title": "TriplePattern",
       "description": "Represents a triple pattern in a [SimpleWhereCondition].",
@@ -341,7 +378,7 @@
           "description": "The predicate of the triple pattern.",
           "allOf": [
             {
-              "$ref": "#/definitions/VarOrNode"
+              "$ref": "#/definitions/VarOrNamedNode"
             }
           ]
         },
@@ -355,6 +392,88 @@
         }
       },
       "additionalProperties": false
+    },
+    "VarOrNamedNode": {
+      "title": "VarOrNamedNode {",
+      "description": "Represents either a variable or a named node (IRI).",
+      "oneOf": [
+        {
+          "title": "Variable",
+          "description": "A variable.",
+          "type": "object",
+          "required": [
+            "variable"
+          ],
+          "properties": {
+            "variable": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "NamedNode",
+          "description": "An RDF [IRI](https://www.w3.org/TR/rdf11-concepts/#dfn-iri).",
+          "type": "object",
+          "required": [
+            "named_node"
+          ],
+          "properties": {
+            "named_node": {
+              "$ref": "#/definitions/IRI"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "VarOrNamedNodeOrLiteral": {
+      "title": "VarOrNamedNodeOrLiteral",
+      "description": "Represents either a variable, a named node or a literal.",
+      "oneOf": [
+        {
+          "title": "Variable",
+          "description": "A variable.",
+          "type": "object",
+          "required": [
+            "variable"
+          ],
+          "properties": {
+            "variable": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "NamedNode",
+          "description": "An RDF [IRI](https://www.w3.org/TR/rdf11-concepts/#dfn-iri).",
+          "type": "object",
+          "required": [
+            "named_node"
+          ],
+          "properties": {
+            "named_node": {
+              "$ref": "#/definitions/IRI"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "title": "Literal",
+          "description": "An RDF [literal](https://www.w3.org/TR/rdf11-concepts/#dfn-literal), i.e. a simple literal, a language-tagged string or a typed value.",
+          "type": "object",
+          "required": [
+            "literal"
+          ],
+          "properties": {
+            "literal": {
+              "$ref": "#/definitions/Literal"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
     },
     "VarOrNode": {
       "title": "VarOrNode",

@@ -26,15 +26,21 @@
       "type": "integer",
       "format": "uint64",
       "minimum": 0.0
+    },
+    "user_output": {
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
+  "additionalProperties": false,
   "definitions": {
     "Answer": {
       "type": "object",
       "required": [
         "has_more",
         "results",
-        "success",
         "variables"
       ],
       "properties": {
@@ -47,16 +53,14 @@
             "$ref": "#/definitions/Result"
           }
         },
-        "success": {
-          "type": "boolean"
-        },
         "variables": {
           "type": "array",
           "items": {
             "type": "string"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "Result": {
       "type": "object",
@@ -64,46 +68,36 @@
         "substitutions"
       ],
       "properties": {
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "substitutions": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Substitution"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "Substitution": {
       "type": "object",
       "required": [
-        "term",
+        "expression",
         "variable"
       ],
       "properties": {
-        "term": {
-          "$ref": "#/definitions/Term"
+        "expression": {
+          "type": "string"
         },
         "variable": {
           "type": "string"
         }
-      }
-    },
-    "Term": {
-      "type": "object",
-      "required": [
-        "arguments",
-        "name"
-      ],
-      "properties": {
-        "arguments": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Term"
-          }
-        },
-        "name": {
-          "type": "string"
-        }
-      }
+      },
+      "additionalProperties": false
     }
   }
 }

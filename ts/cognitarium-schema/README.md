@@ -1,6 +1,6 @@
 # AXONE cognitarium schema
 
-> Generated typescript types for [axone-cognitarium contract](https://github.com/axone-protocol/contracts/tree/v3.0.0-54-gb243e6d/contracts/axone-cognitarium).
+> Generated typescript types for [axone-cognitarium contract](https://github.com/axone-protocol/contracts/tree//contracts/axone-cognitarium).
 
 [![version](https://img.shields.io/github/v/release/axone-protocol/axone-contract-schema?style=for-the-badge&logo=github)](https://github.com/axone-protocol/axone-contract-schema/releases)
 [![build](https://img.shields.io/github/actions/workflow/status/axone-protocol/axone-contract-schema/build.yml?branch=main&label=build&style=for-the-badge&logo=github)](https://github.com/axone-protocol/axone-contract-schema/actions/workflows/build.yml)
@@ -910,6 +910,6 @@ Represents a condition in a [WhereClause].
 
 ---
 
-_Rendered by [Fadroma](https://fadroma.tech) ([@fadroma/schema 1.1.0](https://www.npmjs.com/package/@fadroma/schema)) from `axone-cognitarium.json` (`72125c91d0c7acd2`)_
+_Rendered by [Fadroma](https://fadroma.tech) ([@fadroma/schema 1.1.0](https://www.npmjs.com/package/@fadroma/schema)) from `axone-cognitarium.json` (`8f8a0452855d9314`)_
 
 

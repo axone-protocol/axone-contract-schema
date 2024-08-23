@@ -7,7 +7,8 @@
     "config",
     "limits",
     "name",
-    "pagination"
+    "pagination",
+    "stat"
   ],
   "properties": {
     "config": {
@@ -37,6 +38,14 @@
           "$ref": "#/definitions/PaginationConfig"
         }
       ]
+    },
+    "stat": {
+      "description": "The statistics of the bucket.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/BucketStat"
+        }
+      ]
     }
   },
   "additionalProperties": false,
@@ -46,7 +55,7 @@
       "type": "object",
       "properties": {
         "accepted_compression_algorithms": {
-          "description": "The acceptable compression algorithms for the objects in the bucket. If this parameter is not set (none or empty array), then all compression algorithms are accepted. If this parameter is set, then only the compression algorithms in the array are accepted.\n\nWhen an object is stored in the bucket without a specified compression algorithm, the first algorithm in the array is used. Therefore, the order of the algorithms in the array is significant. Typically, the most efficient compression algorithm, such as the NoCompression algorithm, should be placed first in the array.\n\nAny attempt to store an object using a different compression algorithm than the ones specified here will fail.",
+          "description": "The acceptable compression algorithms for the objects in the bucket. If this parameter is not set, then all compression algorithms are accepted. If this parameter is set, then only the compression algorithms in the array are accepted.\n\nWhen an object is stored in the bucket without a specified compression algorithm, the first algorithm in the array is used. Therefore, the order of the algorithms in the array is significant. Typically, the most efficient compression algorithm, such as the NoCompression algorithm, should be placed first in the array.\n\nAny attempt to store an object using a different compression algorithm than the ones specified here will fail.",
           "default": [
             "passthrough",
             "snappy",
@@ -114,6 +123,43 @@
             },
             {
               "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "BucketStat": {
+      "title": "BucketStat",
+      "description": "BucketStat is the type of the statistics of a bucket.",
+      "type": "object",
+      "required": [
+        "compressed_size",
+        "object_count",
+        "size"
+      ],
+      "properties": {
+        "compressed_size": {
+          "description": "The total size of the objects contained in the bucket after compression.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Uint128"
+            }
+          ]
+        },
+        "object_count": {
+          "description": "The number of objects in the bucket.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Uint128"
+            }
+          ]
+        },
+        "size": {
+          "description": "The total size of the objects contained in the bucket.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Uint128"
             }
           ]
         }

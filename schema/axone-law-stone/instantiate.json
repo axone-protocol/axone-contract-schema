@@ -17,7 +17,7 @@
       ]
     },
     "storage_address": {
-      "description": "The `okp4-objectarium` contract address on which to store the law program.",
+      "description": "The `axone-objectarium` contract address on which to store the law program.",
       "type": "string"
     }
   },

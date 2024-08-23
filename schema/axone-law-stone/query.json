@@ -5,7 +5,7 @@
   "oneOf": [
     {
       "title": "Ask",
-      "description": "If not broken, ask the logic module the provided query with the law program loaded.",
+      "description": "Submits a Prolog query string to the `Logic` module, evaluating it against the law program associated with this contract.\n\nIf the law stone is broken the query returns a response with the error `error(system_error(broken_law_stone),root)` set in the `answer` field.",
       "type": "object",
       "required": [
         "ask"
@@ -28,19 +28,33 @@
     },
     {
       "title": "Program",
-      "description": "If not broken, returns the law program location information.",
-      "type": "string",
-      "enum": [
+      "description": "Retrieves the location metadata of the law program bound to this contract.\n\nThis includes the contract address of the `objectarium` and the program object ID, where the law program's code can be accessed.",
+      "type": "object",
+      "required": [
         "program"
-      ]
+      ],
+      "properties": {
+        "program": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
     },
     {
       "title": "ProgramCode",
-      "description": "ProgramCode returns the law program code.",
-      "type": "string",
-      "enum": [
+      "description": "Fetches the raw code of the law program tied to this contract.\n\nIf the law stone is broken, the query may fail if the program is no longer available in the `Objectarium`.",
+      "type": "object",
+      "required": [
         "program_code"
-      ]
+      ],
+      "properties": {
+        "program_code": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
     }
   ]
 }

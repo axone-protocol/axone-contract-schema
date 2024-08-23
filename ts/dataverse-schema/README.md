@@ -1,6 +1,6 @@
 # AXONE dataverse schema
 
-> Generated typescript types for [axone-dataverse contract](https://github.com/axone-protocol/contracts/tree/v3.0.0-54-gb243e6d/contracts/axone-dataverse).
+> Generated typescript types for [axone-dataverse contract](https://github.com/axone-protocol/contracts/tree//contracts/axone-dataverse).
 
 [![version](https://img.shields.io/github/v/release/axone-protocol/axone-contract-schema?style=for-the-badge&logo=github)](https://github.com/axone-protocol/axone-contract-schema/releases)
 [![build](https://img.shields.io/github/actions/workflow/status/axone-protocol/axone-contract-schema/build.yml?branch=main&label=build&style=for-the-badge&logo=github)](https://github.com/axone-protocol/axone-contract-schema/actions/workflows/build.yml)
@@ -130,11 +130,11 @@ To maintain integrity and coherence in the dataverse, several preconditions are 
 
 - `DataIntegrity` with the following cryptosuites: `eddsa-2022`, `eddsa-rdfc-2022`.
 
-| parameter                | description                                                                                                                                                                                  |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `submit_claims`          | _(Required.) _ **object**.                                                                                                                                                                   |
-| `submit_claims.format`   | **[RdfDatasetFormat](#rdfdatasetformat)\|null**. RDF dataset serialization format for the metadata. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format. |
-| `submit_claims.metadata` | _(Required.) _ **[Binary](#binary)**. The serialized metadata intended for attachment. This metadata should adhere to the format specified in the `format` field.                            |
+| parameter              | description                                                                                                                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `submit_claims`        | _(Required.) _ **object**.                                                                                                                                                                 |
+| `submit_claims.claims` | _(Required.) _ **[Binary](#binary)**. The Verifiable Credential containing the claims. The claims must be serialized in the format specified by the `format` field.                        |
+| `submit_claims.format` | **[RdfDatasetFormat](#rdfdatasetformat)\|null**. RDF dataset serialization format for the claims. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format. |
 
 ### ExecuteMsg::RevokeClaims
 
@@ -272,7 +272,7 @@ let b = Uint64::from(70u32); assert_eq!(b.u64(), 70); ```
 
 ---
 
-*Rendered by [Fadroma](https://fadroma.tech) ([@fadroma/schema 1.1.0](https://www.npmjs.com/package/@fadroma/schema)) from `axone-dataverse.json` (`6c036ea055d1bbb8`)*
+*Rendered by [Fadroma](https://fadroma.tech) ([@fadroma/schema 1.1.0](https://www.npmjs.com/package/@fadroma/schema)) from `axone-dataverse.json` (`13c4a7b5af578887`)*
 ````
 
 
