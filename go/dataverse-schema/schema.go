@@ -71,19 +71,69 @@ type QueryMsg struct {
 	Dataverse *QueryMsg_Dataverse `json:"dataverse,omitempty"`
 }
 
+// Contains requested limitations regarding store usages.
+type TripleStoreLimitsInput struct {
+	// The maximum number of triples an insert data query can contain (after parsing). Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxInsertDataTripleCount *Uint128 `json:"max_insert_data_triple_count,omitempty"`
+	// The maximum limit of a query, i.e. the maximum number of triples returned by a select query. Default to 30 if not set.
+	MaxQueryLimit *int `json:"max_query_limit,omitempty"`
+	// The maximum number of variables a query can select. Default to 30 if not set.
+	MaxQueryVariableCount *int `json:"max_query_variable_count,omitempty"`
+	// The maximum number of bytes the store can contain for a single triple. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. The limit is used to prevent storing very large triples, especially literals. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxTripleByteSize *Uint128 `json:"max_triple_byte_size,omitempty"`
+	// The maximum number of triples the store can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxTripleCount *Uint128 `json:"max_triple_count,omitempty"`
+	// The maximum number of bytes the store can contain. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxByteSize *Uint128 `json:"max_byte_size,omitempty"`
+	// The maximum number of bytes an insert data query can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxInsertDataByteSize *Uint128 `json:"max_insert_data_byte_size,omitempty"`
+}
+
+// Represents the various serialization formats for an RDF dataset, i.e. a collection of RDF graphs ([RDF Dataset](https://www.w3.org/TR/rdf11-concepts/#section-dataset)).
+type RdfDatasetFormat string
+
+const (
+	/*
+	   N-Quads Format
+
+	   N-Quads is an extension of N-Triples to support RDF datasets by adding an optional fourth element to represent the graph name. See the [official N-Quads specification](https://www.w3.org/TR/n-quads/).
+	*/
+	RdfDatasetFormat_NQuads RdfDatasetFormat = "n_quads"
+)
+
 // `TripleStoreConfig` represents the configuration related to the management of the triple store.
 type TripleStoreConfig struct {
-	// The code id that will be used to instantiate the triple store contract in which to store dataverse semantic data. It must implement the cognitarium interface.
-	CodeId Uint64 `json:"code_id"`
 	// Limitations regarding triple store usage.
 	Limits TripleStoreLimitsInput `json:"limits"`
+	// The code id that will be used to instantiate the triple store contract in which to store dataverse semantic data. It must implement the cognitarium interface.
+	CodeId Uint64 `json:"code_id"`
 }
+
+/*
+A thin wrapper around u128 that is using strings for JSON encoding/decoding, such that the full u128 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.
+
+# Examples
+
+Use `from` to create instances of this and `u128` to get the value out:
+
+``` # use cosmwasm_std::Uint128; let a = Uint128::from(123u128); assert_eq!(a.u128(), 123);
+
+let b = Uint128::from(42u64); assert_eq!(b.u128(), 42);
+
+let c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```
+*/
+type Uint128 string
 
 type ExecuteMsg_SubmitClaims struct {
 	// The Verifiable Credential containing the claims. The claims must be serialized in the format specified by the `format` field.
 	Claims Binary `json:"claims"`
 	// RDF dataset serialization format for the claims. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format.
 	Format *RdfDatasetFormat `json:"format,omitempty"`
+}
+
+type ExecuteMsg_RevokeClaims struct {
+	// The unique identifier of the claims to be revoked.
+	Identifier string `json:"identifier"`
 }
 
 /*
@@ -126,53 +176,3 @@ Use `from` to create instances of this and `u64` to get the value out:
 let b = Uint64::from(70u32); assert_eq!(b.u64(), 70); ```
 */
 type Uint64 string
-
-// Contains requested limitations regarding store usages.
-type TripleStoreLimitsInput struct {
-	// The maximum number of bytes the store can contain. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxByteSize *Uint128 `json:"max_byte_size,omitempty"`
-	// The maximum number of bytes an insert data query can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxInsertDataByteSize *Uint128 `json:"max_insert_data_byte_size,omitempty"`
-	// The maximum number of triples an insert data query can contain (after parsing). Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxInsertDataTripleCount *Uint128 `json:"max_insert_data_triple_count,omitempty"`
-	// The maximum limit of a query, i.e. the maximum number of triples returned by a select query. Default to 30 if not set.
-	MaxQueryLimit *int `json:"max_query_limit,omitempty"`
-	// The maximum number of variables a query can select. Default to 30 if not set.
-	MaxQueryVariableCount *int `json:"max_query_variable_count,omitempty"`
-	// The maximum number of bytes the store can contain for a single triple. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. The limit is used to prevent storing very large triples, especially literals. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxTripleByteSize *Uint128 `json:"max_triple_byte_size,omitempty"`
-	// The maximum number of triples the store can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxTripleCount *Uint128 `json:"max_triple_count,omitempty"`
-}
-
-/*
-A thin wrapper around u128 that is using strings for JSON encoding/decoding, such that the full u128 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.
-
-# Examples
-
-Use `from` to create instances of this and `u128` to get the value out:
-
-``` # use cosmwasm_std::Uint128; let a = Uint128::from(123u128); assert_eq!(a.u128(), 123);
-
-let b = Uint128::from(42u64); assert_eq!(b.u128(), 42);
-
-let c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```
-*/
-type Uint128 string
-
-type ExecuteMsg_RevokeClaims struct {
-	// The unique identifier of the claims to be revoked.
-	Identifier string `json:"identifier"`
-}
-
-// Represents the various serialization formats for an RDF dataset, i.e. a collection of RDF graphs ([RDF Dataset](https://www.w3.org/TR/rdf11-concepts/#section-dataset)).
-type RdfDatasetFormat string
-
-const (
-	/*
-	   N-Quads Format
-
-	   N-Quads is an extension of N-Triples to support RDF datasets by adding an optional fourth element to represent the graph name. See the [official N-Quads specification](https://www.w3.org/TR/n-quads/).
-	*/
-	RdfDatasetFormat_NQuads RdfDatasetFormat = "n_quads"
-)
