@@ -45,11 +45,7 @@ type ExecuteMsg_BreakStone struct{}
 
 type QueryMsg_Program struct{}
 
-type Answer struct {
-	HasMore bool `json:"has_more"`
-	Results []Result `json:"results"`
-	Variables []string `json:"variables"`
-}
+type QueryMsg_ProgramCode struct{}
 
 type Result struct {
 	Error *string `json:"error,omitempty"`
@@ -57,8 +53,8 @@ type Result struct {
 }
 
 type Substitution struct {
-	Expression string `json:"expression"`
 	Variable string `json:"variable"`
+	Expression string `json:"expression"`
 }
 
 // ProgramResponse carry elements to locate the program in a `axone-objectarium` contract.
@@ -80,7 +76,11 @@ type QueryMsg_Ask struct {
 	Query string `json:"query"`
 }
 
-type QueryMsg_ProgramCode struct{}
+type Answer struct {
+	HasMore bool `json:"has_more"`
+	Results []Result `json:"results"`
+	Variables []string `json:"variables"`
+}
 
 type AskResponse struct {
 	Answer *Answer `json:"answer,omitempty"`

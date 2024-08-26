@@ -73,28 +73,45 @@ type QueryMsg struct {
 
 // `TripleStoreConfig` represents the configuration related to the management of the triple store.
 type TripleStoreConfig struct {
-	// Limitations regarding triple store usage.
-	Limits TripleStoreLimitsInput `json:"limits"`
 	// The code id that will be used to instantiate the triple store contract in which to store dataverse semantic data. It must implement the cognitarium interface.
 	CodeId Uint64 `json:"code_id"`
+	// Limitations regarding triple store usage.
+	Limits TripleStoreLimitsInput `json:"limits"`
 }
 
-// Contains requested limitations regarding store usages.
-type TripleStoreLimitsInput struct {
-	// The maximum number of bytes an insert data query can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxInsertDataByteSize *Uint128 `json:"max_insert_data_byte_size,omitempty"`
-	// The maximum number of triples an insert data query can contain (after parsing). Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxInsertDataTripleCount *Uint128 `json:"max_insert_data_triple_count,omitempty"`
-	// The maximum limit of a query, i.e. the maximum number of triples returned by a select query. Default to 30 if not set.
-	MaxQueryLimit *int `json:"max_query_limit,omitempty"`
-	// The maximum number of variables a query can select. Default to 30 if not set.
-	MaxQueryVariableCount *int `json:"max_query_variable_count,omitempty"`
-	// The maximum number of bytes the store can contain for a single triple. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. The limit is used to prevent storing very large triples, especially literals. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxTripleByteSize *Uint128 `json:"max_triple_byte_size,omitempty"`
-	// The maximum number of triples the store can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxTripleCount *Uint128 `json:"max_triple_count,omitempty"`
-	// The maximum number of bytes the store can contain. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. Default to [Uint128::MAX] if not set, which can be considered as no limit.
-	MaxByteSize *Uint128 `json:"max_byte_size,omitempty"`
+type ExecuteMsg_SubmitClaims struct {
+	// The Verifiable Credential containing the claims. The claims must be serialized in the format specified by the `format` field.
+	Claims Binary `json:"claims"`
+	// RDF dataset serialization format for the claims. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format.
+	Format *RdfDatasetFormat `json:"format,omitempty"`
+}
+
+/*
+Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
+
+This is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.
+*/
+type Binary string
+
+type QueryMsg_Dataverse struct{}
+
+/*
+A human readable address.
+
+In Cosmos, this is typically bech32 encoded. But for multi-chain smart contracts no assumptions should be made other than being UTF-8 encoded and of reasonable length.
+
+This type represents a validated address. It can be created in the following ways 1. Use `Addr::unchecked(input)` 2. Use `let checked: Addr = deps.api.addr_validate(input)?` 3. Use `let checked: Addr = deps.api.addr_humanize(canonical_addr)?` 4. Deserialize from JSON. This must only be done from JSON that was validated before such as a contract's state. `Addr` must not be used in messages sent by the user because this would result in unvalidated instances.
+
+This type is immutable. If you really need to mutate it (Really? Are you sure?), create a mutable copy using `let mut mutable = Addr::to_string()` and operate on that `String` instance.
+*/
+type Addr string
+
+// DataverseResponse is the response of the Dataverse query.
+type DataverseResponse struct {
+	// The name of the dataverse.
+	Name string `json:"name"`
+	// The cognitarium contract address.
+	TriplestoreAddress Addr `json:"triplestore_address"`
 }
 
 /*
@@ -110,35 +127,22 @@ let b = Uint64::from(70u32); assert_eq!(b.u64(), 70); ```
 */
 type Uint64 string
 
-// Represents the various serialization formats for an RDF dataset, i.e. a collection of RDF graphs ([RDF Dataset](https://www.w3.org/TR/rdf11-concepts/#section-dataset)).
-type RdfDatasetFormat string
-
-const (
-	/*
-	   N-Quads Format
-
-	   N-Quads is an extension of N-Triples to support RDF datasets by adding an optional fourth element to represent the graph name. See the [official N-Quads specification](https://www.w3.org/TR/n-quads/).
-	*/
-	RdfDatasetFormat_NQuads RdfDatasetFormat = "n_quads"
-)
-
-/*
-A human readable address.
-
-In Cosmos, this is typically bech32 encoded. But for multi-chain smart contracts no assumptions should be made other than being UTF-8 encoded and of reasonable length.
-
-This type represents a validated address. It can be created in the following ways 1. Use `Addr::unchecked(input)` 2. Use `let checked: Addr = deps.api.addr_validate(input)?` 3. Use `let checked: Addr = deps.api.addr_humanize(canonical_addr)?` 4. Deserialize from JSON. This must only be done from JSON that was validated before such as a contract's state. `Addr` must not be used in messages sent by the user because this would result in unvalidated instances.
-
-This type is immutable. If you really need to mutate it (Really? Are you sure?), create a mutable copy using `let mut mutable = Addr::to_string()` and operate on that `String` instance.
-*/
-type Addr string
-
-// DataverseResponse is the response of the Dataverse query.
-type DataverseResponse struct {
-	// The cognitarium contract address.
-	TriplestoreAddress Addr `json:"triplestore_address"`
-	// The name of the dataverse.
-	Name string `json:"name"`
+// Contains requested limitations regarding store usages.
+type TripleStoreLimitsInput struct {
+	// The maximum number of bytes the store can contain. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxByteSize *Uint128 `json:"max_byte_size,omitempty"`
+	// The maximum number of bytes an insert data query can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxInsertDataByteSize *Uint128 `json:"max_insert_data_byte_size,omitempty"`
+	// The maximum number of triples an insert data query can contain (after parsing). Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxInsertDataTripleCount *Uint128 `json:"max_insert_data_triple_count,omitempty"`
+	// The maximum limit of a query, i.e. the maximum number of triples returned by a select query. Default to 30 if not set.
+	MaxQueryLimit *int `json:"max_query_limit,omitempty"`
+	// The maximum number of variables a query can select. Default to 30 if not set.
+	MaxQueryVariableCount *int `json:"max_query_variable_count,omitempty"`
+	// The maximum number of bytes the store can contain for a single triple. The size of a triple is counted as the sum of the size of its subject, predicate and object, including the size of data types and language tags if any. The limit is used to prevent storing very large triples, especially literals. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxTripleByteSize *Uint128 `json:"max_triple_byte_size,omitempty"`
+	// The maximum number of triples the store can contain. Default to [Uint128::MAX] if not set, which can be considered as no limit.
+	MaxTripleCount *Uint128 `json:"max_triple_count,omitempty"`
 }
 
 /*
@@ -156,23 +160,19 @@ let c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```
 */
 type Uint128 string
 
-type ExecuteMsg_SubmitClaims struct {
-	// The Verifiable Credential containing the claims. The claims must be serialized in the format specified by the `format` field.
-	Claims Binary `json:"claims"`
-	// RDF dataset serialization format for the claims. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format.
-	Format *RdfDatasetFormat `json:"format,omitempty"`
-}
-
 type ExecuteMsg_RevokeClaims struct {
 	// The unique identifier of the claims to be revoked.
 	Identifier string `json:"identifier"`
 }
 
-/*
-Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
+// Represents the various serialization formats for an RDF dataset, i.e. a collection of RDF graphs ([RDF Dataset](https://www.w3.org/TR/rdf11-concepts/#section-dataset)).
+type RdfDatasetFormat string
 
-This is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.
-*/
-type Binary string
+const (
+	/*
+	   N-Quads Format
 
-type QueryMsg_Dataverse struct{}
+	   N-Quads is an extension of N-Triples to support RDF datasets by adding an optional fourth element to represent the graph name. See the [official N-Quads specification](https://www.w3.org/TR/n-quads/).
+	*/
+	RdfDatasetFormat_NQuads RdfDatasetFormat = "n_quads"
+)
