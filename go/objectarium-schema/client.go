@@ -69,6 +69,44 @@ func (q *queryClient) queryContract(ctx context.Context, rawQueryData []byte, op
 	return out.Data, nil
 }
 
+func (q *queryClient) ObjectPins(ctx context.Context, req *QueryMsg_ObjectPins, opts ...grpc.CallOption) (*ObjectPinsResponse, error) {
+	rawQueryData, err := json.Marshal(map[string]any{"object_pins": req})
+	if err != nil {
+		return nil, err
+	}
+
+	rawResponseData, err := q.queryContract(ctx, rawQueryData, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	var response ObjectPinsResponse
+	if err := json.Unmarshal(rawResponseData, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (q *queryClient) Objects(ctx context.Context, req *QueryMsg_Objects, opts ...grpc.CallOption) (*ObjectsResponse, error) {
+	rawQueryData, err := json.Marshal(map[string]any{"objects": req})
+	if err != nil {
+		return nil, err
+	}
+
+	rawResponseData, err := q.queryContract(ctx, rawQueryData, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	var response ObjectsResponse
+	if err := json.Unmarshal(rawResponseData, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
 func (q *queryClient) Bucket(ctx context.Context, req *QueryMsg_Bucket, opts ...grpc.CallOption) (*BucketResponse, error) {
 	rawQueryData, err := json.Marshal(map[string]any{"bucket": req})
 	if err != nil {
@@ -119,44 +157,6 @@ func (q *queryClient) ObjectData(ctx context.Context, req *QueryMsg_ObjectData, 
 	}
 
 	var response string
-	if err := json.Unmarshal(rawResponseData, &response); err != nil {
-		return nil, err
-	}
-
-	return &response, nil
-}
-
-func (q *queryClient) ObjectPins(ctx context.Context, req *QueryMsg_ObjectPins, opts ...grpc.CallOption) (*ObjectPinsResponse, error) {
-	rawQueryData, err := json.Marshal(map[string]any{"object_pins": req})
-	if err != nil {
-		return nil, err
-	}
-
-	rawResponseData, err := q.queryContract(ctx, rawQueryData, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	var response ObjectPinsResponse
-	if err := json.Unmarshal(rawResponseData, &response); err != nil {
-		return nil, err
-	}
-
-	return &response, nil
-}
-
-func (q *queryClient) Objects(ctx context.Context, req *QueryMsg_Objects, opts ...grpc.CallOption) (*ObjectsResponse, error) {
-	rawQueryData, err := json.Marshal(map[string]any{"objects": req})
-	if err != nil {
-		return nil, err
-	}
-
-	rawResponseData, err := q.queryContract(ctx, rawQueryData, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	var response ObjectsResponse
 	if err := json.Unmarshal(rawResponseData, &response); err != nil {
 		return nil, err
 	}

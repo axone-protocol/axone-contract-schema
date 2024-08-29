@@ -3,14 +3,14 @@ package schema
 
 // Instantiate messages
 type InstantiateMsg struct {
-	// The name of the bucket. The name could not be empty or contains whitespaces. If name contains whitespace, they will be removed.
-	Bucket string `json:"bucket"`
-	// The configuration of the bucket.
-	Config BucketConfig `json:"config"`
 	// The limits of the bucket.
 	Limits BucketLimits `json:"limits"`
 	// The configuration for paginated query.
 	Pagination PaginationConfig `json:"pagination"`
+	// The name of the bucket. The name could not be empty or contains whitespaces. If name contains whitespace, they will be removed.
+	Bucket string `json:"bucket"`
+	// The configuration of the bucket.
+	Config BucketConfig `json:"config"`
 }
 
 // Execute messages
@@ -45,47 +45,20 @@ type QueryMsg struct {
 	ObjectPins *QueryMsg_ObjectPins `json:"object_pins,omitempty"`
 }
 
-/*
-BucketConfig is the type of the configuration of a bucket.
-
-The configuration is set at the instantiation of the bucket, and is immutable and cannot be changed. The configuration is optional and if not set, the default configuration is used.
-*/
-type BucketConfig struct {
-	/*
-	   The algorithm used to hash the content of the objects to generate the id of the objects. The algorithm is optional and if not set, the default algorithm is used.
-
-	   The default algorithm is Sha256 if not set.
-	*/
-	HashAlgorithm HashAlgorithm `json:"hash_algorithm"`
-	/*
-	   The acceptable compression algorithms for the objects in the bucket. If this parameter is not set, then all compression algorithms are accepted. If this parameter is set, then only the compression algorithms in the array are accepted.
-
-	   When an object is stored in the bucket without a specified compression algorithm, the first algorithm in the array is used. Therefore, the order of the algorithms in the array is significant. Typically, the most efficient compression algorithm, such as the NoCompression algorithm, should be placed first in the array.
-
-	   Any attempt to store an object using a different compression algorithm than the ones specified here will fail.
-	*/
-	AcceptedCompressionAlgorithms []CompressionAlgorithm `json:"accepted_compression_algorithms"`
-}
-
-type ExecuteMsg_StoreObject struct {
-	// Specifies the compression algorithm to use when storing the object. If None, the first algorithm specified in the list of accepted compression algorithms of the bucket is used (see [BucketLimits::accepted_compression_algorithms]).
-	CompressionAlgorithm *CompressionAlgorithm `json:"compression_algorithm,omitempty"`
-	// The content of the object to store.
-	Data Binary `json:"data"`
-	// Specifies whether the object should be pinned for the sender. Pinning ensures the object remains persistent and cannot be removed from storage by anyone.
-	Pin bool `json:"pin"`
-}
-
-type ExecuteMsg_ForgetObject struct {
+type ExecuteMsg_PinObject struct {
 	Id string `json:"id"`
 }
 
-// PageInfo is the page information returned for paginated queries.
-type PageInfo struct {
-	// The cursor to the next page.
-	Cursor string `json:"cursor"`
-	// Tells if there is a next page.
-	HasNextPage bool `json:"has_next_page"`
+/*
+Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
+
+This is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.
+*/
+type Binary string
+
+type QueryMsg_ObjectData struct {
+	// The id of the object to get.
+	Id string `json:"id"`
 }
 
 // ObjectPinsResponse is the response of the GetObjectPins query.
@@ -94,6 +67,22 @@ type ObjectPinsResponse struct {
 	Data []string `json:"data"`
 	// The page information.
 	PageInfo PageInfo `json:"page_info"`
+}
+
+// ObjectResponse is the response of the Object query.
+type ObjectResponse struct {
+	// Tells if the object is pinned by at least one address.
+	IsPinned bool `json:"is_pinned"`
+	// The owner of the object.
+	Owner string `json:"owner"`
+	// The size of the object.
+	Size Uint128 `json:"size"`
+	// The size of the object when compressed. If the object is not compressed, the value is the same as `size`.
+	CompressedSize Uint128 `json:"compressed_size"`
+	// The compression algorithm used to compress the content of the object.
+	CompressionAlgorithm CompressionAlgorithm `json:"compression_algorithm"`
+	// The id of the object.
+	Id string `json:"id"`
 }
 
 // HashAlgorithm is an enumeration that defines the different hash algorithms supported for hashing the content of objects.
@@ -142,47 +131,13 @@ const (
 	HashAlgorithm_Sha512 HashAlgorithm = "sha512"
 )
 
-/*
-PaginationConfig is the type carrying configuration for paginated queries.
-
-The fields are optional and if not set, there is a default configuration.
-*/
-type PaginationConfig struct {
-	/*
-	   The default number of elements in a page.
-
-	   Shall be less or equal than `max_page_size`. Default to '10' if not set.
-	*/
-	DefaultPageSize int `json:"default_page_size"`
-	/*
-	   The maximum elements a page can contain.
-
-	   Shall be less than `u32::MAX - 1`. Default to '30' if not set.
-	*/
-	MaxPageSize int `json:"max_page_size"`
-}
-
-/*
-Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
-
-This is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.
-*/
-type Binary string
-
-type QueryMsg_Bucket struct{}
-
-type QueryMsg_Objects struct {
-	// The owner of the objects to get.
-	Address *string `json:"address,omitempty"`
-	// The point in the sequence to start returning objects.
-	After *string `json:"after,omitempty"`
-	// The number of objects to return.
-	First *int `json:"first,omitempty"`
-}
-
-type QueryMsg_ObjectData struct {
-	// The id of the object to get.
-	Id string `json:"id"`
+type ExecuteMsg_StoreObject struct {
+	// The content of the object to store.
+	Data Binary `json:"data"`
+	// Specifies whether the object should be pinned for the sender. Pinning ensures the object remains persistent and cannot be removed from storage by anyone.
+	Pin bool `json:"pin"`
+	// Specifies the compression algorithm to use when storing the object. If None, the first algorithm specified in the list of accepted compression algorithms of the bucket is used (see [BucketLimits::accepted_compression_algorithms]).
+	CompressionAlgorithm *CompressionAlgorithm `json:"compression_algorithm,omitempty"`
 }
 
 type QueryMsg_ObjectPins struct {
@@ -194,20 +149,41 @@ type QueryMsg_ObjectPins struct {
 	Id string `json:"id"`
 }
 
-/*
-BucketLimits is the type of the limits of a bucket.
+// PageInfo is the page information returned for paginated queries.
+type PageInfo struct {
+	// The cursor to the next page.
+	Cursor string `json:"cursor"`
+	// Tells if there is a next page.
+	HasNextPage bool `json:"has_next_page"`
+}
 
-The limits are optional and if not set, there is no limit.
-*/
-type BucketLimits struct {
-	// The maximum total size of the objects in the bucket.
-	MaxTotalSize *Uint128 `json:"max_total_size,omitempty"`
-	// The maximum number of pins in the bucket for an object.
-	MaxObjectPins *Uint128 `json:"max_object_pins,omitempty"`
-	// The maximum size of the objects in the bucket.
-	MaxObjectSize *Uint128 `json:"max_object_size,omitempty"`
-	// The maximum number of objects in the bucket.
-	MaxObjects *Uint128 `json:"max_objects,omitempty"`
+type ExecuteMsg_ForgetObject struct {
+	Id string `json:"id"`
+}
+
+type QueryMsg_Object struct {
+	// The id of the object to get.
+	Id string `json:"id"`
+}
+
+type ExecuteMsg_UnpinObject struct {
+	Id string `json:"id"`
+}
+
+type QueryMsg_Bucket struct{}
+
+// BucketResponse is the response of the Bucket query.
+type BucketResponse struct {
+	// The configuration of the bucket.
+	Config BucketConfig `json:"config"`
+	// The limits of the bucket.
+	Limits BucketLimits `json:"limits"`
+	// The name of the bucket.
+	Name string `json:"name"`
+	// The configuration for paginated query.
+	Pagination PaginationConfig `json:"pagination"`
+	// The statistics of the bucket.
+	Stat BucketStat `json:"stat"`
 }
 
 /*
@@ -234,13 +210,51 @@ const (
 	CompressionAlgorithm_Lzma CompressionAlgorithm = "lzma"
 )
 
-type ExecuteMsg_UnpinObject struct {
-	Id string `json:"id"`
+/*
+BucketLimits is the type of the limits of a bucket.
+
+The limits are optional and if not set, there is no limit.
+*/
+type BucketLimits struct {
+	// The maximum number of pins in the bucket for an object.
+	MaxObjectPins *Uint128 `json:"max_object_pins,omitempty"`
+	// The maximum size of the objects in the bucket.
+	MaxObjectSize *Uint128 `json:"max_object_size,omitempty"`
+	// The maximum number of objects in the bucket.
+	MaxObjects *Uint128 `json:"max_objects,omitempty"`
+	// The maximum total size of the objects in the bucket.
+	MaxTotalSize *Uint128 `json:"max_total_size,omitempty"`
 }
 
-type QueryMsg_Object struct {
-	// The id of the object to get.
-	Id string `json:"id"`
+/*
+BucketConfig is the type of the configuration of a bucket.
+
+The configuration is set at the instantiation of the bucket, and is immutable and cannot be changed. The configuration is optional and if not set, the default configuration is used.
+*/
+type BucketConfig struct {
+	/*
+	   The acceptable compression algorithms for the objects in the bucket. If this parameter is not set, then all compression algorithms are accepted. If this parameter is set, then only the compression algorithms in the array are accepted.
+
+	   When an object is stored in the bucket without a specified compression algorithm, the first algorithm in the array is used. Therefore, the order of the algorithms in the array is significant. Typically, the most efficient compression algorithm, such as the NoCompression algorithm, should be placed first in the array.
+
+	   Any attempt to store an object using a different compression algorithm than the ones specified here will fail.
+	*/
+	AcceptedCompressionAlgorithms []CompressionAlgorithm `json:"accepted_compression_algorithms"`
+	/*
+	   The algorithm used to hash the content of the objects to generate the id of the objects. The algorithm is optional and if not set, the default algorithm is used.
+
+	   The default algorithm is Sha256 if not set.
+	*/
+	HashAlgorithm HashAlgorithm `json:"hash_algorithm"`
+}
+
+type QueryMsg_Objects struct {
+	// The point in the sequence to start returning objects.
+	After *string `json:"after,omitempty"`
+	// The number of objects to return.
+	First *int `json:"first,omitempty"`
+	// The owner of the objects to get.
+	Address *string `json:"address,omitempty"`
 }
 
 // ObjectsResponse is the response of the Objects query.
@@ -251,18 +265,34 @@ type ObjectsResponse struct {
 	PageInfo PageInfo `json:"page_info"`
 }
 
-// BucketResponse is the response of the Bucket query.
-type BucketResponse struct {
-	// The statistics of the bucket.
-	Stat BucketStat `json:"stat"`
-	// The configuration of the bucket.
-	Config BucketConfig `json:"config"`
-	// The limits of the bucket.
-	Limits BucketLimits `json:"limits"`
-	// The name of the bucket.
-	Name string `json:"name"`
-	// The configuration for paginated query.
-	Pagination PaginationConfig `json:"pagination"`
+// BucketStat is the type of the statistics of a bucket.
+type BucketStat struct {
+	// The total size of the objects contained in the bucket after compression.
+	CompressedSize Uint128 `json:"compressed_size"`
+	// The number of objects in the bucket.
+	ObjectCount Uint128 `json:"object_count"`
+	// The total size of the objects contained in the bucket.
+	Size Uint128 `json:"size"`
+}
+
+/*
+PaginationConfig is the type carrying configuration for paginated queries.
+
+The fields are optional and if not set, there is a default configuration.
+*/
+type PaginationConfig struct {
+	/*
+	   The default number of elements in a page.
+
+	   Shall be less or equal than `max_page_size`. Default to '10' if not set.
+	*/
+	DefaultPageSize int `json:"default_page_size"`
+	/*
+	   The maximum elements a page can contain.
+
+	   Shall be less than `u32::MAX - 1`. Default to '30' if not set.
+	*/
+	MaxPageSize int `json:"max_page_size"`
 }
 
 /*
@@ -279,33 +309,3 @@ let b = Uint128::from(42u64); assert_eq!(b.u128(), 42);
 let c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```
 */
 type Uint128 string
-
-type ExecuteMsg_PinObject struct {
-	Id string `json:"id"`
-}
-
-// ObjectResponse is the response of the Object query.
-type ObjectResponse struct {
-	// The compression algorithm used to compress the content of the object.
-	CompressionAlgorithm CompressionAlgorithm `json:"compression_algorithm"`
-	// The id of the object.
-	Id string `json:"id"`
-	// Tells if the object is pinned by at least one address.
-	IsPinned bool `json:"is_pinned"`
-	// The owner of the object.
-	Owner string `json:"owner"`
-	// The size of the object.
-	Size Uint128 `json:"size"`
-	// The size of the object when compressed. If the object is not compressed, the value is the same as `size`.
-	CompressedSize Uint128 `json:"compressed_size"`
-}
-
-// BucketStat is the type of the statistics of a bucket.
-type BucketStat struct {
-	// The total size of the objects contained in the bucket after compression.
-	CompressedSize Uint128 `json:"compressed_size"`
-	// The number of objects in the bucket.
-	ObjectCount Uint128 `json:"object_count"`
-	// The total size of the objects contained in the bucket.
-	Size Uint128 `json:"size"`
-}
