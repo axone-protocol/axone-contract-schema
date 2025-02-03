@@ -2,7 +2,7 @@ module github.com/axone-protocol/axone-contract-schema/go/cognitarium-schema/v5
 
 go 1.22
 require (
-	github.com/CosmWasm/wasmd v0.53.0
+	github.com/CosmWasm/wasmd v0.53.2
 	google.golang.org/grpc v1.70.0
 )
 
