@@ -1,7 +1,7 @@
 module github.com/axone-protocol/axone-contract-schema/go/cognitarium-schema/v5
 
 go 1.22
-toolchain go1.22.12
+toolchain go1.24.1
 
 require (
 	github.com/CosmWasm/wasmd v0.53.2
@@ -40,7 +40,7 @@ require (
 	github.com/cosmos/btcutil v1.0.5 // indirect
 	github.com/cosmos/cosmos-db v1.1.1 // indirect
 	github.com/cosmos/cosmos-proto v1.0.0-beta.5 // indirect
-	github.com/cosmos/cosmos-sdk v0.50.12 // indirect
+	github.com/cosmos/cosmos-sdk v0.50.13 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/gogogateway v1.2.0 // indirect
 	github.com/cosmos/gogoproto v1.7.0 // indirect
