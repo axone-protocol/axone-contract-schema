@@ -3,10 +3,10 @@ package schema
 
 // `InstantiateMsg` is used to initialize a new instance of the dataverse.
 type InstantiateMsg struct {
-	// A unique name to identify the dataverse instance.
-	Name string `json:"name"`
 	// The configuration used to instantiate the triple store.
 	TriplestoreConfig TripleStoreConfig `json:"triplestore_config"`
+	// A unique name to identify the dataverse instance.
+	Name string `json:"name"`
 }
 
 /*
@@ -71,6 +71,14 @@ type QueryMsg struct {
 	Dataverse *QueryMsg_Dataverse `json:"dataverse,omitempty"`
 }
 
+// DataverseResponse is the response of the Dataverse query.
+type DataverseResponse struct {
+	// The name of the dataverse.
+	Name string `json:"name"`
+	// The cognitarium contract address.
+	TriplestoreAddress Addr `json:"triplestore_address"`
+}
+
 // `TripleStoreConfig` represents the configuration related to the management of the triple store.
 type TripleStoreConfig struct {
 	// The code id that will be used to instantiate the triple store contract in which to store dataverse semantic data. It must implement the cognitarium interface.
@@ -78,6 +86,39 @@ type TripleStoreConfig struct {
 	// Limitations regarding triple store usage.
 	Limits TripleStoreLimitsInput `json:"limits"`
 }
+
+/*
+A thin wrapper around u64 that is using strings for JSON encoding/decoding, such that the full u64 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.
+
+# Examples
+
+Use `from` to create instances of this and `u64` to get the value out:
+
+``` # use cosmwasm_std::Uint64; let a = Uint64::from(42u64); assert_eq!(a.u64(), 42);
+
+let b = Uint64::from(70u32); assert_eq!(b.u64(), 70); ```
+*/
+type Uint64 string
+
+/*
+Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
+
+This is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.
+*/
+type Binary string
+
+type QueryMsg_Dataverse struct{}
+
+/*
+A human readable address.
+
+In Cosmos, this is typically bech32 encoded. But for multi-chain smart contracts no assumptions should be made other than being UTF-8 encoded and of reasonable length.
+
+This type represents a validated address. It can be created in the following ways 1. Use `Addr::unchecked(input)` 2. Use `let checked: Addr = deps.api.addr_validate(input)?` 3. Use `let checked: Addr = deps.api.addr_humanize(canonical_addr)?` 4. Deserialize from JSON. This must only be done from JSON that was validated before such as a contract's state. `Addr` must not be used in messages sent by the user because this would result in unvalidated instances.
+
+This type is immutable. If you really need to mutate it (Really? Are you sure?), create a mutable copy using `let mut mutable = Addr::to_string()` and operate on that `String` instance.
+*/
+type Addr string
 
 // Contains requested limitations regarding store usages.
 type TripleStoreLimitsInput struct {
@@ -97,11 +138,26 @@ type TripleStoreLimitsInput struct {
 	MaxTripleCount *Uint128 `json:"max_triple_count,omitempty"`
 }
 
+/*
+A thin wrapper around u128 that is using strings for JSON encoding/decoding, such that the full u128 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.
+
+# Examples
+
+Use `from` to create instances of this and `u128` to get the value out:
+
+``` # use cosmwasm_std::Uint128; let a = Uint128::from(123u128); assert_eq!(a.u128(), 123);
+
+let b = Uint128::from(42u64); assert_eq!(b.u128(), 42);
+
+let c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```
+*/
+type Uint128 string
+
 type ExecuteMsg_SubmitClaims struct {
-	// The Verifiable Credential containing the claims. The claims must be serialized in the format specified by the `format` field.
-	Claims Binary `json:"claims"`
-	// RDF dataset serialization format for the claims. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format.
+	// RDF dataset serialization format for the metadata. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format.
 	Format *RdfDatasetFormat `json:"format,omitempty"`
+	// The serialized metadata intended for attachment. This metadata should adhere to the format specified in the `format` field.
+	Metadata Binary `json:"metadata"`
 }
 
 type ExecuteMsg_RevokeClaims struct {
@@ -120,59 +176,3 @@ const (
 	*/
 	RdfDatasetFormat_NQuads RdfDatasetFormat = "n_quads"
 )
-
-/*
-A human readable address.
-
-In Cosmos, this is typically bech32 encoded. But for multi-chain smart contracts no assumptions should be made other than being UTF-8 encoded and of reasonable length.
-
-This type represents a validated address. It can be created in the following ways 1. Use `Addr::unchecked(input)` 2. Use `let checked: Addr = deps.api.addr_validate(input)?` 3. Use `let checked: Addr = deps.api.addr_humanize(canonical_addr)?` 4. Deserialize from JSON. This must only be done from JSON that was validated before such as a contract's state. `Addr` must not be used in messages sent by the user because this would result in unvalidated instances.
-
-This type is immutable. If you really need to mutate it (Really? Are you sure?), create a mutable copy using `let mut mutable = Addr::to_string()` and operate on that `String` instance.
-*/
-type Addr string
-
-// DataverseResponse is the response of the Dataverse query.
-type DataverseResponse struct {
-	// The name of the dataverse.
-	Name string `json:"name"`
-	// The cognitarium contract address.
-	TriplestoreAddress Addr `json:"triplestore_address"`
-}
-
-/*
-A thin wrapper around u64 that is using strings for JSON encoding/decoding, such that the full u64 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.
-
-# Examples
-
-Use `from` to create instances of this and `u64` to get the value out:
-
-``` # use cosmwasm_std::Uint64; let a = Uint64::from(42u64); assert_eq!(a.u64(), 42);
-
-let b = Uint64::from(70u32); assert_eq!(b.u64(), 70); ```
-*/
-type Uint64 string
-
-/*
-A thin wrapper around u128 that is using strings for JSON encoding/decoding, such that the full u128 range can be used for clients that convert JSON numbers to floats, like JavaScript and jq.
-
-# Examples
-
-Use `from` to create instances of this and `u128` to get the value out:
-
-``` # use cosmwasm_std::Uint128; let a = Uint128::from(123u128); assert_eq!(a.u128(), 123);
-
-let b = Uint128::from(42u64); assert_eq!(b.u128(), 42);
-
-let c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```
-*/
-type Uint128 string
-
-/*
-Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
-
-This is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8>. See also <https://github.com/CosmWasm/cosmwasm/blob/main/docs/MESSAGE_TYPES.md>.
-*/
-type Binary string
-
-type QueryMsg_Dataverse struct{}

@@ -1,6 +1,7 @@
-module github.com/axone-protocol/axone-contract-schema/go/cognitarium-schema/v5
+module github.com/axone-protocol/axone-contract-schema/go/cognitarium-schema/v6
 
 go 1.22
+
 toolchain go1.24.1
 
 require (

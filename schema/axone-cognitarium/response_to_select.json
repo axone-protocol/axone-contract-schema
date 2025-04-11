@@ -92,7 +92,9 @@
           "type": "array",
           "items": {
             "type": "object",
-            "additionalProperties": false
+            "additionalProperties": {
+              "$ref": "#/definitions/Value"
+            }
           }
         }
       },

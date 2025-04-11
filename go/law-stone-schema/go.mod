@@ -1,6 +1,7 @@
-module github.com/axone-protocol/axone-contract-schema/go/law-stone-schema/v5
+module github.com/axone-protocol/axone-contract-schema/go/law-stone-schema/v6
 
 go 1.22
+
 toolchain go1.23.7
 
 require (

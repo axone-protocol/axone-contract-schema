@@ -3,14 +3,14 @@ package schema
 
 // Instantiate messages
 type InstantiateMsg struct {
+	// The configuration of the bucket.
+	Config BucketConfig `json:"config"`
 	// The limits of the bucket.
 	Limits BucketLimits `json:"limits"`
 	// The configuration for paginated query.
 	Pagination PaginationConfig `json:"pagination"`
 	// The name of the bucket. The name could not be empty or contains whitespaces. If name contains whitespace, they will be removed.
 	Bucket string `json:"bucket"`
-	// The configuration of the bucket.
-	Config BucketConfig `json:"config"`
 }
 
 // Execute messages
@@ -45,7 +45,27 @@ type QueryMsg struct {
 	ObjectPins *QueryMsg_ObjectPins `json:"object_pins,omitempty"`
 }
 
-type ExecuteMsg_PinObject struct {
+/*
+PaginationConfig is the type carrying configuration for paginated queries.
+
+The fields are optional and if not set, there is a default configuration.
+*/
+type PaginationConfig struct {
+	/*
+	   The maximum elements a page can contain.
+
+	   Shall be less than `u32::MAX - 1`. Default to '30' if not set.
+	*/
+	MaxPageSize int `json:"max_page_size"`
+	/*
+	   The default number of elements in a page.
+
+	   Shall be less or equal than `max_page_size`. Default to '10' if not set.
+	*/
+	DefaultPageSize int `json:"default_page_size"`
+}
+
+type ExecuteMsg_UnpinObject struct {
 	Id string `json:"id"`
 }
 
@@ -69,21 +89,48 @@ type ObjectPinsResponse struct {
 	PageInfo PageInfo `json:"page_info"`
 }
 
-// ObjectResponse is the response of the Object query.
-type ObjectResponse struct {
-	// Tells if the object is pinned by at least one address.
-	IsPinned bool `json:"is_pinned"`
-	// The owner of the object.
-	Owner string `json:"owner"`
-	// The size of the object.
-	Size Uint128 `json:"size"`
-	// The size of the object when compressed. If the object is not compressed, the value is the same as `size`.
-	CompressedSize Uint128 `json:"compressed_size"`
-	// The compression algorithm used to compress the content of the object.
-	CompressionAlgorithm CompressionAlgorithm `json:"compression_algorithm"`
-	// The id of the object.
-	Id string `json:"id"`
+// ObjectsResponse is the response of the Objects query.
+type ObjectsResponse struct {
+	// The list of objects in the bucket.
+	Data []ObjectResponse `json:"data"`
+	// The page information.
+	PageInfo PageInfo `json:"page_info"`
 }
+
+/*
+CompressionAlgorithm is an enumeration that defines the different compression algorithms supported for compressing the content of objects. The compression algorithm specified here are relevant algorithms for compressing data on-chain, which means that they are fast to compress and decompress, and have a low computational cost.
+
+The order of the compression algorithms is based on their estimated computational cost (quite opinionated) during both compression and decompression, ranging from the lowest to the highest. This particular order is utilized to establish the default compression algorithm for storing an object.
+*/
+type CompressionAlgorithm string
+
+const (
+	// Represents no compression algorithm. The object is stored as is without any compression.
+	CompressionAlgorithm_Passthrough CompressionAlgorithm = "passthrough"
+	/*
+	   Represents the Snappy algorithm. Snappy is a compression/decompression algorithm that does not aim for maximum compression. Instead, it aims for very high speeds and reasonable compression.
+
+	   See [the snappy web page](https://google.github.io/snappy/) for more information.
+	*/
+	CompressionAlgorithm_Snappy CompressionAlgorithm = "snappy"
+	/*
+	   Represents the LZMA algorithm. LZMA is a lossless data compression/decompression algorithm that features a high compression ratio and a variable compression-dictionary size up to 4 GB.
+
+	   See [the LZMA wiki page](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm) for more information.
+	*/
+	CompressionAlgorithm_Lzma CompressionAlgorithm = "lzma"
+)
+
+type ExecuteMsg_StoreObject struct {
+	// Specifies whether the object should be pinned for the sender. Pinning ensures the object remains persistent and cannot be removed from storage by anyone.
+	Pin bool `json:"pin"`
+	// Specifies the compression algorithm to use when storing the object. If None, the first algorithm specified in the list of accepted compression algorithms of the bucket is used (see [BucketLimits::accepted_compression_algorithms]).
+	CompressionAlgorithm *CompressionAlgorithm `json:"compression_algorithm,omitempty"`
+	// The content of the object to store.
+	Data Binary `json:"data"`
+}
+
+type QueryMsg_Bucket struct{}
 
 // HashAlgorithm is an enumeration that defines the different hash algorithms supported for hashing the content of objects.
 type HashAlgorithm string
@@ -131,15 +178,6 @@ const (
 	HashAlgorithm_Sha512 HashAlgorithm = "sha512"
 )
 
-type ExecuteMsg_StoreObject struct {
-	// The content of the object to store.
-	Data Binary `json:"data"`
-	// Specifies whether the object should be pinned for the sender. Pinning ensures the object remains persistent and cannot be removed from storage by anyone.
-	Pin bool `json:"pin"`
-	// Specifies the compression algorithm to use when storing the object. If None, the first algorithm specified in the list of accepted compression algorithms of the bucket is used (see [BucketLimits::accepted_compression_algorithms]).
-	CompressionAlgorithm *CompressionAlgorithm `json:"compression_algorithm,omitempty"`
-}
-
 type QueryMsg_ObjectPins struct {
 	// The point in the sequence to start returning pins.
 	After *string `json:"after,omitempty"`
@@ -149,81 +187,20 @@ type QueryMsg_ObjectPins struct {
 	Id string `json:"id"`
 }
 
-// PageInfo is the page information returned for paginated queries.
-type PageInfo struct {
-	// The cursor to the next page.
-	Cursor string `json:"cursor"`
-	// Tells if there is a next page.
-	HasNextPage bool `json:"has_next_page"`
-}
-
-type ExecuteMsg_ForgetObject struct {
-	Id string `json:"id"`
-}
-
-type QueryMsg_Object struct {
-	// The id of the object to get.
-	Id string `json:"id"`
-}
-
-type ExecuteMsg_UnpinObject struct {
-	Id string `json:"id"`
-}
-
-type QueryMsg_Bucket struct{}
-
-// BucketResponse is the response of the Bucket query.
-type BucketResponse struct {
-	// The configuration of the bucket.
-	Config BucketConfig `json:"config"`
-	// The limits of the bucket.
-	Limits BucketLimits `json:"limits"`
-	// The name of the bucket.
-	Name string `json:"name"`
-	// The configuration for paginated query.
-	Pagination PaginationConfig `json:"pagination"`
-	// The statistics of the bucket.
-	Stat BucketStat `json:"stat"`
-}
-
-/*
-CompressionAlgorithm is an enumeration that defines the different compression algorithms supported for compressing the content of objects. The compression algorithm specified here are relevant algorithms for compressing data on-chain, which means that they are fast to compress and decompress, and have a low computational cost.
-
-The order of the compression algorithms is based on their estimated computational cost (quite opinionated) during both compression and decompression, ranging from the lowest to the highest. This particular order is utilized to establish the default compression algorithm for storing an object.
-*/
-type CompressionAlgorithm string
-
-const (
-	// Represents no compression algorithm. The object is stored as is without any compression.
-	CompressionAlgorithm_Passthrough CompressionAlgorithm = "passthrough"
-	/*
-	   Represents the Snappy algorithm. Snappy is a compression/decompression algorithm that does not aim for maximum compression. Instead, it aims for very high speeds and reasonable compression.
-
-	   See [the snappy web page](https://google.github.io/snappy/) for more information.
-	*/
-	CompressionAlgorithm_Snappy CompressionAlgorithm = "snappy"
-	/*
-	   Represents the LZMA algorithm. LZMA is a lossless data compression/decompression algorithm that features a high compression ratio and a variable compression-dictionary size up to 4 GB.
-
-	   See [the LZMA wiki page](https://en.wikipedia.org/wiki/Lempel%E2%80%93Ziv%E2%80%93Markov_chain_algorithm) for more information.
-	*/
-	CompressionAlgorithm_Lzma CompressionAlgorithm = "lzma"
-)
-
 /*
 BucketLimits is the type of the limits of a bucket.
 
 The limits are optional and if not set, there is no limit.
 */
 type BucketLimits struct {
+	// The maximum total size of the objects in the bucket.
+	MaxTotalSize *Uint128 `json:"max_total_size,omitempty"`
 	// The maximum number of pins in the bucket for an object.
 	MaxObjectPins *Uint128 `json:"max_object_pins,omitempty"`
 	// The maximum size of the objects in the bucket.
 	MaxObjectSize *Uint128 `json:"max_object_size,omitempty"`
 	// The maximum number of objects in the bucket.
 	MaxObjects *Uint128 `json:"max_objects,omitempty"`
-	// The maximum total size of the objects in the bucket.
-	MaxTotalSize *Uint128 `json:"max_total_size,omitempty"`
 }
 
 /*
@@ -248,21 +225,26 @@ type BucketConfig struct {
 	HashAlgorithm HashAlgorithm `json:"hash_algorithm"`
 }
 
+type ExecuteMsg_ForgetObject struct {
+	Id string `json:"id"`
+}
+
+type ExecuteMsg_PinObject struct {
+	Id string `json:"id"`
+}
+
+type QueryMsg_Object struct {
+	// The id of the object to get.
+	Id string `json:"id"`
+}
+
 type QueryMsg_Objects struct {
+	// The owner of the objects to get.
+	Address *string `json:"address,omitempty"`
 	// The point in the sequence to start returning objects.
 	After *string `json:"after,omitempty"`
 	// The number of objects to return.
 	First *int `json:"first,omitempty"`
-	// The owner of the objects to get.
-	Address *string `json:"address,omitempty"`
-}
-
-// ObjectsResponse is the response of the Objects query.
-type ObjectsResponse struct {
-	// The list of objects in the bucket.
-	Data []ObjectResponse `json:"data"`
-	// The page information.
-	PageInfo PageInfo `json:"page_info"`
 }
 
 // BucketStat is the type of the statistics of a bucket.
@@ -275,24 +257,18 @@ type BucketStat struct {
 	Size Uint128 `json:"size"`
 }
 
-/*
-PaginationConfig is the type carrying configuration for paginated queries.
-
-The fields are optional and if not set, there is a default configuration.
-*/
-type PaginationConfig struct {
-	/*
-	   The default number of elements in a page.
-
-	   Shall be less or equal than `max_page_size`. Default to '10' if not set.
-	*/
-	DefaultPageSize int `json:"default_page_size"`
-	/*
-	   The maximum elements a page can contain.
-
-	   Shall be less than `u32::MAX - 1`. Default to '30' if not set.
-	*/
-	MaxPageSize int `json:"max_page_size"`
+// BucketResponse is the response of the Bucket query.
+type BucketResponse struct {
+	// The configuration of the bucket.
+	Config BucketConfig `json:"config"`
+	// The limits of the bucket.
+	Limits BucketLimits `json:"limits"`
+	// The name of the bucket.
+	Name string `json:"name"`
+	// The configuration for paginated query.
+	Pagination PaginationConfig `json:"pagination"`
+	// The statistics of the bucket.
+	Stat BucketStat `json:"stat"`
 }
 
 /*
@@ -309,3 +285,27 @@ let b = Uint128::from(42u64); assert_eq!(b.u128(), 42);
 let c = Uint128::from(70u32); assert_eq!(c.u128(), 70); ```
 */
 type Uint128 string
+
+// PageInfo is the page information returned for paginated queries.
+type PageInfo struct {
+	// The cursor to the next page.
+	Cursor string `json:"cursor"`
+	// Tells if there is a next page.
+	HasNextPage bool `json:"has_next_page"`
+}
+
+// ObjectResponse is the response of the Object query.
+type ObjectResponse struct {
+	// The size of the object.
+	Size Uint128 `json:"size"`
+	// The size of the object when compressed. If the object is not compressed, the value is the same as `size`.
+	CompressedSize Uint128 `json:"compressed_size"`
+	// The compression algorithm used to compress the content of the object.
+	CompressionAlgorithm CompressionAlgorithm `json:"compression_algorithm"`
+	// The id of the object.
+	Id string `json:"id"`
+	// Tells if the object is pinned by at least one address.
+	IsPinned bool `json:"is_pinned"`
+	// The owner of the object.
+	Owner string `json:"owner"`
+}
