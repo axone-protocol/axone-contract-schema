@@ -13,12 +13,12 @@ import (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
+	// Ask is the client API for the QueryMsg_Ask query message
+	Ask(ctx context.Context, req *QueryMsg_Ask, opts ...grpc.CallOption) (*AskResponse, error)
 	// Program is the client API for the QueryMsg_Program query message
 	Program(ctx context.Context, req *QueryMsg_Program, opts ...grpc.CallOption) (*ProgramResponse, error)
 	// ProgramCode is the client API for the QueryMsg_ProgramCode query message
 	ProgramCode(ctx context.Context, req *QueryMsg_ProgramCode, opts ...grpc.CallOption) (*string, error)
-	// Ask is the client API for the QueryMsg_Ask query message
-	Ask(ctx context.Context, req *QueryMsg_Ask, opts ...grpc.CallOption) (*AskResponse, error)
 }
 
 type queryClient struct {
@@ -65,25 +65,6 @@ func (q *queryClient) queryContract(ctx context.Context, rawQueryData []byte, op
 	return out.Data, nil
 }
 
-func (q *queryClient) ProgramCode(ctx context.Context, req *QueryMsg_ProgramCode, opts ...grpc.CallOption) (*string, error) {
-	rawQueryData, err := json.Marshal(map[string]any{"program_code": req})
-	if err != nil {
-		return nil, err
-	}
-
-	rawResponseData, err := q.queryContract(ctx, rawQueryData, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	var response string
-	if err := json.Unmarshal(rawResponseData, &response); err != nil {
-		return nil, err
-	}
-
-	return &response, nil
-}
-
 func (q *queryClient) Ask(ctx context.Context, req *QueryMsg_Ask, opts ...grpc.CallOption) (*AskResponse, error) {
 	rawQueryData, err := json.Marshal(map[string]any{"ask": req})
 	if err != nil {
@@ -115,6 +96,25 @@ func (q *queryClient) Program(ctx context.Context, req *QueryMsg_Program, opts .
 	}
 
 	var response ProgramResponse
+	if err := json.Unmarshal(rawResponseData, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (q *queryClient) ProgramCode(ctx context.Context, req *QueryMsg_ProgramCode, opts ...grpc.CallOption) (*string, error) {
+	rawQueryData, err := json.Marshal(map[string]any{"program_code": req})
+	if err != nil {
+		return nil, err
+	}
+
+	rawResponseData, err := q.queryContract(ctx, rawQueryData, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	var response string
 	if err := json.Unmarshal(rawResponseData, &response); err != nil {
 		return nil, err
 	}

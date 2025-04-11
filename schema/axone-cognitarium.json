@@ -157,11 +157,12 @@
             "type": "object",
             "required": [
               "delete",
-              "prefixes"
+              "prefixes",
+              "where"
             ],
             "properties": {
               "delete": {
-                "description": "Specifies the specific triple templates to delete. If nothing is provided and the `where` clause is a single Bgp, the patterns are used for deletion.",
+                "description": "Specifies the specific triple templates to delete. If nothing is provided, the patterns from the `where` clause are used for deletion.",
                 "type": "array",
                 "items": {
                   "$ref": "#/definitions/TripleDeleteTemplate"
@@ -175,15 +176,11 @@
                 }
               },
               "where": {
-                "description": "Defines the patterns that data (RDF triples) should match in order for it to be considered for deletion, if any.",
-                "anyOf": [
-                  {
-                    "$ref": "#/definitions/WhereClause"
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
+                "description": "Defines the patterns that data (RDF triples) should match in order for it to be considered for deletion.",
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/WhereCondition"
+                }
               }
             },
             "additionalProperties": false
@@ -232,211 +229,6 @@
             "enum": [
               "n_quads"
             ]
-          }
-        ]
-      },
-      "Expression": {
-        "title": "Expression",
-        "description": "Represents a logical combination of operations whose evaluation results in a term.",
-        "oneOf": [
-          {
-            "description": "A named node constant.",
-            "type": "object",
-            "required": [
-              "named_node"
-            ],
-            "properties": {
-              "named_node": {
-                "$ref": "#/definitions/IRI"
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "A literal constant.",
-            "type": "object",
-            "required": [
-              "literal"
-            ],
-            "properties": {
-              "literal": {
-                "$ref": "#/definitions/Literal"
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "A variable that must be bound for evaluation.",
-            "type": "object",
-            "required": [
-              "variable"
-            ],
-            "properties": {
-              "variable": {
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Logical conjunction of expressions. All expressions must evaluate to true for the conjunction to be true. If the conjunction is empty, it is considered true.",
-            "type": "object",
-            "required": [
-              "and"
-            ],
-            "properties": {
-              "and": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/Expression"
-                }
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Logical disjunction of expressions. At least one expression must evaluate to true for the disjunction to be true. If the disjunction is empty, it is considered false.",
-            "type": "object",
-            "required": [
-              "or"
-            ],
-            "properties": {
-              "or": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/Expression"
-                }
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Equality comparison.",
-            "type": "object",
-            "required": [
-              "equal"
-            ],
-            "properties": {
-              "equal": {
-                "type": "array",
-                "items": [
-                  {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  {
-                    "$ref": "#/definitions/Expression"
-                  }
-                ],
-                "maxItems": 2,
-                "minItems": 2
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Greater than comparison.",
-            "type": "object",
-            "required": [
-              "greater"
-            ],
-            "properties": {
-              "greater": {
-                "type": "array",
-                "items": [
-                  {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  {
-                    "$ref": "#/definitions/Expression"
-                  }
-                ],
-                "maxItems": 2,
-                "minItems": 2
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Greater or equal comparison.",
-            "type": "object",
-            "required": [
-              "greater_or_equal"
-            ],
-            "properties": {
-              "greater_or_equal": {
-                "type": "array",
-                "items": [
-                  {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  {
-                    "$ref": "#/definitions/Expression"
-                  }
-                ],
-                "maxItems": 2,
-                "minItems": 2
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Less than comparison.",
-            "type": "object",
-            "required": [
-              "less"
-            ],
-            "properties": {
-              "less": {
-                "type": "array",
-                "items": [
-                  {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  {
-                    "$ref": "#/definitions/Expression"
-                  }
-                ],
-                "maxItems": 2,
-                "minItems": 2
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Less or equal comparison.",
-            "type": "object",
-            "required": [
-              "less_or_equal"
-            ],
-            "properties": {
-              "less_or_equal": {
-                "type": "array",
-                "items": [
-                  {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  {
-                    "$ref": "#/definitions/Expression"
-                  }
-                ],
-                "maxItems": 2,
-                "minItems": 2
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Negation of an expression.",
-            "type": "object",
-            "required": [
-              "not"
-            ],
-            "properties": {
-              "not": {
-                "$ref": "#/definitions/Expression"
-              }
-            },
-            "additionalProperties": false
           }
         ]
       },
@@ -609,6 +401,26 @@
           }
         },
         "additionalProperties": false
+      },
+      "SimpleWhereCondition": {
+        "title": "SimpleWhereCondition",
+        "description": "Represents a simple condition in a [WhereCondition].",
+        "oneOf": [
+          {
+            "title": "TriplePattern",
+            "description": "Represents a triple pattern, i.e. a condition on a triple based on its subject, predicate and object.",
+            "type": "object",
+            "required": [
+              "triple_pattern"
+            ],
+            "properties": {
+              "triple_pattern": {
+                "$ref": "#/definitions/TriplePattern"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       },
       "TripleDeleteTemplate": {
         "title": "TripleDeleteTemplate",
@@ -848,86 +660,20 @@
           }
         ]
       },
-      "WhereClause": {
-        "title": "WhereClause",
-        "description": "Represents a WHERE clause, i.e. a set of conditions to filter the results.",
+      "WhereCondition": {
+        "title": "WhereCondition",
+        "description": "Represents a condition in a [WhereClause].",
         "oneOf": [
           {
-            "title": "Bgp",
-            "description": "Represents a basic graph pattern expressed as a set of triple patterns.",
+            "title": "Simple",
+            "description": "Represents a simple condition.",
             "type": "object",
             "required": [
-              "bgp"
+              "simple"
             ],
             "properties": {
-              "bgp": {
-                "type": "object",
-                "required": [
-                  "patterns"
-                ],
-                "properties": {
-                  "patterns": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/definitions/TriplePattern"
-                    }
-                  }
-                },
-                "additionalProperties": false
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "title": "LateralJoin",
-            "description": "Evaluates right for all result row of left",
-            "type": "object",
-            "required": [
-              "lateral_join"
-            ],
-            "properties": {
-              "lateral_join": {
-                "type": "object",
-                "required": [
-                  "left",
-                  "right"
-                ],
-                "properties": {
-                  "left": {
-                    "$ref": "#/definitions/WhereClause"
-                  },
-                  "right": {
-                    "$ref": "#/definitions/WhereClause"
-                  }
-                },
-                "additionalProperties": false
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "title": "Filter",
-            "description": "Filters the inner clause matching the expression. The solutions coming from the inner clause that do not match the expression are discarded. The variables provided in the inner clause are available in the filter expression.",
-            "type": "object",
-            "required": [
-              "filter"
-            ],
-            "properties": {
-              "filter": {
-                "type": "object",
-                "required": [
-                  "expr",
-                  "inner"
-                ],
-                "properties": {
-                  "expr": {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  "inner": {
-                    "$ref": "#/definitions/WhereClause"
-                  }
-                },
-                "additionalProperties": false
+              "simple": {
+                "$ref": "#/definitions/SimpleWhereCondition"
               }
             },
             "additionalProperties": false
@@ -1075,7 +821,7 @@
         ],
         "properties": {
           "construct": {
-            "description": "The triples to construct. If nothing is provided and the `where` clause is a single Bgp, the patterns are used for construction.",
+            "description": "The triples to construct. If nothing is provided, the patterns from the `where` clause are used for construction.",
             "type": "array",
             "items": {
               "$ref": "#/definitions/TripleConstructTemplate"
@@ -1090,11 +836,10 @@
           },
           "where": {
             "description": "The WHERE clause. This clause is used to specify the triples to construct using variable bindings.",
-            "allOf": [
-              {
-                "$ref": "#/definitions/WhereClause"
-              }
-            ]
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/WhereCondition"
+            }
           }
         },
         "additionalProperties": false
@@ -1143,7 +888,8 @@
         "type": "object",
         "required": [
           "prefixes",
-          "resource"
+          "resource",
+          "where"
         ],
         "properties": {
           "prefixes": {
@@ -1163,222 +909,13 @@
           },
           "where": {
             "description": "The WHERE clause. This clause is used to specify the resource identifier to describe using variable bindings.",
-            "anyOf": [
-              {
-                "$ref": "#/definitions/WhereClause"
-              },
-              {
-                "type": "null"
-              }
-            ]
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/WhereCondition"
+            }
           }
         },
         "additionalProperties": false
-      },
-      "Expression": {
-        "title": "Expression",
-        "description": "Represents a logical combination of operations whose evaluation results in a term.",
-        "oneOf": [
-          {
-            "description": "A named node constant.",
-            "type": "object",
-            "required": [
-              "named_node"
-            ],
-            "properties": {
-              "named_node": {
-                "$ref": "#/definitions/IRI"
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "A literal constant.",
-            "type": "object",
-            "required": [
-              "literal"
-            ],
-            "properties": {
-              "literal": {
-                "$ref": "#/definitions/Literal"
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "A variable that must be bound for evaluation.",
-            "type": "object",
-            "required": [
-              "variable"
-            ],
-            "properties": {
-              "variable": {
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Logical conjunction of expressions. All expressions must evaluate to true for the conjunction to be true. If the conjunction is empty, it is considered true.",
-            "type": "object",
-            "required": [
-              "and"
-            ],
-            "properties": {
-              "and": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/Expression"
-                }
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Logical disjunction of expressions. At least one expression must evaluate to true for the disjunction to be true. If the disjunction is empty, it is considered false.",
-            "type": "object",
-            "required": [
-              "or"
-            ],
-            "properties": {
-              "or": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/Expression"
-                }
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Equality comparison.",
-            "type": "object",
-            "required": [
-              "equal"
-            ],
-            "properties": {
-              "equal": {
-                "type": "array",
-                "items": [
-                  {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  {
-                    "$ref": "#/definitions/Expression"
-                  }
-                ],
-                "maxItems": 2,
-                "minItems": 2
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Greater than comparison.",
-            "type": "object",
-            "required": [
-              "greater"
-            ],
-            "properties": {
-              "greater": {
-                "type": "array",
-                "items": [
-                  {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  {
-                    "$ref": "#/definitions/Expression"
-                  }
-                ],
-                "maxItems": 2,
-                "minItems": 2
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Greater or equal comparison.",
-            "type": "object",
-            "required": [
-              "greater_or_equal"
-            ],
-            "properties": {
-              "greater_or_equal": {
-                "type": "array",
-                "items": [
-                  {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  {
-                    "$ref": "#/definitions/Expression"
-                  }
-                ],
-                "maxItems": 2,
-                "minItems": 2
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Less than comparison.",
-            "type": "object",
-            "required": [
-              "less"
-            ],
-            "properties": {
-              "less": {
-                "type": "array",
-                "items": [
-                  {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  {
-                    "$ref": "#/definitions/Expression"
-                  }
-                ],
-                "maxItems": 2,
-                "minItems": 2
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Less or equal comparison.",
-            "type": "object",
-            "required": [
-              "less_or_equal"
-            ],
-            "properties": {
-              "less_or_equal": {
-                "type": "array",
-                "items": [
-                  {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  {
-                    "$ref": "#/definitions/Expression"
-                  }
-                ],
-                "maxItems": 2,
-                "minItems": 2
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "description": "Negation of an expression.",
-            "type": "object",
-            "required": [
-              "not"
-            ],
-            "properties": {
-              "not": {
-                "$ref": "#/definitions/Expression"
-              }
-            },
-            "additionalProperties": false
-          }
-        ]
       },
       "IRI": {
         "title": "IRI",
@@ -1605,14 +1142,33 @@
           },
           "where": {
             "description": "The WHERE clause. If `None`, there is no WHERE clause, i.e. all triples are returned without filtering.",
-            "allOf": [
-              {
-                "$ref": "#/definitions/WhereClause"
-              }
-            ]
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/WhereCondition"
+            }
           }
         },
         "additionalProperties": false
+      },
+      "SimpleWhereCondition": {
+        "title": "SimpleWhereCondition",
+        "description": "Represents a simple condition in a [WhereCondition].",
+        "oneOf": [
+          {
+            "title": "TriplePattern",
+            "description": "Represents a triple pattern, i.e. a condition on a triple based on its subject, predicate and object.",
+            "type": "object",
+            "required": [
+              "triple_pattern"
+            ],
+            "properties": {
+              "triple_pattern": {
+                "$ref": "#/definitions/TriplePattern"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       },
       "TripleConstructTemplate": {
         "title": "TripleConstructTemplate",
@@ -1804,86 +1360,20 @@
           }
         ]
       },
-      "WhereClause": {
-        "title": "WhereClause",
-        "description": "Represents a WHERE clause, i.e. a set of conditions to filter the results.",
+      "WhereCondition": {
+        "title": "WhereCondition",
+        "description": "Represents a condition in a [WhereClause].",
         "oneOf": [
           {
-            "title": "Bgp",
-            "description": "Represents a basic graph pattern expressed as a set of triple patterns.",
+            "title": "Simple",
+            "description": "Represents a simple condition.",
             "type": "object",
             "required": [
-              "bgp"
+              "simple"
             ],
             "properties": {
-              "bgp": {
-                "type": "object",
-                "required": [
-                  "patterns"
-                ],
-                "properties": {
-                  "patterns": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/definitions/TriplePattern"
-                    }
-                  }
-                },
-                "additionalProperties": false
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "title": "LateralJoin",
-            "description": "Evaluates right for all result row of left",
-            "type": "object",
-            "required": [
-              "lateral_join"
-            ],
-            "properties": {
-              "lateral_join": {
-                "type": "object",
-                "required": [
-                  "left",
-                  "right"
-                ],
-                "properties": {
-                  "left": {
-                    "$ref": "#/definitions/WhereClause"
-                  },
-                  "right": {
-                    "$ref": "#/definitions/WhereClause"
-                  }
-                },
-                "additionalProperties": false
-              }
-            },
-            "additionalProperties": false
-          },
-          {
-            "title": "Filter",
-            "description": "Filters the inner clause matching the expression. The solutions coming from the inner clause that do not match the expression are discarded. The variables provided in the inner clause are available in the filter expression.",
-            "type": "object",
-            "required": [
-              "filter"
-            ],
-            "properties": {
-              "filter": {
-                "type": "object",
-                "required": [
-                  "expr",
-                  "inner"
-                ],
-                "properties": {
-                  "expr": {
-                    "$ref": "#/definitions/Expression"
-                  },
-                  "inner": {
-                    "$ref": "#/definitions/WhereClause"
-                  }
-                },
-                "additionalProperties": false
+              "simple": {
+                "$ref": "#/definitions/SimpleWhereCondition"
               }
             },
             "additionalProperties": false
@@ -2135,7 +1625,9 @@
               "type": "array",
               "items": {
                 "type": "object",
-                "additionalProperties": false
+                "additionalProperties": {
+                  "$ref": "#/definitions/Value"
+                }
               }
             }
           },

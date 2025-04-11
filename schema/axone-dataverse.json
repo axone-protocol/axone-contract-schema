@@ -162,25 +162,25 @@
           "submit_claims": {
             "type": "object",
             "required": [
-              "claims"
+              "metadata"
             ],
             "properties": {
-              "claims": {
-                "description": "The Verifiable Credential containing the claims. The claims must be serialized in the format specified by the `format` field.",
-                "allOf": [
-                  {
-                    "$ref": "#/definitions/Binary"
-                  }
-                ]
-              },
               "format": {
-                "description": "RDF dataset serialization format for the claims. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format.",
+                "description": "RDF dataset serialization format for the metadata. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format.",
                 "anyOf": [
                   {
                     "$ref": "#/definitions/RdfDatasetFormat"
                   },
                   {
                     "type": "null"
+                  }
+                ]
+              },
+              "metadata": {
+                "description": "The serialized metadata intended for attachment. This metadata should adhere to the format specified in the `format` field.",
+                "allOf": [
+                  {
+                    "$ref": "#/definitions/Binary"
                   }
                 ]
               }
