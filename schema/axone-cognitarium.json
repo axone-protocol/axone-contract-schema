@@ -1,6 +1,6 @@
 {
   "contract_name": "axone-cognitarium",
-  "contract_version": "6.0.0",
+  "contract_version": "7.0.0",
   "idl_version": "1.0.0",
   "instantiate": {
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -157,12 +157,11 @@
             "type": "object",
             "required": [
               "delete",
-              "prefixes",
-              "where"
+              "prefixes"
             ],
             "properties": {
               "delete": {
-                "description": "Specifies the specific triple templates to delete. If nothing is provided, the patterns from the `where` clause are used for deletion.",
+                "description": "Specifies the specific triple templates to delete. If nothing is provided and the `where` clause is a single Bgp, the patterns are used for deletion.",
                 "type": "array",
                 "items": {
                   "$ref": "#/definitions/TripleDeleteTemplate"
@@ -176,11 +175,15 @@
                 }
               },
               "where": {
-                "description": "Defines the patterns that data (RDF triples) should match in order for it to be considered for deletion.",
-                "type": "array",
-                "items": {
-                  "$ref": "#/definitions/WhereCondition"
-                }
+                "description": "Defines the patterns that data (RDF triples) should match in order for it to be considered for deletion, if any.",
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/WhereClause"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
               }
             },
             "additionalProperties": false
@@ -229,6 +232,211 @@
             "enum": [
               "n_quads"
             ]
+          }
+        ]
+      },
+      "Expression": {
+        "title": "Expression",
+        "description": "Represents a logical combination of operations whose evaluation results in a term.",
+        "oneOf": [
+          {
+            "description": "A named node constant.",
+            "type": "object",
+            "required": [
+              "named_node"
+            ],
+            "properties": {
+              "named_node": {
+                "$ref": "#/definitions/IRI"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "A literal constant.",
+            "type": "object",
+            "required": [
+              "literal"
+            ],
+            "properties": {
+              "literal": {
+                "$ref": "#/definitions/Literal"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "A variable that must be bound for evaluation.",
+            "type": "object",
+            "required": [
+              "variable"
+            ],
+            "properties": {
+              "variable": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Logical conjunction of expressions. All expressions must evaluate to true for the conjunction to be true. If the conjunction is empty, it is considered true.",
+            "type": "object",
+            "required": [
+              "and"
+            ],
+            "properties": {
+              "and": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Expression"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Logical disjunction of expressions. At least one expression must evaluate to true for the disjunction to be true. If the disjunction is empty, it is considered false.",
+            "type": "object",
+            "required": [
+              "or"
+            ],
+            "properties": {
+              "or": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Expression"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Equality comparison.",
+            "type": "object",
+            "required": [
+              "equal"
+            ],
+            "properties": {
+              "equal": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  {
+                    "$ref": "#/definitions/Expression"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Greater than comparison.",
+            "type": "object",
+            "required": [
+              "greater"
+            ],
+            "properties": {
+              "greater": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  {
+                    "$ref": "#/definitions/Expression"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Greater or equal comparison.",
+            "type": "object",
+            "required": [
+              "greater_or_equal"
+            ],
+            "properties": {
+              "greater_or_equal": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  {
+                    "$ref": "#/definitions/Expression"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Less than comparison.",
+            "type": "object",
+            "required": [
+              "less"
+            ],
+            "properties": {
+              "less": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  {
+                    "$ref": "#/definitions/Expression"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Less or equal comparison.",
+            "type": "object",
+            "required": [
+              "less_or_equal"
+            ],
+            "properties": {
+              "less_or_equal": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  {
+                    "$ref": "#/definitions/Expression"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Negation of an expression.",
+            "type": "object",
+            "required": [
+              "not"
+            ],
+            "properties": {
+              "not": {
+                "$ref": "#/definitions/Expression"
+              }
+            },
+            "additionalProperties": false
           }
         ]
       },
@@ -402,26 +610,6 @@
         },
         "additionalProperties": false
       },
-      "SimpleWhereCondition": {
-        "title": "SimpleWhereCondition",
-        "description": "Represents a simple condition in a [WhereCondition].",
-        "oneOf": [
-          {
-            "title": "TriplePattern",
-            "description": "Represents a triple pattern, i.e. a condition on a triple based on its subject, predicate and object.",
-            "type": "object",
-            "required": [
-              "triple_pattern"
-            ],
-            "properties": {
-              "triple_pattern": {
-                "$ref": "#/definitions/TriplePattern"
-              }
-            },
-            "additionalProperties": false
-          }
-        ]
-      },
       "TripleDeleteTemplate": {
         "title": "TripleDeleteTemplate",
         "description": "Represents a triple template to be deleted.",
@@ -497,7 +685,7 @@
         "additionalProperties": false
       },
       "VarOrNamedNode": {
-        "title": "VarOrNamedNode {",
+        "title": "VarOrNamedNode",
         "description": "Represents either a variable or a named node (IRI).",
         "oneOf": [
           {
@@ -660,20 +848,86 @@
           }
         ]
       },
-      "WhereCondition": {
-        "title": "WhereCondition",
-        "description": "Represents a condition in a [WhereClause].",
+      "WhereClause": {
+        "title": "WhereClause",
+        "description": "Represents a WHERE clause, i.e. a set of conditions to filter the results.",
         "oneOf": [
           {
-            "title": "Simple",
-            "description": "Represents a simple condition.",
+            "title": "Bgp",
+            "description": "Represents a basic graph pattern expressed as a set of triple patterns.",
             "type": "object",
             "required": [
-              "simple"
+              "bgp"
             ],
             "properties": {
-              "simple": {
-                "$ref": "#/definitions/SimpleWhereCondition"
+              "bgp": {
+                "type": "object",
+                "required": [
+                  "patterns"
+                ],
+                "properties": {
+                  "patterns": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/TriplePattern"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "title": "LateralJoin",
+            "description": "Evaluates right for all result row of left",
+            "type": "object",
+            "required": [
+              "lateral_join"
+            ],
+            "properties": {
+              "lateral_join": {
+                "type": "object",
+                "required": [
+                  "left",
+                  "right"
+                ],
+                "properties": {
+                  "left": {
+                    "$ref": "#/definitions/WhereClause"
+                  },
+                  "right": {
+                    "$ref": "#/definitions/WhereClause"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "title": "Filter",
+            "description": "Filters the inner clause matching the expression. The solutions coming from the inner clause that do not match the expression are discarded. The variables provided in the inner clause are available in the filter expression.",
+            "type": "object",
+            "required": [
+              "filter"
+            ],
+            "properties": {
+              "filter": {
+                "type": "object",
+                "required": [
+                  "expr",
+                  "inner"
+                ],
+                "properties": {
+                  "expr": {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  "inner": {
+                    "$ref": "#/definitions/WhereClause"
+                  }
+                },
+                "additionalProperties": false
               }
             },
             "additionalProperties": false
@@ -821,7 +1075,7 @@
         ],
         "properties": {
           "construct": {
-            "description": "The triples to construct. If nothing is provided, the patterns from the `where` clause are used for construction.",
+            "description": "The triples to construct. If nothing is provided and the `where` clause is a single Bgp, the patterns are used for construction.",
             "type": "array",
             "items": {
               "$ref": "#/definitions/TripleConstructTemplate"
@@ -836,10 +1090,11 @@
           },
           "where": {
             "description": "The WHERE clause. This clause is used to specify the triples to construct using variable bindings.",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/WhereCondition"
-            }
+            "allOf": [
+              {
+                "$ref": "#/definitions/WhereClause"
+              }
+            ]
           }
         },
         "additionalProperties": false
@@ -888,8 +1143,7 @@
         "type": "object",
         "required": [
           "prefixes",
-          "resource",
-          "where"
+          "resource"
         ],
         "properties": {
           "prefixes": {
@@ -909,13 +1163,222 @@
           },
           "where": {
             "description": "The WHERE clause. This clause is used to specify the resource identifier to describe using variable bindings.",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/WhereCondition"
-            }
+            "anyOf": [
+              {
+                "$ref": "#/definitions/WhereClause"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false
+      },
+      "Expression": {
+        "title": "Expression",
+        "description": "Represents a logical combination of operations whose evaluation results in a term.",
+        "oneOf": [
+          {
+            "description": "A named node constant.",
+            "type": "object",
+            "required": [
+              "named_node"
+            ],
+            "properties": {
+              "named_node": {
+                "$ref": "#/definitions/IRI"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "A literal constant.",
+            "type": "object",
+            "required": [
+              "literal"
+            ],
+            "properties": {
+              "literal": {
+                "$ref": "#/definitions/Literal"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "A variable that must be bound for evaluation.",
+            "type": "object",
+            "required": [
+              "variable"
+            ],
+            "properties": {
+              "variable": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Logical conjunction of expressions. All expressions must evaluate to true for the conjunction to be true. If the conjunction is empty, it is considered true.",
+            "type": "object",
+            "required": [
+              "and"
+            ],
+            "properties": {
+              "and": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Expression"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Logical disjunction of expressions. At least one expression must evaluate to true for the disjunction to be true. If the disjunction is empty, it is considered false.",
+            "type": "object",
+            "required": [
+              "or"
+            ],
+            "properties": {
+              "or": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Expression"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Equality comparison.",
+            "type": "object",
+            "required": [
+              "equal"
+            ],
+            "properties": {
+              "equal": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  {
+                    "$ref": "#/definitions/Expression"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Greater than comparison.",
+            "type": "object",
+            "required": [
+              "greater"
+            ],
+            "properties": {
+              "greater": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  {
+                    "$ref": "#/definitions/Expression"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Greater or equal comparison.",
+            "type": "object",
+            "required": [
+              "greater_or_equal"
+            ],
+            "properties": {
+              "greater_or_equal": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  {
+                    "$ref": "#/definitions/Expression"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Less than comparison.",
+            "type": "object",
+            "required": [
+              "less"
+            ],
+            "properties": {
+              "less": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  {
+                    "$ref": "#/definitions/Expression"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Less or equal comparison.",
+            "type": "object",
+            "required": [
+              "less_or_equal"
+            ],
+            "properties": {
+              "less_or_equal": {
+                "type": "array",
+                "items": [
+                  {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  {
+                    "$ref": "#/definitions/Expression"
+                  }
+                ],
+                "maxItems": 2,
+                "minItems": 2
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "description": "Negation of an expression.",
+            "type": "object",
+            "required": [
+              "not"
+            ],
+            "properties": {
+              "not": {
+                "$ref": "#/definitions/Expression"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
       },
       "IRI": {
         "title": "IRI",
@@ -1142,33 +1605,14 @@
           },
           "where": {
             "description": "The WHERE clause. If `None`, there is no WHERE clause, i.e. all triples are returned without filtering.",
-            "type": "array",
-            "items": {
-              "$ref": "#/definitions/WhereCondition"
-            }
+            "allOf": [
+              {
+                "$ref": "#/definitions/WhereClause"
+              }
+            ]
           }
         },
         "additionalProperties": false
-      },
-      "SimpleWhereCondition": {
-        "title": "SimpleWhereCondition",
-        "description": "Represents a simple condition in a [WhereCondition].",
-        "oneOf": [
-          {
-            "title": "TriplePattern",
-            "description": "Represents a triple pattern, i.e. a condition on a triple based on its subject, predicate and object.",
-            "type": "object",
-            "required": [
-              "triple_pattern"
-            ],
-            "properties": {
-              "triple_pattern": {
-                "$ref": "#/definitions/TriplePattern"
-              }
-            },
-            "additionalProperties": false
-          }
-        ]
       },
       "TripleConstructTemplate": {
         "title": "TripleConstructTemplate",
@@ -1245,7 +1689,7 @@
         "additionalProperties": false
       },
       "VarOrNamedNode": {
-        "title": "VarOrNamedNode {",
+        "title": "VarOrNamedNode",
         "description": "Represents either a variable or a named node (IRI).",
         "oneOf": [
           {
@@ -1360,20 +1804,86 @@
           }
         ]
       },
-      "WhereCondition": {
-        "title": "WhereCondition",
-        "description": "Represents a condition in a [WhereClause].",
+      "WhereClause": {
+        "title": "WhereClause",
+        "description": "Represents a WHERE clause, i.e. a set of conditions to filter the results.",
         "oneOf": [
           {
-            "title": "Simple",
-            "description": "Represents a simple condition.",
+            "title": "Bgp",
+            "description": "Represents a basic graph pattern expressed as a set of triple patterns.",
             "type": "object",
             "required": [
-              "simple"
+              "bgp"
             ],
             "properties": {
-              "simple": {
-                "$ref": "#/definitions/SimpleWhereCondition"
+              "bgp": {
+                "type": "object",
+                "required": [
+                  "patterns"
+                ],
+                "properties": {
+                  "patterns": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/TriplePattern"
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "title": "LateralJoin",
+            "description": "Evaluates right for all result row of left",
+            "type": "object",
+            "required": [
+              "lateral_join"
+            ],
+            "properties": {
+              "lateral_join": {
+                "type": "object",
+                "required": [
+                  "left",
+                  "right"
+                ],
+                "properties": {
+                  "left": {
+                    "$ref": "#/definitions/WhereClause"
+                  },
+                  "right": {
+                    "$ref": "#/definitions/WhereClause"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "title": "Filter",
+            "description": "Filters the inner clause matching the expression. The solutions coming from the inner clause that do not match the expression are discarded. The variables provided in the inner clause are available in the filter expression.",
+            "type": "object",
+            "required": [
+              "filter"
+            ],
+            "properties": {
+              "filter": {
+                "type": "object",
+                "required": [
+                  "expr",
+                  "inner"
+                ],
+                "properties": {
+                  "expr": {
+                    "$ref": "#/definitions/Expression"
+                  },
+                  "inner": {
+                    "$ref": "#/definitions/WhereClause"
+                  }
+                },
+                "additionalProperties": false
               }
             },
             "additionalProperties": false
@@ -1625,9 +2135,7 @@
               "type": "array",
               "items": {
                 "type": "object",
-                "additionalProperties": {
-                  "$ref": "#/definitions/Value"
-                }
+                "additionalProperties": false
               }
             }
           },
@@ -1875,6 +2383,6 @@
       }
     }
   },
-  "description": "# Cognitarium\n\nA [CosmWasm](https://cosmwasm.com/) Smart Contract which enables the storage and querying of Semantic data using [RDF (Resource Description Framework)](https://en.wikipedia.org/wiki/Resource_Description_Framework), which represents information as semantic triples.\n\n## Purpose\n\nThe Smart Contract operates as a [semantic database](https://en.wikipedia.org/wiki/Triplestore), adept at storing and fetching [RDF triples](https://en.wikipedia.org/wiki/Semantic_triple) via semantic queries. It can be deployed on any blockchain within the [Cosmos blockchains](https://cosmos.network/) network, utilizing the [CosmWasm](https://cosmwasm.com/) framework.\n\nThe key features of the contract include:\n\n**Insertion of RDF Triples:**\nThis functionality enables the insertion of new data in the form of [RDF triples](https://en.wikipedia.org/wiki/Semantic_triple) onto the blockchain, ensuring secure and tamper-proof storage. The Smart Contract supports inserting these triples in various serialization formats including [RDF/XML](https://en.wikipedia.org/wiki/RDF/XML), [Turtle](https://www.w3.org/TR/turtle/), [N-Triples](https://www.w3.org/TR/n-triples/) and [N-Quads](https://www.w3.org/TR/n-quads/).\n\n**Removal of RDF Triples:**\nThis functionality enables the selective deletion of RDF triples from the on-chain store. Users can specify patterns or criteria that identify the triples to be removed, ensuring precise and targeted removal of data.\n\n**Querying of RDF Triples:**\nThe Smart Contract provides powerful on-chain querying capabilities, allowing users to retrieve specific RDF triples stored on the blockchain. This is done using a variation of [SPARQL](https://www.w3.org/TR/sparql11-query/), a specialized query language designed for retrieving and manipulating data stored in RDF format. Users can specify their search criteria in the query, and the Smart Contract will return the matching RDF triples, directly accessing the on-chain data. This feature supports various serialization formats for the output, such as Turtle, N-Triples, N-Quads, and RDF/XML, offering flexibility in how the retrieved data is presented and used.\n\n**Policies of the Store:**\nThe Smart Contract includes a straightforward yet effective policies functionality to manage the capacity and usage of the on-chain storage effectively. These policies ensure efficient operation and prevent misuse or overuse of the Smart Contract. For instance:\n\n- Maximum Triples: Caps the total number of RDF triples the store can hold, preventing database overload.\n- Storage Size Limit: Sets an upper bound on the store's data size in bytes, managing blockchain resource use.\n- Query Size Limit: Restricts the size or complexity of queries to maintain fast and reliable data retrieval.\n- Insert Data Limit: Limits the size of data (in bytes) that can be added in a single transaction, ensuring smooth and efficient data insertion.\n\n## Rationale\n\nThe data preserved in the blockchain holds significant value due to its derivation from a distributed consensus, rendering it a reliable source for decision-making, applicable to both on-chain and off-chain scenarios.\n\nTo effectively utilize this data, it's essential to adopt representation models that cater to diverse requirements. The Smart Contract Cognitarium provides such a model, facilitating the depiction of intricate and evolving semantic connections within a highly interconnected dataset. This approach transforms the data into a Knowledge Graph, enabling an accurate portrayal of existing facts and fostering the generation of new insights.\n\n## Play\n\n### Model your data with RDF\n\n[RDF](https://www.w3.org/RDF/) encodes information in triple structures. The basic structure of an RDF triple is `subject-predicate-object`, much like a simple sentence in the English language.\n\n1. **Subject**: The subject is the entity or resource the statement is about. It's typically a URI ([Uniform Resource Identifier](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier)) which uniquely identifies a resource.\n2. **Predicate**: The predicate (also called a property) is a specific aspect, characteristic, attribute, or relation that describes the subject. It's also typically a URI.\n3. **Object**: The object is the value of the attribute defined by the predicate for the subject. It can be a URI or a literal (such as a string or a number) and may also include additional information such as a language tag or a datatype.\n\nIn RDF, **prefixes** are used as a shorthand notation for long URIs to make the data more readable and less verbose. They're similar to namespaces in programming languages. For instance, instead of writing `http://www.w3.org/2001/XMLSchema#integer`, you could declare a prefix `xsd` to represent the `http://www.w3.org/2001/XMLSchema#` URI and then use `xsd:integer`.\n\n[Turtle (Terse RDF Triple Language)](https://www.w3.org/TR/turtle/) is a syntax that allows RDF to be completely written in a compact and natural text form, with abbreviations for common usage patterns and datatypes.\n\nHere's an RDF triple written in Turtle format (`.ttl` file):\n\n```turtle\n@prefix ex: <http://example.com/stuff/1.0/> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\nex:Alice ex:hasAge \"30\"^^xsd:integer .\n```\n\nIn this example:\n\n- **`ex:Alice`** is the subject (using `ex` as a prefix for the `http://example.com/stuff/1.0/` URI).\n- **`ex:hasAge`** is the predicate.\n- **`\"30\"^^xsd:integer`** is the object, a literal of datatype integer (using **`xsd`** as a prefix for the XML Schema Datatype namespace).\n\nIn the Turtle syntax, the semicolon (**`;`**) is used as a shorthand to reduce verbosity when multiple predicates and objects have the same subject. It allows you to write multiple predicates and objects for the same subject without having to repeat the subject.\nThe comma (**`,`**) is used as a shorthand for reducing verbosity when the same subject and predicate have multiple objects.\n\nSuppose we want to express that Alice is 30 years old person, and her email is `alice@example.com`:\n\n```turtle\n@prefix ex: <http://example.com/stuff/1.0/> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\nex:Alice a <http://www.w3.org/2002/07/owl#Person> ;\n         ex:hasAge \"30\"^^xsd:integer ;\n         ex:hasEmail \"alice@example.com\" .\n```\n\n:::tip\nThe lowercase \"a\" is a special abbreviation for the RDF type property, which states that a resource is an instance of a particular class. This is essentially equivalent to **`<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>`**, and it's used to indicate the type of a resource.\n:::\n\nThe same RDF triple can be expressed in RDF/XML format (`.rdf.xml` file):\n\n```xml\n<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n         xmlns:ex=\"http://example.com/stuff/1.0/\"\n         xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">\n  <rdf:Description rdf:about=\"http://example.com/stuff/1.0/Alice\">\n    <rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#Person\"/>\n    <ex:hasAge rdf:datatype=\"http://www.w3.org/2001/XMLSchema#integer\">30</ex:hasAge>\n    <ex:hasEmail>alice@example.com</ex:hasEmail>    \n  </rdf:Description>\n</rdf:RDF>\n```\n\n### Instantiate the Smart Contract\n\nLet's initiate a new instance of Smart Contract and input some RDF triples into it. The `axone-cognitarium` can be set up in the following manner. Please consult the schema for additional details regarding configuration settings.\n\n```bash\naxoned tx wasm instantiate $CODE_ID \\\n    --from $ADDR \\\n    --label \"my-rdf-storage\" \\\n    --admin $ADMIN_ADDR \\\n    --gas 1000000 \\\n    '{}'\n```\n\n:::tip\nYou can provide some limitation parameters to restrict usage for both execute and query messages. For instance, you can set a maximum number of triples that can be stored in the smart contract, or a maximum size of data that can be inserted in a single transaction.\n\nThe default values are:\n\n```json\n{ \n  \"limits\": {\n\t\t  \"max_byte_size\": \"340282366920938463463374607431768211455\",\n\t\t  \"max_insert_data_byte_size\": \"340282366920938463463374607431768211455\",\n\t\t  \"max_insert_data_triple_count\": \"340282366920938463463374607431768211455\",\n\t\t  \"max_query_limit\": 30,\n\t\t  \"max_query_variable_count\": 30,\n\t\t  \"max_triple_byte_size\": \"340282366920938463463374607431768211455\",\n\t\t  \"max_triple_count\": \"340282366920938463463374607431768211455\"\n\t}\n}\n```\n\n:::\n\n### Insert RDF triples\n\nTo insert RDF triples, you need to send an `InsertData` message through the `cognitarium` smart contract you've already instantiated. For this operation, your inputs should include the data of the triples, encoded in [base64](https://en.wikipedia.org/wiki/Base64), as well as the format. The format options available are:\n\n- `turtle` (default)\n- `rdf_xml`\n- `n_triples`\n- `n_quads`\n\nLet's consider the following example of data in Turtle format, contained within a file named `data.ttl`. It describes a small network of people and their relationships, such as name, title, and whom they know.\n\n```turtle\n@prefix : <http://example.org/> .\n@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n@prefix schema: <http://schema.org/> .\n\n:alice a foaf:Person ;\n  foaf:name \"Alice\" ;\n  foaf:knows :bob ;\n  schema:email \"alice@example.org\" .\n\n:bob a foaf:Person ;\n  foaf:name \"Bob\" ;\n  foaf:knows :alice, :carol ;\n  schema:jobTitle \"Software Developer\" .\n\n:carol a foaf:Person ;\n  foaf:name \"Carol\" ;\n  schema:jobTitle \"Data Scientist\" ;\n  foaf:knows :bob .\n```\n\nYou can insert this data into the `cognitarium` smart contract with the following command:\n\n```bash\naxoned tx wasm execute $CONTRACT_ADDR \\\n    --from axone1cu9wzlcyyxpek20jaqfwzu3llzjgx34cqf94yj \\\n    --gas 10000000 \\\n    \"{\\\"insert_data\\\":{\\\"format\\\": \\\"turtle\\\", \\\"data\\\": \\\"$(cat data.ttl | base64 | tr -d '\\n\\r')\\\"}}\"\n```\n\nWith the transaction hash we can query the number of triples inserted:\n\n```bash\naxoned query tx $TX_HASH -ojson | \n    jq -r '.events[] | select(.type == \"wasm\") | .attributes[] | select(.key == \"triple_count\") | .value'\n```\n\n### Query RDF triples\n\nNow that we've populated the axone-cognitarium with several triples, let's explore how to retrieve this data. We can utilize the Select query message for this purpose. If you're familiar with [SPARQL](https://www.w3.org/TR/rdf-sparql-query/), you'll find the process quite intuitive.\n\nA `select` query on a `cognitarium` instance enables you to fetch and filter the data. The `select.query` JSON should contain the following:\n\n- `prefixes` array: to declare a `prefix` and its related `namespace`\n- `limit`: the number of elements to return\n- `where`: filters and variable declarations\n- `select` array: all `variable` names you declared in `where` you want to get\n\n`where` should be an array of elements specifying triple filterings. You have to specify `subject`, `predicate` and `object` as a `variable`, or, alternatively, a `prefixed` or `full` `named_node`.\n\n`object` can also be a `simple` `literal`.\n\nThe following query will select all the triples `subject`, `predicate` and `object` from the store:\n\n```json\n{\n    \"select\": {\n        \"query\": {\n            \"prefixes\": [],\n            \"select\": [\n                {\n                    \"variable\": \"subject\"\n                },\n                {\n                    \"variable\": \"predicate\"\n                },\n                {\n                    \"variable\": \"object\"\n                }\n            ],\n            \"where\": [\n                {\n                    \"simple\": {\n                        \"triple_pattern\": {\n                            \"subject\": {\n                                \"variable\": \"subject\"\n                            },\n                            \"predicate\": {\n                                \"variable\": \"predicate\"\n                            },\n                            \"object\": {\n                                \"variable\": \"object\"\n                            }\n                        }\n                    }\n                }\n            ],\n            \"limit\": null\n        }\n    }\n}\n```\n\nIt's semantically equivalent to the following SPARQL query:\n\n```sparql\nSELECT ?subject ?predicate ?object\nWHERE {\n    ?subject ?predicate ?object\n}\n```\n\nThis query can be executed on the cognitarium smart contract using the command below:\n\n```bash\naxoned query wasm contract-state smart $CONTRACT_ADDR \\\n    '{\"select\":{\"query\":{\"prefixes\":[],\"select\":[{\"variable\":\"subject\"},{\"variable\":\"predicate\"},{\"variable\":\"object\"}],\"where\":[{\"simple\":{\"triple_pattern\":{\"subject\":{\"variable\":\"subject\"},\"predicate\":{\"variable\":\"predicate\"},\"object\":{\"variable\":\"object\"}}}}],\"limit\":null}}}'\n```\n\nNow, let's try something more interresting. Let's retrieve the names of people and their job titles, but only for those who know at least one other person in the network. This query introduces filtering based on relationships.\n\nHere's the query:\n\n```json\n{\n    \"select\": {\n        \"query\": {\n            \"prefixes\": [\n                { \"foaf\": \"http://xmlns.com/foaf/0.1/\" },\n                { \"schema\": \"http://schema.org/\" }\n            ],\n            \"select\": [\n                {\n                    \"variable\": \"personName\"\n                },\n                {\n                    \"variable\": \"jobTitle\"\n                }\n            ],\n            \"where\": [\n                {\n                    \"simple\": {\n                        \"triple_pattern\": {\n                            \"subject\": {\n                                \"variable\": \"person\"\n                            },\n                            \"predicate\": {\n                              \"node\": {\n                                \"named_node\": {\n                                  \"full\": \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\"\n                                }\n                              }\n                            },\n                            \"object\": {\n                                \"node\": {\n                                    \"named_node\": {\n                                        \"prefixed\": \"foaf:Person\"\n                                    }\n                                }\n                            }\n                        }\n                    }\n                },\n                {\n                    \"simple\": {\n                        \"triple_pattern\": {\n                            \"subject\": {\n                                \"variable\": \"person\"\n                            },\n                            \"predicate\": {\n                                \"node\": {\n                                    \"named_node\": {\n                                        \"prefixed\": \"foaf:Name\"\n                                    }\n                                }\n                            },\n                            \"object\": {\n                                \"variable\": \"personName\"\n                            }\n                        }\n                    }\n                },\n                {\n                    \"simple\": {\n                        \"triple_pattern\": {\n                            \"subject\": {\n                                \"variable\": \"person\"\n                            },\n                            \"predicate\": {\n                                \"node\": {\n                                    \"named_node\": {\n                                        \"prefixed\": \"schema:jobTitle\"\n                                    }\n                                }\n                            },\n                            \"object\": {\n                                \"variable\": \"jobTitle\"\n                            }\n                        }\n                    }\n                },\n                {\n                    \"simple\": {\n                        \"triple_pattern\": {\n                            \"subject\": {\n                                \"variable\": \"person\"\n                            },\n                            \"predicate\": {\n                                \"node\": {\n                                    \"named_node\": {\n                                        \"prefixed\": \"foaf:knows\"\n                                    }\n                                }\n                            },\n                            \"object\": {\n                                \"variable\": \"knownPerson\"\n                            }\n                        }\n                    }\n                }\n            ],\n            \"limit\": null\n        }\n    }\n}\n```\n\nIt's semantically equivalent to the following SPARQL query:\n\n```sparql\nPREFIX foaf: <http://xmlns.com/foaf/0.1/>\nPREFIX schema: <http://schema.org/>\n\nSELECT ?personName ?jobTitle\nWHERE {\n  ?person a foaf:Person .\n  ?person foaf:name ?personName .\n  ?person schema:jobTitle ?jobTitle .\n  ?person foaf:knows ?knownPerson .\n}\n```\n\nThis query can be executed on the cognitarium smart contract using the command below:\n\n```bash\naxoned query wasm contract-state smart $CONTRACT_ADDR \\\n    '{\"select\":{\"query\":{\"prefixes\":[{\"foaf\":\"http://xmlns.com/foaf/0.1/\"},{\"schema\":\"http://schema.org/\"}],\"select\":[{\"variable\":\"personName\"},{\"variable\":\"jobTitle\"}],\"where\":[{\"simple\":{\"triple_pattern\":{\"subject\":{\"variable\":\"person\"},\"predicate\":{\"node\":{\"named_node\":{\"full\":\"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\"}}},\"object\":{\"node\":{\"named_node\":{\"prefixed\":\"foaf:Person\"}}}}}},{\"simple\":{\"triple_pattern\":{\"subject\":{\"variable\":\"person\"},\"predicate\":{\"node\":{\"named_node\":{\"prefixed\":\"foaf:Name\"}}},\"object\":{\"variable\":\"personName\"}}}},{\"simple\":{\"triple_pattern\":{\"subject\":{\"variable\":\"person\"},\"predicate\":{\"node\":{\"named_node\":{\"prefixed\":\"schema:jobTitle\"}}},\"object\":{\"variable\":\"jobTitle\"}}}},{\"simple\":{\"triple_pattern\":{\"subject\":{\"variable\":\"person\"},\"predicate\":{\"node\":{\"named_node\":{\"prefixed\":\"foaf:knows\"}}},\"object\":{\"variable\":\"knownPerson\"}}}}],\"limit\":null}}}'\n```",
+  "description": "# Cognitarium\n\nA [CosmWasm](https://cosmwasm.com/) Smart Contract which enables the storage and querying of Semantic data using [RDF (Resource Description Framework)](https://en.wikipedia.org/wiki/Resource_Description_Framework), which represents information as semantic triples.\n\n## Purpose\n\nThe Smart Contract operates as a [semantic database](https://en.wikipedia.org/wiki/Triplestore), adept at storing and fetching [RDF triples](https://en.wikipedia.org/wiki/Semantic_triple) via semantic queries. It can be deployed on any blockchain within the [Cosmos blockchains](https://cosmos.network/) network, utilizing the [CosmWasm](https://cosmwasm.com/) framework.\n\nThe key features of the contract include:\n\n**Insertion of RDF Triples:**\nThis functionality enables the insertion of new data in the form of [RDF triples](https://en.wikipedia.org/wiki/Semantic_triple) onto the blockchain, ensuring secure and tamper-proof storage. The Smart Contract supports inserting these triples in various serialization formats including [RDF/XML](https://en.wikipedia.org/wiki/RDF/XML), [Turtle](https://www.w3.org/TR/turtle/), [N-Triples](https://www.w3.org/TR/n-triples/) and [N-Quads](https://www.w3.org/TR/n-quads/).\n\n**Removal of RDF Triples:**\nThis functionality enables the selective deletion of RDF triples from the on-chain store. Users can specify patterns or criteria that identify the triples to be removed, ensuring precise and targeted removal of data.\n\n**Querying of RDF Triples:**\nThe Smart Contract provides powerful on-chain querying capabilities, allowing users to retrieve specific RDF triples stored on the blockchain. This is done using a variation of [SPARQL](https://www.w3.org/TR/sparql11-query/), a specialized query language designed for retrieving and manipulating data stored in RDF format. Users can specify their search criteria in the query, and the Smart Contract will return the matching RDF triples, directly accessing the on-chain data. This feature supports various serialization formats for the output, such as Turtle, N-Triples, N-Quads, and RDF/XML, offering flexibility in how the retrieved data is presented and used.\n\n**Policies of the Store:**\nThe Smart Contract includes a straightforward yet effective policies functionality to manage the capacity and usage of the on-chain storage effectively. These policies ensure efficient operation and prevent misuse or overuse of the Smart Contract. For instance:\n\n- Maximum Triples: Caps the total number of RDF triples the store can hold, preventing database overload.\n- Storage Size Limit: Sets an upper bound on the store's data size in bytes, managing blockchain resource use.\n- Query Size Limit: Restricts the size or complexity of queries to maintain fast and reliable data retrieval.\n- Insert Data Limit: Limits the size of data (in bytes) that can be added in a single transaction, ensuring smooth and efficient data insertion.\n\n## Rationale\n\nThe data preserved in the blockchain holds significant value due to its derivation from a distributed consensus, rendering it a reliable source for decision-making, applicable to both on-chain and off-chain scenarios.\n\nTo effectively utilize this data, it's essential to adopt representation models that cater to diverse requirements. The Smart Contract Cognitarium provides such a model, facilitating the depiction of intricate and evolving semantic connections within a highly interconnected dataset. This approach transforms the data into a Knowledge Graph, enabling an accurate portrayal of existing facts and fostering the generation of new insights.\n\n## Play\n\n### Model your data with RDF\n\n[RDF](https://www.w3.org/RDF/) encodes information in triple structures. The basic structure of an RDF triple is `subject-predicate-object`, much like a simple sentence in the English language.\n\n1. **Subject**: The subject is the entity or resource the statement is about. It's typically a URI ([Uniform Resource Identifier](https://en.wikipedia.org/wiki/Uniform_Resource_Identifier)) which uniquely identifies a resource.\n2. **Predicate**: The predicate (also called a property) is a specific aspect, characteristic, attribute, or relation that describes the subject. It's also typically a URI.\n3. **Object**: The object is the value of the attribute defined by the predicate for the subject. It can be a URI or a literal (such as a string or a number) and may also include additional information such as a language tag or a datatype.\n\nIn RDF, **prefixes** are used as a shorthand notation for long URIs to make the data more readable and less verbose. They're similar to namespaces in programming languages. For instance, instead of writing `http://www.w3.org/2001/XMLSchema#integer`, you could declare a prefix `xsd` to represent the `http://www.w3.org/2001/XMLSchema#` URI and then use `xsd:integer`.\n\n[Turtle (Terse RDF Triple Language)](https://www.w3.org/TR/turtle/) is a syntax that allows RDF to be completely written in a compact and natural text form, with abbreviations for common usage patterns and datatypes.\n\nHere's an RDF triple written in Turtle format (`.ttl` file):\n\n```turtle\n@prefix ex: <http://example.com/stuff/1.0/> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\nex:Alice ex:hasAge \"30\"^^xsd:integer .\n```\n\nIn this example:\n\n- **`ex:Alice`** is the subject (using `ex` as a prefix for the `http://example.com/stuff/1.0/` URI).\n- **`ex:hasAge`** is the predicate.\n- **`\"30\"^^xsd:integer`** is the object, a literal of datatype integer (using **`xsd`** as a prefix for the XML Schema Datatype namespace).\n\nIn the Turtle syntax, the semicolon (**`;`**) is used as a shorthand to reduce verbosity when multiple predicates and objects have the same subject. It allows you to write multiple predicates and objects for the same subject without having to repeat the subject.\nThe comma (**`,`**) is used as a shorthand for reducing verbosity when the same subject and predicate have multiple objects.\n\nSuppose we want to express that Alice is 30 years old person, and her email is `alice@example.com`:\n\n```turtle\n@prefix ex: <http://example.com/stuff/1.0/> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n\nex:Alice a <http://www.w3.org/2002/07/owl#Person> ;\n         ex:hasAge \"30\"^^xsd:integer ;\n         ex:hasEmail \"alice@example.com\" .\n```\n\n:::tip\nThe lowercase \"a\" is a special abbreviation for the RDF type property, which states that a resource is an instance of a particular class. This is essentially equivalent to **`<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>`**, and it's used to indicate the type of a resource.\n:::\n\nThe same RDF triple can be expressed in RDF/XML format (`.rdf.xml` file):\n\n```xml\n<rdf:RDF xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n         xmlns:ex=\"http://example.com/stuff/1.0/\"\n         xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\">\n  <rdf:Description rdf:about=\"http://example.com/stuff/1.0/Alice\">\n    <rdf:type rdf:resource=\"http://www.w3.org/2002/07/owl#Person\"/>\n    <ex:hasAge rdf:datatype=\"http://www.w3.org/2001/XMLSchema#integer\">30</ex:hasAge>\n    <ex:hasEmail>alice@example.com</ex:hasEmail>    \n  </rdf:Description>\n</rdf:RDF>\n```\n\n### Instantiate the Smart Contract\n\nLet's initiate a new instance of Smart Contract and input some RDF triples into it. The `axone-cognitarium` can be set up in the following manner. Please consult the schema for additional details regarding configuration settings.\n\n```bash\naxoned tx wasm instantiate $CODE_ID \\\n    --from $ADDR \\\n    --label \"my-rdf-storage\" \\\n    --admin $ADMIN_ADDR \\\n    --gas 1000000 \\\n    '{}'\n```\n\n:::tip\nYou can provide some limitation parameters to restrict usage for both execute and query messages. For instance, you can set a maximum number of triples that can be stored in the smart contract, or a maximum size of data that can be inserted in a single transaction.\n\nThe default values are:\n\n```json\n{ \n  \"limits\": {\n\t\t  \"max_byte_size\": \"340282366920938463463374607431768211455\",\n\t\t  \"max_insert_data_byte_size\": \"340282366920938463463374607431768211455\",\n\t\t  \"max_insert_data_triple_count\": \"340282366920938463463374607431768211455\",\n\t\t  \"max_query_limit\": 30,\n\t\t  \"max_query_variable_count\": 30,\n\t\t  \"max_triple_byte_size\": \"340282366920938463463374607431768211455\",\n\t\t  \"max_triple_count\": \"340282366920938463463374607431768211455\"\n\t}\n}\n```\n\n:::\n\n### Insert RDF triples\n\nTo insert RDF triples, you need to send an `InsertData` message through the `cognitarium` smart contract you've already instantiated. For this operation, your inputs should include the data of the triples, encoded in [base64](https://en.wikipedia.org/wiki/Base64), as well as the format. The format options available are:\n\n- `turtle` (default)\n- `rdf_xml`\n- `n_triples`\n- `n_quads`\n\nLet's consider the following example of data in Turtle format, contained within a file named `data.ttl`. It describes a small network of people and their relationships, such as name, title, and whom they know.\n\n```turtle\n@prefix : <http://example.org/> .\n@prefix foaf: <http://xmlns.com/foaf/0.1/> .\n@prefix schema: <http://schema.org/> .\n\n:alice a foaf:Person ;\n  foaf:name \"Alice\" ;\n  foaf:knows :bob ;\n  schema:email \"alice@example.org\" .\n\n:bob a foaf:Person ;\n  foaf:name \"Bob\" ;\n  foaf:knows :alice, :carol ;\n  schema:jobTitle \"Software Developer\" .\n\n:carol a foaf:Person ;\n  foaf:name \"Carol\" ;\n  schema:jobTitle \"Data Scientist\" ;\n  foaf:knows :bob .\n```\n\nYou can insert this data into the `cognitarium` smart contract with the following command:\n\n```bash\naxoned tx wasm execute $CONTRACT_ADDR \\\n    --from axone1cu9wzlcyyxpek20jaqfwzu3llzjgx34cqf94yj \\\n    --gas 10000000 \\\n    \"{\\\"insert_data\\\":{\\\"format\\\": \\\"turtle\\\", \\\"data\\\": \\\"$(cat data.ttl | base64 | tr -d '\\n\\r')\\\"}}\"\n```\n\nWith the transaction hash we can query the number of triples inserted:\n\n```bash\naxoned query tx $TX_HASH -ojson | \n    jq -r '.events[] | select(.type == \"wasm\") | .attributes[] | select(.key == \"triple_count\") | .value'\n```\n\n### Query RDF triples\n\nNow that we've populated the axone-cognitarium with several triples, let's explore how to retrieve this data. We can utilize the Select query message for this purpose. If you're familiar with [SPARQL](https://www.w3.org/TR/rdf-sparql-query/), you'll find the process quite intuitive.\n\nA `select` query on a `cognitarium` instance enables you to fetch and filter the data. The `select.query` JSON should contain the following:\n\n- `prefixes` array: to declare a `prefix` and its related `namespace`\n- `limit`: the number of elements to return\n- `where`: filters and variable declarations\n- `select` array: all `variable` names you declared in `where` you want to get\n\n`where` should be an array of elements specifying triple filterings. You have to specify `subject`, `predicate` and `object` as a `variable`, or, alternatively, a `prefixed` or `full` `named_node`.\n\n`object` can also be a `simple` `literal`.\n\nThe following query will select all the triples `subject`, `predicate` and `object` from the store:\n\n```json\n{\n    \"select\": {\n        \"query\": {\n            \"prefixes\": [],\n            \"select\": [\n                {\n                    \"variable\": \"subject\"\n                },\n                {\n                    \"variable\": \"predicate\"\n                },\n                {\n                    \"variable\": \"object\"\n                }\n            ],\n            \"where\": [\n                {\n                    \"simple\": {\n                        \"triple_pattern\": {\n                            \"subject\": {\n                                \"variable\": \"subject\"\n                            },\n                            \"predicate\": {\n                                \"variable\": \"predicate\"\n                            },\n                            \"object\": {\n                                \"variable\": \"object\"\n                            }\n                        }\n                    }\n                }\n            ],\n            \"limit\": null\n        }\n    }\n}\n```\n\nIt's semantically equivalent to the following SPARQL query:\n\n```sparql\nSELECT ?subject ?predicate ?object\nWHERE {\n    ?subject ?predicate ?object\n}\n```\n\nThis query can be executed on the cognitarium smart contract using the command below:\n\n```bash\naxoned query wasm contract-state smart $CONTRACT_ADDR \\\n    '{\"select\":{\"query\":{\"prefixes\":[],\"select\":[{\"variable\":\"subject\"},{\"variable\":\"predicate\"},{\"variable\":\"object\"}],\"where\":[{\"simple\":{\"triple_pattern\":{\"subject\":{\"variable\":\"subject\"},\"predicate\":{\"variable\":\"predicate\"},\"object\":{\"variable\":\"object\"}}}}],\"limit\":null}}}'\n```\n\nNow, let's try something more interesting. Let's retrieve the names of people and their job titles, but only for those who know at least one other person in the network. This query introduces filtering based on relationships.\n\nHere's the query:\n\n```json\n{\n    \"select\": {\n        \"query\": {\n            \"prefixes\": [\n                { \"foaf\": \"http://xmlns.com/foaf/0.1/\" },\n                { \"schema\": \"http://schema.org/\" }\n            ],\n            \"select\": [\n                {\n                    \"variable\": \"personName\"\n                },\n                {\n                    \"variable\": \"jobTitle\"\n                }\n            ],\n            \"where\": [\n                {\n                    \"simple\": {\n                        \"triple_pattern\": {\n                            \"subject\": {\n                                \"variable\": \"person\"\n                            },\n                            \"predicate\": {\n                              \"node\": {\n                                \"named_node\": {\n                                  \"full\": \"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\"\n                                }\n                              }\n                            },\n                            \"object\": {\n                                \"node\": {\n                                    \"named_node\": {\n                                        \"prefixed\": \"foaf:Person\"\n                                    }\n                                }\n                            }\n                        }\n                    }\n                },\n                {\n                    \"simple\": {\n                        \"triple_pattern\": {\n                            \"subject\": {\n                                \"variable\": \"person\"\n                            },\n                            \"predicate\": {\n                                \"node\": {\n                                    \"named_node\": {\n                                        \"prefixed\": \"foaf:Name\"\n                                    }\n                                }\n                            },\n                            \"object\": {\n                                \"variable\": \"personName\"\n                            }\n                        }\n                    }\n                },\n                {\n                    \"simple\": {\n                        \"triple_pattern\": {\n                            \"subject\": {\n                                \"variable\": \"person\"\n                            },\n                            \"predicate\": {\n                                \"node\": {\n                                    \"named_node\": {\n                                        \"prefixed\": \"schema:jobTitle\"\n                                    }\n                                }\n                            },\n                            \"object\": {\n                                \"variable\": \"jobTitle\"\n                            }\n                        }\n                    }\n                },\n                {\n                    \"simple\": {\n                        \"triple_pattern\": {\n                            \"subject\": {\n                                \"variable\": \"person\"\n                            },\n                            \"predicate\": {\n                                \"node\": {\n                                    \"named_node\": {\n                                        \"prefixed\": \"foaf:knows\"\n                                    }\n                                }\n                            },\n                            \"object\": {\n                                \"variable\": \"knownPerson\"\n                            }\n                        }\n                    }\n                }\n            ],\n            \"limit\": null\n        }\n    }\n}\n```\n\nIt's semantically equivalent to the following SPARQL query:\n\n```sparql\nPREFIX foaf: <http://xmlns.com/foaf/0.1/>\nPREFIX schema: <http://schema.org/>\n\nSELECT ?personName ?jobTitle\nWHERE {\n  ?person a foaf:Person .\n  ?person foaf:name ?personName .\n  ?person schema:jobTitle ?jobTitle .\n  ?person foaf:knows ?knownPerson .\n}\n```\n\nThis query can be executed on the cognitarium smart contract using the command below:\n\n```bash\naxoned query wasm contract-state smart $CONTRACT_ADDR \\\n    '{\"select\":{\"query\":{\"prefixes\":[{\"foaf\":\"http://xmlns.com/foaf/0.1/\"},{\"schema\":\"http://schema.org/\"}],\"select\":[{\"variable\":\"personName\"},{\"variable\":\"jobTitle\"}],\"where\":[{\"simple\":{\"triple_pattern\":{\"subject\":{\"variable\":\"person\"},\"predicate\":{\"node\":{\"named_node\":{\"full\":\"http://www.w3.org/1999/02/22-rdf-syntax-ns#type\"}}},\"object\":{\"node\":{\"named_node\":{\"prefixed\":\"foaf:Person\"}}}}}},{\"simple\":{\"triple_pattern\":{\"subject\":{\"variable\":\"person\"},\"predicate\":{\"node\":{\"named_node\":{\"prefixed\":\"foaf:Name\"}}},\"object\":{\"variable\":\"personName\"}}}},{\"simple\":{\"triple_pattern\":{\"subject\":{\"variable\":\"person\"},\"predicate\":{\"node\":{\"named_node\":{\"prefixed\":\"schema:jobTitle\"}}},\"object\":{\"variable\":\"jobTitle\"}}}},{\"simple\":{\"triple_pattern\":{\"subject\":{\"variable\":\"person\"},\"predicate\":{\"node\":{\"named_node\":{\"prefixed\":\"foaf:knows\"}}},\"object\":{\"variable\":\"knownPerson\"}}}}],\"limit\":null}}}'\n```",
   "title": "axone-cognitarium"
 }

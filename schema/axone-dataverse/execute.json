@@ -5,7 +5,7 @@
   "oneOf": [
     {
       "title": "SubmitClaims",
-      "description": "Submits new claims about a resource to the dataverse.\n\nThe SubmitClaims message is a pivotal component in the dataverse, enabling entities to contribute new claims about various resources. A claim represents a statement made by an entity, referred to as the issuer, which could be a person, organization, or service. These claims pertain to a diverse range of resources, including digital resources, services, zones, or individuals, and are asserted as factual by the issuer.\n\n#### Format\n\nClaims are injected into the dataverse through Verifiable Credentials (VCs).\n\nPrimarily, the claims leverage the AXONE ontology, which facilitates articulating assertions about widely acknowledged resources in the dataverse, including digital services, digital resources, zones, governance, and more.\n\nAdditionally, other schemas may also be employed to supplement and enhance the validated knowledge contributed to these resources.\n\n#### Preconditions\n\nTo maintain integrity and coherence in the dataverse, several preconditions are set for the submission of claims:\n\n1. **Format Requirement**: Claims must be encapsulated within Verifiable Credentials (VCs).\n\n2. **Unique Identifier Mandate**: Each Verifiable Credential within the dataverse must possess a unique identifier.\n\n3. **Issuer Signature**: Claims must bear the issuer's signature. This signature must be verifiable, ensuring authenticity and credibility.\n\n4. **Content**: The actual implementation supports the submission of a single Verifiable Credential, containing a single claim.\n\n#### Supported cryptographic proofs\n\n- `Ed25519Signature2018`\n\n- `Ed25519Signature2020`\n\n- `EcdsaSecp256k1Signature2019`\n\n- `DataIntegrity` with the following cryptosuites: `eddsa-2022`, `eddsa-rdfc-2022`.",
+      "description": "Submits new claims about a resource to the dataverse.\n\nThe SubmitClaims message is a pivotal component in the dataverse, enabling entities to contribute new claims about various resources. A claim represents a statement made by an entity, referred to as the issuer, which could be a person, organization, or service. These claims pertain to a diverse range of resources, including digital resources, services, zones, or individuals, and are asserted as factual by the issuer.\n\n#### Format\n\nClaims are injected into the dataverse through Verifiable Credentials (VCs).\n\nPrimarily, the claims leverage the AXONE ontology, which facilitates articulating assertions about widely acknowledged resources in the dataverse, including digital services, digital resources, zones, governance, and more.\n\nAdditionally, other schemas may also be employed to supplement and enhance the validated knowledge contributed to these resources.\n\n#### Preconditions\n\nTo maintain integrity and coherence in the dataverse, several preconditions are set for the submission of claims:\n\n1. **Format Requirement**: Claims must be encapsulated within Verifiable Credentials (VCs).\n\n2. **Unique Identifier Mandate**: Each Verifiable Credential within the dataverse must possess a unique identifier.\n\n3. **Issuer Verification**: Claims are accepted if they either: - Bear a verifiable issuer's signature to ensure authenticity. - Originate from the transaction sender, in which case the transaction signature serves as proof of authenticity.\n\n4. **Content**: The actual implementation supports the submission of a single Verifiable Credential, containing a single claim.\n\n#### Supported cryptographic proofs\n\n- `Ed25519Signature2018`\n\n- `Ed25519Signature2020`\n\n- `EcdsaSecp256k1Signature2019`\n\n- `DataIntegrity` with the following cryptosuites: `eddsa-2022`, `eddsa-rdfc-2022`.",
       "type": "object",
       "required": [
         "submit_claims"
@@ -14,25 +14,25 @@
         "submit_claims": {
           "type": "object",
           "required": [
-            "metadata"
+            "claims"
           ],
           "properties": {
+            "claims": {
+              "description": "The Verifiable Credential containing the claims. The claims must be serialized in the format specified by the `format` field.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Binary"
+                }
+              ]
+            },
             "format": {
-              "description": "RDF dataset serialization format for the metadata. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format.",
+              "description": "RDF dataset serialization format for the claims. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format.",
               "anyOf": [
                 {
                   "$ref": "#/definitions/RdfDatasetFormat"
                 },
                 {
                   "type": "null"
-                }
-              ]
-            },
-            "metadata": {
-              "description": "The serialized metadata intended for attachment. This metadata should adhere to the format specified in the `format` field.",
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Binary"
                 }
               ]
             }
@@ -44,7 +44,7 @@
     },
     {
       "title": "RevokeClaims",
-      "description": "Revoke or withdraw a previously submitted claims.\n\n#### Preconditions:\n\n1. **Identifier Existance**: The identifier of the claims must exist in the dataverse.",
+      "description": "Revoke or withdraw a previously submitted claims.\n\n#### Preconditions:\n\n1. **Identifier Existence**: The identifier of the claims must exist in the dataverse.",
       "type": "object",
       "required": [
         "revoke_claims"

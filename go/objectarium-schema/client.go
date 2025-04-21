@@ -13,16 +13,16 @@ import (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type QueryClient interface {
+	// Objects is the client API for the QueryMsg_Objects query message
+	Objects(ctx context.Context, req *QueryMsg_Objects, opts ...grpc.CallOption) (*ObjectsResponse, error)
+	// Bucket is the client API for the QueryMsg_Bucket query message
+	Bucket(ctx context.Context, req *QueryMsg_Bucket, opts ...grpc.CallOption) (*BucketResponse, error)
 	// Object is the client API for the QueryMsg_Object query message
 	Object(ctx context.Context, req *QueryMsg_Object, opts ...grpc.CallOption) (*ObjectResponse, error)
 	// ObjectData is the client API for the QueryMsg_ObjectData query message
 	ObjectData(ctx context.Context, req *QueryMsg_ObjectData, opts ...grpc.CallOption) (*string, error)
 	// ObjectPins is the client API for the QueryMsg_ObjectPins query message
 	ObjectPins(ctx context.Context, req *QueryMsg_ObjectPins, opts ...grpc.CallOption) (*ObjectPinsResponse, error)
-	// Objects is the client API for the QueryMsg_Objects query message
-	Objects(ctx context.Context, req *QueryMsg_Objects, opts ...grpc.CallOption) (*ObjectsResponse, error)
-	// Bucket is the client API for the QueryMsg_Bucket query message
-	Bucket(ctx context.Context, req *QueryMsg_Bucket, opts ...grpc.CallOption) (*BucketResponse, error)
 }
 
 type queryClient struct {
@@ -67,25 +67,6 @@ func (q *queryClient) queryContract(ctx context.Context, rawQueryData []byte, op
 		return nil, err
 	}
 	return out.Data, nil
-}
-
-func (q *queryClient) Bucket(ctx context.Context, req *QueryMsg_Bucket, opts ...grpc.CallOption) (*BucketResponse, error) {
-	rawQueryData, err := json.Marshal(map[string]any{"bucket": req})
-	if err != nil {
-		return nil, err
-	}
-
-	rawResponseData, err := q.queryContract(ctx, rawQueryData, opts...)
-	if err != nil {
-		return nil, err
-	}
-
-	var response BucketResponse
-	if err := json.Unmarshal(rawResponseData, &response); err != nil {
-		return nil, err
-	}
-
-	return &response, nil
 }
 
 func (q *queryClient) Object(ctx context.Context, req *QueryMsg_Object, opts ...grpc.CallOption) (*ObjectResponse, error) {
@@ -157,6 +138,25 @@ func (q *queryClient) Objects(ctx context.Context, req *QueryMsg_Objects, opts .
 	}
 
 	var response ObjectsResponse
+	if err := json.Unmarshal(rawResponseData, &response); err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+func (q *queryClient) Bucket(ctx context.Context, req *QueryMsg_Bucket, opts ...grpc.CallOption) (*BucketResponse, error) {
+	rawQueryData, err := json.Marshal(map[string]any{"bucket": req})
+	if err != nil {
+		return nil, err
+	}
+
+	rawResponseData, err := q.queryContract(ctx, rawQueryData, opts...)
+	if err != nil {
+		return nil, err
+	}
+
+	var response BucketResponse
 	if err := json.Unmarshal(rawResponseData, &response); err != nil {
 		return nil, err
 	}

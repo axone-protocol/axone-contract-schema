@@ -56,7 +56,7 @@ DIDs play a crucial role in the Dataverse by facilitating a trustable and intero
 
 Claims in the Dataverse context are assertions or statements made about a Resource identified by a DID.
 
-Claims play a pivotal role in the governance framework of the Dataverse. By leveraging knowledge derived from verifiable credentials, the governances established by Zones can evaluate the fulfilment of specific rules and compliance. This evaluation is critical in ensuring that the resources within the Dataverse adhere to the established norms, policies, and requirements.
+Claims play a pivotal role in the governance framework of the Dataverse. By leveraging knowledge derived from verifiable credentials, the governances established by Zones can evaluate the fulfillment of specific rules and compliance. This evaluation is critical in ensuring that the resources within the Dataverse adhere to the established norms, policies, and requirements.
 
 Claims are submitted in the form of [Verifiable Presentations (VPs)](https://www.w3.org/TR/vc-data-model/#presentations), which are aggregations of one or more [Verifiable Credentials (VCs)](https://www.w3.org/TR/vc-data-model/#what-is-a-verifiable-credential).
 
@@ -103,7 +103,7 @@ To maintain integrity and coherence in the dataverse, several preconditions are 
 
 2. **Unique Identifier Mandate**: Each Verifiable Credential within the dataverse must possess a unique identifier.
 
-3. **Issuer Signature**: Claims must bear the issuer's signature. This signature must be verifiable, ensuring authenticity and credibility.
+3. **Issuer Verification**: Claims are accepted if they either: - Bear a verifiable issuer's signature to ensure authenticity. - Originate from the transaction sender, in which case the transaction signature serves as proof of authenticity.
 
 4. **Content**: The actual implementation supports the submission of a single Verifiable Credential, containing a single claim.
 
@@ -117,11 +117,11 @@ To maintain integrity and coherence in the dataverse, several preconditions are 
 
 - `DataIntegrity` with the following cryptosuites: `eddsa-2022`, `eddsa-rdfc-2022`.
 
-| parameter                | description                                                                                                                                                                                  |
-| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `submit_claims`          | _(Required.) _ **object**.                                                                                                                                                                   |
-| `submit_claims.format`   | **[RdfDatasetFormat](#rdfdatasetformat)\|null**. RDF dataset serialization format for the metadata. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format. |
-| `submit_claims.metadata` | _(Required.) _ **[Binary](#binary)**. The serialized metadata intended for attachment. This metadata should adhere to the format specified in the `format` field.                            |
+| parameter              | description                                                                                                                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `submit_claims`        | _(Required.) _ **object**.                                                                                                                                                                 |
+| `submit_claims.claims` | _(Required.) _ **[Binary](#binary)**. The Verifiable Credential containing the claims. The claims must be serialized in the format specified by the `format` field.                        |
+| `submit_claims.format` | **[RdfDatasetFormat](#rdfdatasetformat)\|null**. RDF dataset serialization format for the claims. If not provided, the default format is [N-Quads](https://www.w3.org/TR/n-quads/) format. |
 
 ### ExecuteMsg::RevokeClaims
 
@@ -129,7 +129,7 @@ Revoke or withdraw a previously submitted claims.
 
 #### Preconditions:
 
-1. **Identifier Existance**: The identifier of the claims must exist in the dataverse.
+1. **Identifier Existence**: The identifier of the claims must exist in the dataverse.
 
 | parameter                  | description                                                                   |
 | -------------------------- | ----------------------------------------------------------------------------- |
@@ -259,7 +259,7 @@ let b = Uint64::from(70u32); assert_eq!(b.u64(), 70); ```
 
 ---
 
-*Rendered by [Fadroma](https://fadroma.tech) ([@fadroma/schema 1.1.0](https://www.npmjs.com/package/@fadroma/schema)) from `axone-dataverse.json` (`70aa81be19dd58f9`)*
+*Rendered by [Fadroma](https://fadroma.tech) ([@fadroma/schema 1.1.0](https://www.npmjs.com/package/@fadroma/schema)) from `axone-dataverse.json` (`e3b26772811bfe51`)*
 ````
 
 

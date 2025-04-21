@@ -34,6 +34,7 @@
       ]
     }
   },
+  "additionalProperties": false,
   "definitions": {
     "Answer": {
       "type": "object",
@@ -58,7 +59,8 @@
             "type": "string"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "Result": {
       "type": "object",
@@ -78,7 +80,8 @@
             "$ref": "#/definitions/Substitution"
           }
         }
-      }
+      },
+      "additionalProperties": false
     },
     "Substitution": {
       "type": "object",
@@ -93,7 +96,8 @@
         "variable": {
           "type": "string"
         }
-      }
+      },
+      "additionalProperties": false
     }
   }
 }

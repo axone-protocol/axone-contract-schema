@@ -41,15 +41,18 @@ type QueryMsg struct {
 	ProgramCode *QueryMsg_ProgramCode `json:"program_code,omitempty"`
 }
 
+type ExecuteMsg_BreakStone struct{}
+
+type QueryMsg_Ask struct {
+	Query string `json:"query"`
+}
+
+type QueryMsg_Program struct{}
+
 type Answer struct {
 	HasMore bool `json:"has_more"`
 	Results []Result `json:"results"`
 	Variables []string `json:"variables"`
-}
-
-type Result struct {
-	Error *string `json:"error,omitempty"`
-	Substitutions []Substitution `json:"substitutions"`
 }
 
 type AskResponse struct {
@@ -59,6 +62,14 @@ type AskResponse struct {
 	UserOutput *string `json:"user_output,omitempty"`
 }
 
+// ProgramResponse carry elements to locate the program in a `axone-objectarium` contract.
+type ProgramResponse struct {
+	// The program object id in the `axone-objectarium` contract.
+	ObjectId string `json:"object_id"`
+	// The `axone-objectarium` contract address on which the law program is stored.
+	StorageAddress string `json:"storage_address"`
+}
+
 /*
 Binary is a wrapper around Vec<u8> to add base64 de/serialization with serde. It also adds some helper methods to help encode inline.
 
@@ -66,25 +77,14 @@ This is only needed as serde-json-{core,wasm} has a horrible encoding for Vec<u8
 */
 type Binary string
 
-type ExecuteMsg_BreakStone struct{}
-
-type QueryMsg_Ask struct {
-	Query string `json:"query"`
-}
-
-type QueryMsg_Program struct{}
-
 type QueryMsg_ProgramCode struct{}
 
-type Substitution struct {
-	Variable string `json:"variable"`
-	Expression string `json:"expression"`
+type Result struct {
+	Error *string `json:"error,omitempty"`
+	Substitutions []Substitution `json:"substitutions"`
 }
 
-// ProgramResponse carry elements to locate the program in a `axone-objectarium` contract.
-type ProgramResponse struct {
-	// The program object id in the `axone-objectarium` contract.
-	ObjectId string `json:"object_id"`
-	// The `axone-objectarium` contract address on which the law program is stored.
-	StorageAddress string `json:"storage_address"`
+type Substitution struct {
+	Expression string `json:"expression"`
+	Variable string `json:"variable"`
 }
