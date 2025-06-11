@@ -1,10 +1,11 @@
 module github.com/axone-protocol/axone-contract-schema/go/objectarium-schema/v6
 
-go 1.22
+go 1.23.0
+
 toolchain go1.24.1
 
 require (
-	github.com/CosmWasm/wasmd v0.53.2
+	github.com/CosmWasm/wasmd v0.53.3
 	google.golang.org/grpc v1.70.0
 )
 
