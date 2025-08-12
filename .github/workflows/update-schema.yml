@@ -26,7 +26,7 @@ jobs:
           fi
 
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.OPS_TOKEN }}
           fetch-depth: 2
@@ -86,7 +86,7 @@ jobs:
     outputs:
       schema: ${{ steps.set-matrix.outputs.schema }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - id: set-matrix
         run: echo "::set-output name=schema::$(ls schema/ | jq -R -s -c 'split("\n")[:-1] | map(select(test(".json$") | not))')"
 
@@ -139,7 +139,7 @@ jobs:
     needs: build-target
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.OPS_TOKEN }}
           fetch-depth: 2
