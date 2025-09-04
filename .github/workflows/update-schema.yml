@@ -106,7 +106,7 @@ jobs:
           path: ./
 
       - name: Setup node environment (for building)
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 18.12.0
 
